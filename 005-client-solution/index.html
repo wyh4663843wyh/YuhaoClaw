@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>005｜客户需求→方案快速转化模板</title>
+  <style>
+:root {
+  --paper: #fbf8f3; --ink: #2a2622; --ink-soft: #5b514a; --ink-mute: #8a8177;
+  --line: #e3dccf; --accent: #a8302d; --accent-soft: #f4e9d6;
+  --green: #3f7a54; --green-soft: #e6f0e8; --gold: #a9822c; --gold-soft: #f5ecd6;
+  --code-bg: #efe9dd; --quote-bg: #f6f1e6;
+  --shadow: 0 1px 2px rgba(60, 50, 40, .06), 0 6px 24px -8px rgba(60, 50, 40, .08);
+  --serif: "Noto Serif SC", "Source Han Serif SC", "Songti SC", "STSong", serif;
+  --sans: "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif;
+  --mono: "JetBrains Mono", "Cascadia Code", Consolas, monospace;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { background: var(--paper); color: var(--ink); font-family: var(--serif); line-height: 1.7; font-size: 16px; }
+body { max-width: 980px; margin: 0 auto; padding: 48px 36px 80px; }
+@media (max-width: 720px) { body { padding: 28px 16px 64px; font-size: 15px; } }
+.hero { text-align: center; padding: 18px 0 32px; border-bottom: 1px solid var(--line); margin-bottom: 36px; }
+.hero .badge { display: inline-block; font-family: var(--sans); font-size: 12px; letter-spacing: 0.18em; padding: 4px 14px; background: var(--accent-soft); color: var(--accent); border-radius: 999px; margin-bottom: 14px; }
+.hero h1 { font-size: 38px; font-weight: 600; letter-spacing: 0.04em; margin-bottom: 10px; }
+.hero .sub { font-family: var(--sans); color: var(--ink-soft); font-size: 14px; letter-spacing: 0.08em; }
+.toc { background: #fff; border: 1px solid var(--line); border-radius: 8px; padding: 18px 22px; margin: 24px 0 36px; box-shadow: var(--shadow); }
+.toc h2 { font-size: 16px; font-family: var(--sans); letter-spacing: 0.12em; color: var(--accent); margin-bottom: 12px; }
+.toc ul { list-style: none; padding: 0; }
+.toc li { padding: 4px 0; font-family: var(--sans); font-size: 14px; }
+.toc a { color: var(--ink); text-decoration: none; }
+.toc a:hover { color: var(--accent); }
+h1 { font-size: 32px; margin: 40px 0 14px; padding-bottom: 6px; border-bottom: 2px solid var(--accent); }
+h2 { font-size: 24px; margin: 30px 0 10px; color: var(--accent); font-weight: 600; padding-bottom: 4px; border-bottom: 1px dashed var(--line); }
+h3 { font-size: 19px; margin: 22px 0 8px; color: var(--ink); font-weight: 600; }
+h4 { font-size: 16px; margin: 18px 0 6px; color: var(--ink-soft); font-weight: 600; font-family: var(--sans); }
+p { margin: 9px 0; }
+strong { color: var(--accent); font-weight: 600; }
+a { color: var(--accent); text-decoration: none; border-bottom: 1px solid var(--accent-soft); }
+blockquote { background: var(--quote-bg); border-left: 3px solid var(--accent); padding: 12px 18px; margin: 12px 0; color: var(--ink-soft); border-radius: 0 4px 4px 0; }
+code { font-family: var(--mono); font-size: 13px; background: var(--code-bg); padding: 2px 6px; border-radius: 3px; color: #6b4f3c; }
+pre { background: #2a2622; color: #f0e8d8; padding: 14px 18px; border-radius: 6px; overflow-x: auto; margin: 12px 0; font-size: 13px; line-height: 1.55; }
+pre code { background: transparent; color: inherit; padding: 0; font-size: 13px; }
+table { width: 100%; border-collapse: collapse; margin: 12px 0; font-family: var(--sans); font-size: 14px; background: #fff; box-shadow: var(--shadow); border-radius: 4px; overflow: hidden; }
+th { background: var(--accent-soft); color: var(--accent); padding: 10px 14px; text-align: left; font-weight: 600; letter-spacing: 0.04em; }
+td { padding: 10px 14px; border-top: 1px solid var(--line); vertical-align: top; }
+tr:hover td { background: #fcf9f4; }
+ul, ol { padding-left: 24px; margin: 8px 0; }
+li { margin: 3px 0; }
+li::marker { color: var(--accent); }
+.step-card { background: #fff; border: 1px solid var(--line); border-radius: 10px; padding: 18px 22px; margin: 16px 0; box-shadow: var(--shadow); }
+.step-card .num { font-family: var(--sans); font-size: 13px; color: var(--accent); letter-spacing: 0.1em; margin-bottom: 6px; }
+.step-card .title { font-size: 18px; font-weight: 600; color: var(--ink); margin-bottom: 8px; }
+.step-card .desc { font-family: var(--sans); font-size: 14px; color: var(--ink-soft); line-height: 1.6; }
+.foot { margin-top: 64px; padding-top: 20px; border-top: 1px solid var(--line); font-family: var(--sans); font-size: 12px; color: var(--ink-mute); text-align: center; letter-spacing: 0.06em; }
+</style>
+</head>
+<body>
+<div class="hero">
+  <span class="badge">SOP · 005</span>
+  <h1>005｜客户需求→方案快速转化模板</h1>
+  <div class="sub">TaskContract 四要素对齐客户方案</div>
+</div>
+<h2>一句话价值</h2>
+<p>把 Task Contract 七要素套进「客户需求→方案输出」场景，让 AI 一次给出接近终稿的方案框架，减少反复修改。</p>
+
+<h2>解决的问题</h2>
+<p>接到客户需求后，方案方向容易跑偏；给客户的版本来回改，核心卖点越改越乱，效率低。</p>
+
+<h2>实现原理</h2>
+<p>Task Contract 的「目标 / 成功标准 / 失败条件 / 边界条件」四要素，正好对应方案撰写的「客户要什么 / 怎样算合格 / 绝对不能出现 / 格式和边界」四个硬约束。</p>
+
+<h2>准备条件</h2>
+<ul><li>客户原始需求（邮件 / 微信 / 会议纪要）</li></ul>
+<ul><li>明确方案类型（活动策划 / 文旅方案 / 培训大纲 / 营销策略）</li></ul>
+<ul><li>确定交付格式（PPT / Word / 在线文档）</li></ul>
+
+<h2>操作步骤</h2>
+
+<h3>第一步：提炼「目标」</h3>
+<p>用一句话写清：客户是谁、要解决什么问题、交付物是什么。</p>
+
+<h3>第二步：写「成功标准」</h3>
+<p>列出方案必须包含的模块，例如：</p>
+<ul><li>背景与痛点分析</li></ul>
+<ul><li>具体执行步骤</li></ul>
+<ul><li>时间节点与分工</li></ul>
+<ul><li>预算区间</li></ul>
+<ul><li>预期效果</li></ul>
+
+<h3>第三步：写「失败条件」</h3>
+<p>列出客户不能接受的内容，例如：</p>
+<ul><li>没有具体时间节点</li></ul>
+<ul><li>预算超出客户预期区间</li></ul>
+<ul><li>出现未经确认的合作方名称</li></ul>
+<ul><li>格式不符合客户要求</li></ul>
+
+<h3>第四步：写「边界条件」</h3>
+<p>补充方案边界，例如：</p>
+<ul><li>不超过 [X] 页</li></ul>
+<ul><li>必须包含 [Y] 个案例</li></ul>
+<ul><li>不要出现 [Z] 类内容</li></ul>
+<ul><li>语气 [正式 / 轻松 / 紧迫]</li></ul>
+
+<h3>第五步：写「探索方向」和「审查机制」</h3>
+<p>告诉 AI 可以先给 2~3 个版本方向；自己过三问：客户能看懂吗？能直接执行吗？有没有漏掉关键约束？</p>
+
+<h2>最终达成</h2>
+<p>一次 prompt 输出的方案框架，通过 Task Contract 四要素对齐后，内容更贴合客户需求，返工次数明显减少。</p>
+<div class="foot">005｜客户需求→方案快速转化模板 · SOP · 005 · 2026-07</div>
+</body>
+</html>

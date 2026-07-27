@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>小红书内容生产半自动 SOP</title>
+  <style>
+    :root {
+      --paper: #fbf8f3;
+      --ink: #2a2622;
+      --ink-soft: #5b514a;
+      --ink-mute: #8a8177;
+      --line: #e3dccf;
+      --accent: #a8302d;
+      --accent-soft: #f4e9d6;
+      --green: #3f7a54;
+      --green-soft: #e6f0e8;
+      --gold: #a9822c;
+      --gold-soft: #f5ecd6;
+      --code-bg: #efe9dd;
+      --quote-bg: #f6f1e6;
+      --shadow: 0 1px 2px rgba(60, 50, 40, .06), 0 6px 24px -8px rgba(60, 50, 40, .08);
+      --serif: "Noto Serif SC", "Source Han Serif SC", "Songti SC", "STSong", serif;
+      --sans: "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif;
+      --mono: "JetBrains Mono", "Cascadia Code", Consolas, monospace;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { background: var(--paper); color: var(--ink); font-family: var(--serif); line-height: 1.7; font-size: 16px; }
+    body { max-width: 980px; margin: 0 auto; padding: 48px 36px 80px; }
+    @media (max-width: 720px) { body { padding: 28px 16px 64px; font-size: 15px; } }
+
+    .hero { text-align: center; padding: 18px 0 32px; border-bottom: 1px solid var(--line); margin-bottom: 36px; }
+    .hero .badge { display: inline-block; font-family: var(--sans); font-size: 12px; letter-spacing: 0.18em; padding: 4px 14px; background: var(--accent-soft); color: var(--accent); border-radius: 999px; margin-bottom: 14px; }
+    .hero h1 { font-size: 38px; font-weight: 600; letter-spacing: 0.04em; margin-bottom: 10px; }
+    .hero .sub { font-family: var(--sans); color: var(--ink-soft); font-size: 14px; letter-spacing: 0.08em; }
+
+    .toc { background: #fff; border: 1px solid var(--line); border-radius: 8px; padding: 18px 22px; margin: 24px 0 36px; box-shadow: var(--shadow); }
+    .toc h2 { font-size: 16px; font-family: var(--sans); letter-spacing: 0.12em; color: var(--accent); margin-bottom: 12px; }
+    .toc ul { list-style: none; padding: 0; }
+    .toc li { padding: 4px 0; font-family: var(--sans); font-size: 14px; }
+    .toc a { color: var(--ink); text-decoration: none; }
+    .toc a:hover { color: var(--accent); }
+    .toc .l2 { padding-left: 18px; color: var(--ink-soft); font-size: 13px; }
+
+    h1 { font-size: 32px; margin: 40px 0 14px; padding-bottom: 6px; border-bottom: 2px solid var(--accent); }
+    h2 { font-size: 24px; margin: 30px 0 10px; color: var(--accent); font-weight: 600; padding-bottom: 4px; border-bottom: 1px dashed var(--line); }
+    h3 { font-size: 19px; margin: 22px 0 8px; color: var(--ink); font-weight: 600; }
+    h4 { font-size: 16px; margin: 18px 0 6px; color: var(--ink-soft); font-weight: 600; font-family: var(--sans); letter-spacing: 0.04em; }
+
+    p { margin: 9px 0; }
+    strong { color: var(--accent); font-weight: 600; }
+    em { color: var(--ink-soft); }
+    a { color: var(--accent); text-decoration: none; border-bottom: 1px solid var(--accent-soft); }
+    a:hover { border-bottom-color: var(--accent); }
+
+    ul, ol { padding-left: 24px; margin: 8px 0; }
+    li { margin: 3px 0; }
+    li::marker { color: var(--accent); }
+
+    blockquote { background: var(--quote-bg); border-left: 3px solid var(--accent); padding: 12px 18px; margin: 12px 0; color: var(--ink-soft); border-radius: 0 4px 4px 0; }
+
+    code { font-family: var(--mono); font-size: 13px; background: var(--code-bg); padding: 2px 6px; border-radius: 3px; color: #6b4f3c; }
+    pre { background: #2a2622; color: #f0e8d8; padding: 14px 18px; border-radius: 6px; overflow-x: auto; margin: 12px 0; font-size: 13px; line-height: 1.55; }
+    pre code { background: transparent; color: inherit; padding: 0; font-size: 13px; }
+
+    table { width: 100%; border-collapse: collapse; margin: 12px 0; font-family: var(--sans); font-size: 14px; background: #fff; box-shadow: var(--shadow); border-radius: 4px; overflow: hidden; }
+    th { background: var(--accent-soft); color: var(--accent); padding: 10px 14px; text-align: left; font-weight: 600; letter-spacing: 0.04em; }
+    td { padding: 10px 14px; border-top: 1px solid var(--line); vertical-align: top; }
+    tr:hover td { background: #fcf9f4; }
+
+    .step-card { background: #fff; border: 1px solid var(--line); border-radius: 10px; padding: 18px 22px; margin: 16px 0; box-shadow: var(--shadow); }
+    .step-card .num { font-family: var(--sans); font-size: 13px; color: var(--accent); letter-spacing: 0.1em; margin-bottom: 6px; }
+    .step-card .title { font-size: 18px; font-weight: 600; color: var(--ink); margin-bottom: 8px; }
+    .step-card .desc { font-family: var(--sans); font-size: 14px; color: var(--ink-soft); line-height: 1.6; }
+
+    .lead { font-family: var(--sans); font-size: 15px; color: var(--ink-soft); background: var(--quote-bg); border-radius: 8px; padding: 16px 20px; margin: 16px 0; line-height: 1.7; }
+
+    .foot { margin-top: 64px; padding-top: 20px; border-top: 1px solid var(--line); font-family: var(--sans); font-size: 12px; color: var(--ink-mute); text-align: center; letter-spacing: 0.06em; }
+  </style>
+</head>
+<body>
+
+<div class="hero">
+  <span class="badge">SOP · 008</span>
+  <h1>小红书内容生产半自动 SOP</h1>
+  <div class="sub">WorkBuddy 文案 + baoyu 配图 + 人工审稿 + 手动发布</div>
+</div>
+
+<div class="toc"><h2>目 录</h2>
+  <ul>
+    <li class="l1"><a href="#一句话价值">一句话价值</a></li>
+    <li class="l1"><a href="#解决的问题">解决的问题</a></li>
+    <li class="l1"><a href="#实现原理">实现原理</a></li>
+    <li class="l1"><a href="#准备条件">准备条件</a></li>
+    <li class="l1"><a href="#操作步骤">操作步骤</a></li>
+    <li class="l1"><a href="#写作规范">写作规范</a></li>
+    <li class="l1"><a href="#发布包结构">发布包结构</a></li>
+    <li class="l1"><a href="#最终达成">最终达成</a></li>
+  </ul>
+</div>
+
+<h2 id="一句话价值">一句话价值</h2>
+<p>把「选题 → 文案 → 配图 → 发布包 → 审稿 → 发布」整条链路标准化，用 WorkBuddy + baoyu 系列 skill 半自动产出小红书内容，每天 20 分钟维持 4 篇更新节奏。</p>
+
+<h2 id="解决的问题">解决的问题</h2>
+<p>小红书运营靠人工每天 5-8 篇笔记，铺不起量；内容质量不稳定，发布流程 scattered，没有标准化 SOP 可复制。</p>
+
+<h2 id="实现原理">实现原理</h2>
+<p>用 WorkBuddy 做选题和文案起草，用 baoyu 系列 skill（baoyu-xhs-images / baoyu-cover-image / baoyu-infographic）批量出图，最终整理成可直接复制粘贴的发布包，人工只需审稿和点击发布。</p>
+
+<h2 id="准备条件">准备条件</h2>
+<ul>
+  <li>WorkBuddy 中已配置小红书文案 prompt 模板</li>
+  <li>baoyu 系列 skill 已安装（baoyu-xhs-images / baoyu-cover-image / baoyu-infographic）</li>
+  <li>明确内容定位（主号 / 副号 / 人设号）</li>
+  <li>确定发布节奏（建议每周 4 篇，周一/三/五/日晚 21:00）</li>
+</ul>
+
+<hr>
+
+<h2 id="操作步骤">操作步骤</h2>
+
+<div class="step-card">
+  <div class="num">第 1 步</div>
+  <div class="title">选题池管理</div>
+  <div class="desc">周日晚上，用 WorkBuddy 列出下周 4 篇选题+大纲，存入 <code>content-pool.md</code>。选题按 6 个固定栏目分配：研学痛点 / 工具流拆解 / 真实案例 / 招募帖 / 答疑合集 / 幕后观点。</div>
+</div>
+
+<div class="step-card">
+  <div class="num">第 2 步</div>
+  <div class="title">文案起草</div>
+  <div class="desc">发布当天，把选题喂给 WorkBuddy，按写作规范生成初稿。</div>
+</div>
+
+<div class="step-card">
+  <div class="num">第 3 步</div>
+  <div class="title">批量出图</div>
+  <div class="desc">根据笔记类型调用对应 skill：
+    <ul>
+      <li>卡片图 → <code>baoyu-xhs-images</code></li>
+      <li>封面图 → <code>baoyu-cover-image</code></li>
+      <li>信息图 → <code>baoyu-infographic</code></li>
+    </ul>
+  </div>
+</div>
+
+<div class="step-card">
+  <div class="num">第 4 步</div>
+  <div class="title">整理发布包</div>
+  <div class="desc">把文案、配图、标签整理成标准文件夹结构（见下文）。</div>
+</div>
+
+<div class="step-card">
+  <div class="num">第 5 步</div>
+  <div class="title">人工审稿</div>
+  <div class="desc">5 分钟快速检查：标题是否合规、正文有无敏感词、标签是否准确、配图顺序是否正确。</div>
+</div>
+
+<div class="step-card">
+  <div class="num">第 6 步</div>
+  <div class="title">手动发布</div>
+  <div class="desc">打开小红书 App → 写图文 → 粘贴标题/正文 → 上传配图 → 粘贴标签 → 选 21:00 发布或立即发布。</div>
+</div>
+
+<div class="step-card">
+  <div class="num">第 7 步</div>
+  <div class="title">发布后互动</div>
+  <div class="desc">发布后 30 分钟内完成：
+    <ul>
+      <li>自评 1 条（引导评论）</li>
+      <li>回复所有评论</li>
+    </ul>
+  </div>
+</div>
+
+<hr>
+
+<h2 id="写作规范">写作规范</h2>
+
+<table>
+  <thead>
+    <tr><th>维度</th><th>规范</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>标题</td><td>≤ 20 字 + 1-2 emoji + 1-2 搜索热词</td></tr>
+    <tr><td>正文</td><td>300-500 字，每段 2-4 行，段间空一行</td></tr>
+    <tr><td>钩子</td><td>开头 30-50 字</td></tr>
+    <tr><td>核心</td><td>200-350 字</td></tr>
+    <tr><td>互动</td><td>结尾 50-80 字</td></tr>
+    <tr><td>emoji</td><td>每段 1-2 个</td></tr>
+    <tr><td>标签</td><td>8-10 个，4 层结构（流量 / 精准 / 长尾 / 场景）</td></tr>
+    <tr><td>发布时间</td><td>晚 20:00-22:00，建议 21:00</td></tr>
+  </tbody>
+</table>
+
+<hr>
+
+<h2 id="发布包结构">发布包结构</h2>
+
+<pre><code>publish-packs/W{n}/
+├── 01-选题名/
+│   ├── 文案.txt          # 已排好版的正文
+│   ├── 标签.txt          # 一行标签可直接粘贴
+│   └── images/           # 按上传顺序重命名好的图
+├── 02-选题名/
+│   ├── 文案.txt
+│   ├── 标签.txt
+│   └── images/
+└── ...</code></pre>
+
+<hr>
+
+<h2 id="最终达成">最终达成</h2>
+<p>每周 4 篇小红书笔记的生产时间从每天 5-8 小时压缩到每天 20 分钟，内容质量稳定，发布流程标准化可复制。</p>
+
+<div class="foot">
+  小红书内容生产半自动 SOP · 008 · 2026-07
+</div>
+
+</body>
+</html>
