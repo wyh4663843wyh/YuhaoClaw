@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>010｜WorkBuddy 多账号成本对比与治理</title>
+  <style>
+    :root {
+      --paper: #fbf8f3;
+      --ink: #2a2622;
+      --ink-soft: #5b514a;
+      --ink-mute: #8a8177;
+      --line: #e3dccf;
+      --accent: #a8302d;
+      --accent-soft: #f4e9d6;
+      --green: #3f7a54;
+      --green-soft: #e6f0e8;
+      --blue: #3b5a78;
+      --blue-soft: #e4ecf3;
+      --gold: #a9822c;
+      --gold-soft: #f5ecd6;
+      --code-bg: #efe9dd;
+      --quote-bg: #f6f1e6;
+      --shadow: 0 1px 2px rgba(60, 50, 40, .06), 0 6px 24px -8px rgba(60, 50, 40, .08);
+      --serif: "Noto Serif SC", "Source Han Serif SC", "Songti SC", "STSong", serif;
+      --sans: "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif;
+      --mono: "JetBrains Mono", "Cascadia Code", Consolas, monospace;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { background: var(--paper); color: var(--ink); font-family: var(--serif); line-height: 1.7; font-size: 16px; }
+    body { max-width: 980px; margin: 0 auto; padding: 48px 36px 80px; }
+    @media (max-width: 720px) { body { padding: 28px 16px 64px; font-size: 15px; } }
+
+    .hero { text-align: center; padding: 18px 0 32px; border-bottom: 1px solid var(--line); margin-bottom: 36px; }
+    .hero .badge { display: inline-block; font-family: var(--sans); font-size: 12px; letter-spacing: 0.18em; padding: 4px 14px; background: var(--accent-soft); color: var(--accent); border-radius: 999px; margin-bottom: 14px; }
+    .hero h1 { font-size: 38px; font-weight: 600; letter-spacing: 0.04em; margin-bottom: 10px; }
+    .hero .sub { font-family: var(--sans); color: var(--ink-soft); font-size: 14px; letter-spacing: 0.08em; }
+
+    .toc { background: #fff; border: 1px solid var(--line); border-radius: 8px; padding: 18px 22px; margin: 24px 0 36px; box-shadow: var(--shadow); }
+    .toc h2 { font-size: 16px; font-family: var(--sans); letter-spacing: 0.12em; color: var(--accent); margin-bottom: 12px; }
+    .toc ul { list-style: none; padding: 0; }
+    .toc li { padding: 4px 0; font-family: var(--sans); font-size: 14px; }
+    .toc a { color: var(--ink); text-decoration: none; }
+    .toc a:hover { color: var(--accent); }
+    .toc .l2 { padding-left: 18px; color: var(--ink-soft); font-size: 13px; }
+
+    h1 { font-size: 32px; margin: 40px 0 14px; padding-bottom: 6px; border-bottom: 2px solid var(--accent); }
+    h2 { font-size: 24px; margin: 30px 0 10px; color: var(--accent); font-weight: 600; padding-bottom: 4px; border-bottom: 1px dashed var(--line); }
+    h3 { font-size: 19px; margin: 22px 0 8px; color: var(--ink); font-weight: 600; }
+    h4 { font-size: 16px; margin: 18px 0 6px; color: var(--ink-soft); font-weight: 600; font-family: var(--sans); letter-spacing: 0.04em; }
+
+    p { margin: 9px 0; }
+    strong { color: var(--accent); font-weight: 600; }
+    em { color: var(--ink-soft); }
+    a { color: var(--accent); text-decoration: none; border-bottom: 1px solid var(--accent-soft); }
+    a:hover { border-bottom-color: var(--accent); }
+
+    ul, ol { padding-left: 24px; margin: 8px 0; }
+    li { margin: 3px 0; }
+    li::marker { color: var(--accent); }
+
+    blockquote { background: var(--quote-bg); border-left: 3px solid var(--accent); padding: 12px 18px; margin: 12px 0; color: var(--ink-soft); border-radius: 0 4px 4px 0; }
+
+    code { font-family: var(--mono); font-size: 13px; background: var(--code-bg); padding: 2px 6px; border-radius: 3px; color: #6b4f3c; }
+
+    table { width: 100%; border-collapse: collapse; margin: 12px 0; font-family: var(--sans); font-size: 14px; background: #fff; box-shadow: var(--shadow); border-radius: 4px; overflow: hidden; }
+    th { background: var(--accent-soft); color: var(--accent); padding: 10px 14px; text-align: left; font-weight: 600; letter-spacing: 0.04em; }
+    td { padding: 10px 14px; border-top: 1px solid var(--line); vertical-align: top; }
+    tr:hover td { background: #fcf9f4; }
+
+    .step-card { background: #fff; border: 1px solid var(--line); border-radius: 10px; padding: 18px 22px; margin: 16px 0; box-shadow: var(--shadow); }
+    .step-card .num { font-family: var(--sans); font-size: 13px; color: var(--accent); letter-spacing: 0.1em; margin-bottom: 6px; }
+    .step-card .title { font-size: 18px; font-weight: 600; color: var(--ink); margin-bottom: 8px; }
+    .step-card .desc { font-family: var(--sans); font-size: 14px; color: var(--ink-soft); line-height: 1.6; }
+
+    .painmap { background: #fff; border: 1px solid var(--line); border-radius: 12px; padding: 24px; margin: 20px 0; box-shadow: var(--shadow); overflow-x: auto; }
+    .painmap .pm-title { font-family: var(--sans); font-size: 14px; color: var(--accent); letter-spacing: 0.12em; margin-bottom: 16px; text-align: center; }
+    .painmap svg { display: block; margin: 0 auto; max-width: 100%; height: auto; }
+
+    .linkage { background: var(--accent-soft); border-left: 4px solid var(--accent); padding: 14px 18px; margin: 16px 0; border-radius: 0 6px 6px 0; font-family: var(--sans); font-size: 14px; color: var(--ink); }
+    .linkage strong { color: var(--accent); }
+
+    .foot { margin-top: 64px; padding-top: 20px; border-top: 1px solid var(--line); font-family: var(--sans); font-size: 12px; color: var(--ink-mute); text-align: center; letter-spacing: 0.06em; }
+  </style>
+</head>
+<body>
+
+<div class="hero">
+  <span class="badge">SOP · 010 · 001 延展</span>
+  <h1>WorkBuddy 多账号成本对比与治理</h1>
+  <div class="sub">001 在团队场景下的延展 · 多账号预算可控</div>
+</div>
+
+<div class="linkage">
+  <strong>关联说明</strong>：本文是 <a href="https://wyh4663843wyh.github.io/YuhaoClaw/001-minimax-subscription/">001｜WorkBuddy 通过 MiniMax 订阅省钱</a> 的延展。001 解决"个人接入订阅省钱"，010 解决"团队多账号成本治理"。两篇配套使用。
+</div>
+
+<div class="toc"><h2>目 录</h2>
+  <ul>
+    <li class="l1"><a href="#1-一句话价值">一句话价值</a></li>
+    <li class="l1"><a href="#2-解决的痛点">解决的痛点</a></li>
+    <li class="l1"><a href="#3-痛点脑图">痛点脑图</a></li>
+    <li class="l1"><a href="#4-实现原理">实现原理</a></li>
+    <li class="l1"><a href="#5-准备条件">准备条件</a></li>
+    <li class="l1"><a href="#6-操作步骤">操作步骤</a></li>
+    <li class="l1"><a href="#7-最终达成">最终达成</a></li>
+  </ul>
+</div>
+
+<h2 id="1-一句话价值">1 一句话价值</h2>
+<p>把 WorkBuddy 团队多账号的成本对比、套餐选型、预算分配做成可视化清单，让企业老板和团队负责人能算清楚账、控得住预算。</p>
+
+<h2 id="2-解决的痛点">2 解决的痛点</h2>
+<p>001 已经解决"个人接入订阅省钱"的问题，但企业老板有 3 个新痛点：<strong>多账号成本不可预测</strong> / <strong>预算难管控</strong> / <strong>ROI 无法衡量</strong>。010 是 001 在团队场景下的延展。</p>
+
+<hr>
+
+<h2 id="3-痛点脑图">3 痛点脑图（企业老板视角）</h2>
+
+<div class="painmap">
+  <div class="pm-title">多账号成本治理痛点 · 企业老板视角垂类拆解</div>
+  <svg viewBox="0 0 920 460" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <style>
+        .pm-node { fill: #fff; stroke: #e3dccf; stroke-width: 1.5; rx: 6; ry: 6; }
+        .pm-node-root { fill: #f4e9d6; stroke: #a8302d; stroke-width: 2; }
+        .pm-node-team { fill: #e6f0e8; stroke: #3f7a54; stroke-width: 1.5; }
+        .pm-line { stroke: #8a8177; stroke-width: 1; stroke-dasharray: 4 3; fill: none; }
+        .pm-text { font-family: "Noto Sans SC", "PingFang SC", sans-serif; fill: #2a2622; }
+        .pm-text-root { font-weight: 700; fill: #a8302d; }
+        .pm-text-team { font-weight: 600; fill: #3f7a54; }
+      </style>
+    </defs>
+
+    <!-- 根节点 -->
+    <rect class="pm-node pm-node-root" x="360" y="20" width="200" height="50" />
+    <text class="pm-text pm-text-root" x="460" y="42" text-anchor="middle" font-size="14">多账号成本</text>
+    <text class="pm-text pm-text-root" x="460" y="60" text-anchor="middle" font-size="12">不可预测 / 难管控</text>
+
+    <!-- 一级连接 -->
+    <path class="pm-line" d="M 460 70 L 460 100" />
+    <path class="pm-line" d="M 460 100 L 200 100" />
+    <path class="pm-line" d="M 460 100 L 460 100" />
+    <path class="pm-line" d="M 460 100 L 720 100" />
+    <path class="pm-line" d="M 200 100 L 200 140" />
+    <path class="pm-line" d="M 460 100 L 460 140" />
+    <path class="pm-line" d="M 720 100 L 720 140" />
+
+    <!-- 3 个一级垂类 -->
+    <rect class="pm-node pm-node-team" x="100" y="140" width="200" height="50" />
+    <text class="pm-text pm-text-team" x="200" y="162" text-anchor="middle" font-size="13">账号管理</text>
+    <text class="pm-text pm-text-team" x="200" y="180" text-anchor="middle" font-size="11">谁用 / 用多少</text>
+
+    <rect class="pm-node pm-node-team" x="360" y="140" width="200" height="50" />
+    <text class="pm-text pm-text-team" x="460" y="162" text-anchor="middle" font-size="13">套餐选型</text>
+    <text class="pm-text pm-text-team" x="460" y="180" text-anchor="middle" font-size="11">订阅 vs 按量</text>
+
+    <rect class="pm-node pm-node-team" x="620" y="140" width="200" height="50" />
+    <text class="pm-text pm-text-team" x="720" y="162" text-anchor="middle" font-size="13">预算治理</text>
+    <text class="pm-text pm-text-team" x="720" y="180" text-anchor="middle" font-size="11">怎么批 / 怎么审</text>
+
+    <!-- 账号管理子痛点 -->
+    <path class="pm-line" d="M 200 190 L 200 220" />
+    <path class="pm-line" d="M 200 220 L 100 220" />
+    <path class="pm-line" d="M 200 220 L 300 220" />
+    <path class="pm-line" d="M 100 220 L 100 250" />
+    <path class="pm-line" d="M 300 220 L 300 250" />
+
+    <rect class="pm-node pm-node-team" x="60" y="250" width="80" height="60" />
+    <text class="pm-text" x="100" y="272" text-anchor="middle" font-size="11">不知道</text>
+    <text class="pm-text" x="100" y="288" text-anchor="middle" font-size="11">谁用了</text>
+    <text class="pm-text" x="100" y="304" text-anchor="middle" font-size="11">多少积分</text>
+
+    <rect class="pm-node pm-node-team" x="260" y="250" width="80" height="60" />
+    <text class="pm-text" x="300" y="272" text-anchor="middle" font-size="11">月底才</text>
+    <text class="pm-text" x="300" y="288" text-anchor="middle" font-size="11">发现</text>
+    <text class="pm-text" x="300" y="304" text-anchor="middle" font-size="11">超支</text>
+
+    <!-- 套餐选型子痛点 -->
+    <path class="pm-line" d="M 460 190 L 460 220" />
+    <path class="pm-line" d="M 460 220 L 360 220" />
+    <path class="pm-line" d="M 460 220 L 560 220" />
+    <path class="pm-line" d="M 360 220 L 360 250" />
+    <path class="pm-line" d="M 560 220 L 560 250" />
+
+    <rect class="pm-node pm-node-team" x="320" y="250" width="80" height="60" />
+    <text class="pm-text" x="360" y="272" text-anchor="middle" font-size="11">订阅够不够</text>
+    <text class="pm-text" x="360" y="288" text-anchor="middle" font-size="11">不知道</text>
+    <text class="pm-text" x="360" y="304" text-anchor="middle" font-size="11">用多少</text>
+
+    <rect class="pm-node pm-node-team" x="520" y="250" width="80" height="60" />
+    <text class="pm-text" x="560" y="272" text-anchor="middle" font-size="11">套餐档位</text>
+    <text class="pm-text" x="560" y="288" text-anchor="middle" font-size="11">怎么选</text>
+    <text class="pm-text" x="560" y="304" text-anchor="middle" font-size="11">没人指导</text>
+
+    <!-- 预算治理子痛点 -->
+    <path class="pm-line" d="M 720 190 L 720 220" />
+    <path class="pm-line" d="M 720 220 L 620 220" />
+    <path class="pm-line" d="M 720 220 L 820 220" />
+    <path class="pm-line" d="M 620 220 L 620 250" />
+    <path class="pm-line" d="M 820 220 L 820 250" />
+
+    <rect class="pm-node pm-node-team" x="580" y="250" width="80" height="60" />
+    <text class="pm-text" x="620" y="272" text-anchor="middle" font-size="11">预算</text>
+    <text class="pm-text" x="620" y="288" text-anchor="middle" font-size="11">不知道</text>
+    <text class="pm-text" x="620" y="304" text-anchor="middle" font-size="11">批多少</text>
+
+    <rect class="pm-node pm-node-team" x="780" y="250" width="80" height="60" />
+    <text class="pm-text" x="820" y="272" text-anchor="middle" font-size="11">ROI</text>
+    <text class="pm-text" x="820" y="288" text-anchor="middle" font-size="11">算不清楚</text>
+    <text class="pm-text" x="820" y="304" text-anchor="middle" font-size="11">难复盘</text>
+
+    <!-- 底部结论 -->
+    <rect class="pm-node pm-node-root" x="280" y="380" width="360" height="60" />
+    <text class="pm-text pm-text-root" x="460" y="406" text-anchor="middle" font-size="14">010 解决方案</text>
+    <text class="pm-text" x="460" y="426" text-anchor="middle" font-size="12">账号分类 → 用量估算 → 套餐选型 → 预算分配 → 月度复盘</text>
+
+    <path class="pm-line" d="M 460 310 L 460 380" stroke="#a8302d" stroke-dasharray: none; stroke-width="2" />
+    <polygon points="455,375 465,375 460,385" fill="#a8302d" />
+  </svg>
+</div>
+
+<hr>
+
+<h2 id="4-实现原理">4 实现原理</h2>
+<blockquote>按"账号数 → 用量估算 → 套餐选型 → 预算分配"四步，把抽象的多账号成本变成可对比的表格，企业老板直接照搬决策。</blockquote>
+
+<h2 id="5-准备条件">5 准备条件</h2>
+<ul>
+  <li>WorkBuddy 中已开多个账号（个人 + 团队成员）</li>
+  <li>过去 30 天的用量明细截图（参考 001 的痛点证据截图）</li>
+  <li>明确团队规模（2~5 人 / 5~10 人 / 10+ 人）</li>
+  <li>已确认接入 MiniMax 订阅套餐（参考 001）</li>
+</ul>
+
+<hr>
+
+<h2 id="6-操作步骤">6 操作步骤</h2>
+
+<div class="step-card">
+  <div class="num">第 1 步</div>
+  <div class="title">账号分类</div>
+  <div class="desc">把账号按角色分 3 类：管理员账号（老板 / 项目负责人，高频使用，看数据 / 决策）/ 执行账号（运营 / 文案 / 设计，中等频次，跑日常任务）/ 备用账号（测试 / 探索，低频使用，偶尔跑实验）。</div>
+</div>
+
+<div class="step-card">
+  <div class="num">第 2 步</div>
+  <div class="title">用量估算</div>
+  <div class="desc">每类账号过去 30 天的积分消耗取平均值：管理员 ~3000 积分/天；执行 ~1500 积分/天；备用 ~300 积分/天。</div>
+</div>
+
+<div class="step-card">
+  <div class="num">第 3 步</div>
+  <div class="title">套餐选型</div>
+  <div class="desc">按账号数和日均消耗估算套餐档位。参考下方「团队规模推荐方案」表。</div>
+</div>
+
+<div class="step-card">
+  <div class="num">第 4 步</div>
+  <div class="title">预算分配</div>
+  <div class="desc">按账号分配月度额度 + 告警阈值，确保超支前能预警。</div>
+</div>
+
+<div class="step-card">
+  <div class="num">第 5 步</div>
+  <div class="title">月度复盘</div>
+  <div class="desc">每月 1 号拉一次用量明细，对比预算与实际消耗，调整下月套餐档位。</div>
+</div>
+
+<h3>团队规模推荐方案</h3>
+<table>
+  <thead><tr><th>团队规模</th><th>日均总消耗</th><th>推荐方案</th></tr></thead>
+  <tbody>
+    <tr><td>2~5 人</td><td>5000~8000 积分</td><td>1 个 MiniMax 订阅 + 多个按量补</td></tr>
+    <tr><td>5~10 人</td><td>10000~15000 积分</td><td>2~3 个 MiniMax 订阅（不同 Key 分配账号）</td></tr>
+    <tr><td>10+ 人</td><td>20000+ 积分</td><td>3+ 个订阅 + 用量告警 + 月度复盘</td></tr>
+  </tbody>
+</table>
+
+<h3>账号月度额度分配</h3>
+<table>
+  <thead><tr><th>账号角色</th><th>月度额度</th><th>告警阈值</th></tr></thead>
+  <tbody>
+    <tr><td>管理员</td><td>80%</td><td>70% 时告警</td></tr>
+    <tr><td>执行</td><td>90%</td><td>80% 时告警</td></tr>
+    <tr><td>备用</td><td>50%</td><td>30% 时告警</td></tr>
+  </tbody>
+</table>
+
+<hr>
+
+<h2 id="7-最终达成">7 最终达成</h2>
+<p>企业老板有了「账号分类 → 用量估算 → 套餐选型 → 预算分配 → 月度复盘」的完整成本治理闭环，从"按次付费不可控"变成"套餐可控 + 预算可审"。</p>
+
+<div class="foot">
+  WorkBuddy 多账号成本对比与治理 · 010 · 2026-07
+</div>
+
+</body>
+</html>
