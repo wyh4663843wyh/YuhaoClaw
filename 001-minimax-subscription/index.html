@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>001｜WorkBuddy 通过 MiniMax 订阅省钱</title>
+  <style>
+    :root {
+      --paper: #fbf8f3;
+      --ink: #2a2622;
+      --ink-soft: #5b514a;
+      --ink-mute: #8a8177;
+      --line: #e3dccf;
+      --accent: #a8302d;
+      --accent-soft: #f4e9d6;
+      --green: #3f7a54;
+      --green-soft: #e6f0e8;
+      --code-bg: #efe9dd;
+      --quote-bg: #f6f1e6;
+      --shadow: 0 1px 2px rgba(60, 50, 40, .06), 0 6px 24px -8px rgba(60, 50, 40, .08);
+      --serif: "Noto Serif SC", "Source Han Serif SC", "Songti SC", "STSong", serif;
+      --sans: "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif;
+      --mono: "JetBrains Mono", "Cascadia Code", Consolas, monospace;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { background: var(--paper); color: var(--ink); font-family: var(--serif); line-height: 1.7; font-size: 16px; }
+    body { max-width: 980px; margin: 0 auto; padding: 48px 36px 80px; }
+    @media (max-width: 720px) { body { padding: 28px 16px 64px; font-size: 15px; } }
+
+    .hero { text-align: center; padding: 18px 0 32px; border-bottom: 1px solid var(--line); margin-bottom: 36px; }
+    .hero .badge { display: inline-block; font-family: var(--sans); font-size: 12px; letter-spacing: 0.18em; padding: 4px 14px; background: var(--accent-soft); color: var(--accent); border-radius: 999px; margin-bottom: 14px; }
+    .hero h1 { font-size: 38px; font-weight: 600; letter-spacing: 0.04em; margin-bottom: 10px; }
+    .hero .sub { font-family: var(--sans); color: var(--ink-soft); font-size: 14px; letter-spacing: 0.08em; }
+
+    .toc { background: #fff; border: 1px solid var(--line); border-radius: 8px; padding: 18px 22px; margin: 24px 0 36px; box-shadow: var(--shadow); }
+    .toc h2 { font-size: 16px; font-family: var(--sans); letter-spacing: 0.12em; color: var(--accent); margin-bottom: 12px; }
+    .toc ul { list-style: none; padding: 0; }
+    .toc li { padding: 4px 0; font-family: var(--sans); font-size: 14px; }
+    .toc a { color: var(--ink); text-decoration: none; }
+    .toc a:hover { color: var(--accent); }
+    .toc .l2 { padding-left: 18px; color: var(--ink-soft); font-size: 13px; }
+
+    h1 { font-size: 32px; margin: 40px 0 14px; padding-bottom: 6px; border-bottom: 2px solid var(--accent); }
+    h2 { font-size: 24px; margin: 30px 0 10px; color: var(--accent); font-weight: 600; padding-bottom: 4px; border-bottom: 1px dashed var(--line); }
+    h3 { font-size: 19px; margin: 22px 0 8px; color: var(--ink); font-weight: 600; }
+    h4 { font-size: 16px; margin: 18px 0 6px; color: var(--ink-soft); font-weight: 600; font-family: var(--sans); letter-spacing: 0.04em; }
+
+    p { margin: 9px 0; }
+    strong { color: var(--accent); font-weight: 600; }
+    em { color: var(--ink-soft); }
+    a { color: var(--accent); text-decoration: none; border-bottom: 1px solid var(--accent-soft); }
+    a:hover { border-bottom-color: var(--accent); }
+
+    ul, ol { padding-left: 24px; margin: 8px 0; }
+    li { margin: 3px 0; }
+    li::marker { color: var(--accent); }
+
+    blockquote { background: var(--quote-bg); border-left: 3px solid var(--accent); padding: 12px 18px; margin: 12px 0; color: var(--ink-soft); border-radius: 0 4px 4px 0; }
+
+    code { font-family: var(--mono); font-size: 13px; background: var(--code-bg); padding: 2px 6px; border-radius: 3px; color: #6b4f3c; }
+    pre { background: #2a2622; color: #f0e8d8; padding: 14px 18px; border-radius: 6px; overflow-x: auto; margin: 12px 0; font-size: 13px; line-height: 1.55; }
+    pre code { background: transparent; color: inherit; padding: 0; font-size: 13px; }
+
+    table { width: 100%; border-collapse: collapse; margin: 12px 0; font-family: var(--sans); font-size: 14px; background: #fff; box-shadow: var(--shadow); border-radius: 4px; overflow: hidden; }
+    th { background: var(--accent-soft); color: var(--accent); padding: 10px 14px; text-align: left; font-weight: 600; letter-spacing: 0.04em; }
+    td { padding: 10px 14px; border-top: 1px solid var(--line); vertical-align: top; }
+    tr:hover td { background: #fcf9f4; }
+
+    img { max-width: 100%; height: auto; display: block; margin: 12px auto; border-radius: 6px; box-shadow: var(--shadow); }
+    .figure { text-align: center; margin: 16px 0; }
+    .figure .cap { font-family: var(--sans); font-size: 13px; color: var(--ink-mute); margin-top: 6px; letter-spacing: 0.04em; }
+
+    .step-card { background: #fff; border: 1px solid var(--line); border-radius: 10px; padding: 18px 22px; margin: 16px 0; box-shadow: var(--shadow); }
+    .step-card .num { font-family: var(--sans); font-size: 13px; color: var(--accent); letter-spacing: 0.1em; margin-bottom: 6px; }
+    .step-card .title { font-size: 18px; font-weight: 600; color: var(--ink); margin-bottom: 8px; }
+    .step-card .desc { font-family: var(--sans); font-size: 14px; color: var(--ink-soft); line-height: 1.6; }
+
+    .lead { font-family: var(--sans); font-size: 15px; color: var(--ink-soft); background: var(--quote-bg); border-radius: 8px; padding: 16px 20px; margin: 16px 0; line-height: 1.7; }
+
+    .foot { margin-top: 64px; padding-top: 20px; border-top: 1px solid var(--line); font-family: var(--sans); font-size: 12px; color: var(--ink-mute); text-align: center; letter-spacing: 0.06em; }
+  </style>
+</head>
+<body>
+
+<div class="hero">
+  <span class="badge">SOP · 001</span>
+  <h1>WorkBuddy 通过 MiniMax 订阅省钱</h1>
+  <div class="sub">把"按量付费"切换为"套餐额度" · 4 步完成配置</div>
+</div>
+
+<div class="toc"><h2>目 录</h2>
+  <ul>
+    <li class="l1"><a href="#1-一句话价值">一句话价值</a></li>
+    <li class="l1"><a href="#2-解决的问题">解决的问题</a></li>
+    <li class="l1"><a href="#3-实现原理">实现原理</a></li>
+    <li class="l1"><a href="#4-准备条件">准备条件</a></li>
+    <li class="l1"><a href="#5-操作步骤">操作步骤</a></li>
+    <li class="l1"><a href="#6-最终达成">最终达成</a></li>
+  </ul>
+</div>
+
+<h2 id="1-一句话价值">1 一句话价值</h2>
+<p>在 WorkBuddy 里接入 MiniMax 订阅套餐后，对话 token 走套餐额度计费，不再按单次调用量付费，从而压缩 AI 工具的固定支出。</p>
+
+<h2 id="2-解决的问题">2 解决的问题</h2>
+<p>WorkBuddy 默认按量付费模式下，高频对话、长上下文或批量任务会让 token 消耗快速累积，费用不可预期。</p>
+
+<h2 id="3-实现原理">3 实现原理</h2>
+<blockquote>MiniMax Token Plan 是独立于按量付费的订阅额度体系。在 WorkBuddy 中把 MiniMax 配置成自定义模型后，相关请求可走该订阅 Key 的额度池，把"按量计费"切换为"套餐内可用额度"。</blockquote>
+
+<h2 id="4-准备条件">4 准备条件</h2>
+<ul>
+  <li>已注册 MiniMax 平台账号并开通 Token Plan 订阅</li>
+  <li>WorkBuddy 设置权限，可进入模型管理页</li>
+  <li>复制到 Token Plan 订阅 Key（<code>sk-cp-</code> 开头）</li>
+</ul>
+
+<hr>
+
+<h2 id="5-操作步骤">5 操作步骤</h2>
+
+<div class="step-card">
+  <div class="num">第 1 步</div>
+  <div class="title">进入 WorkBuddy 模型管理页</div>
+  <div class="desc">打开 WorkBuddy 设置 → 模型 → 添加模型 → 选择"配置自定义模型"。</div>
+</div>
+
+<div class="figure">
+  <img src="M11_001_步骤1_WorkBuddy添加模型.png" alt="步骤 1：进入 WorkBuddy 模型管理页">
+  <div class="cap">步骤 1 · WorkBuddy 添加模型入口</div>
+</div>
+
+<div class="step-card">
+  <div class="num">第 2 步</div>
+  <div class="title">选择 Custom 提供商</div>
+  <div class="desc">在"添加模型"弹窗中，提供商选择"自定义 / Custom"；在"接口地址"中填入对应提供商的 OpenAI 兼容 API 地址。</div>
+</div>
+
+<div class="figure">
+  <img src="M11_001_步骤2_选择Custom提供商.png" alt="步骤 2：选择 Custom 提供商">
+  <div class="cap">步骤 2 · 选择 Custom 提供商并填写接口地址</div>
+</div>
+
+<div class="step-card">
+  <div class="num">第 3 步</div>
+  <div class="title">获取 MiniMax Token Plan 订阅 Key</div>
+  <div class="desc">登录 MiniMax 控制台，进入订阅付费页面，复制 Token Plan 订阅 Key（<code>sk-cp-</code> 开头）。</div>
+</div>
+
+<div class="figure">
+  <img src="M11_001_步骤3_MiniMax控制台获取Key.png" alt="步骤 3：MiniMax 控制台获取订阅 Key">
+  <div class="cap">步骤 3 · MiniMax 控制台订阅 Key 位置</div>
+</div>
+
+<div class="step-card">
+  <div class="num">第 4 步</div>
+  <div class="title">填写模型信息并保存</div>
+  <div class="desc">回到 WorkBuddy 编辑模型页，填入 API Key、模型名称，按需勾选功能开关，保存。</div>
+</div>
+
+<div class="figure">
+  <img src="M11_001_步骤4_填入APIKey保存.png" alt="步骤 4：填入 API Key 并保存">
+  <div class="cap">步骤 4 · 填入 API Key 并保存</div>
+</div>
+
+<hr>
+
+<h2 id="6-最终达成">6 最终达成</h2>
+<p>WorkBuddy 中新增一条可用的 MiniMax 自定义模型配置，后续相关对话可走该订阅套餐额度计费，减少按量付费支出。</p>
+
+<div class="foot">
+  WorkBuddy 通过 MiniMax 订阅省钱 · 001 · 2026-07
+</div>
+
+</body>
+</html>
