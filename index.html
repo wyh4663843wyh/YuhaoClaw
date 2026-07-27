@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>抖音图文自动化发布方案</title>
+<style>
+:root {
+  --paper: #fbf8f3;
+  --ink: #2a2622;
+  --ink-soft: #5b514a;
+  --ink-mute: #8a8177;
+  --line: #e3dccf;
+  --accent: #a8302d;
+  --accent-soft: #f4e9d6;
+  --green: #3f7a54;
+  --green-soft: #e6f0e8;
+  --gold: #a9822c;
+  --gold-soft: #f5ecd6;
+  --code-bg: #efe9dd;
+  --quote-bg: #f6f1e6;
+  --shadow: 0 1px 2px rgba(60, 50, 40, .06), 0 6px 24px -8px rgba(60, 50, 40, .08);
+  --serif: "Noto Serif SC", "Source Han Serif SC", "Songti SC", "STSong", serif;
+  --sans: "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif;
+  --mono: "JetBrains Mono", "Cascadia Code", Consolas, monospace;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { background: var(--paper); color: var(--ink); font-family: var(--serif); line-height: 1.7; font-size: 16px; }
+body { max-width: 980px; margin: 0 auto; padding: 48px 36px 80px; }
+@media (max-width: 720px) { body { padding: 28px 16px 64px; font-size: 15px; } }
+
+.hero { text-align: center; padding: 18px 0 32px; border-bottom: 1px solid var(--line); margin-bottom: 36px; }
+.hero .badge { display: inline-block; font-family: var(--sans); font-size: 12px; letter-spacing: 0.18em; padding: 4px 14px; background: var(--accent-soft); color: var(--accent); border-radius: 999px; margin-bottom: 14px; }
+.hero h1 { font-size: 38px; font-weight: 600; letter-spacing: 0.04em; margin-bottom: 10px; }
+.hero .sub { font-family: var(--sans); color: var(--ink-soft); font-size: 14px; letter-spacing: 0.08em; }
+
+.toc { background: #fff; border: 1px solid var(--line); border-radius: 8px; padding: 18px 22px; margin: 24px 0 36px; box-shadow: var(--shadow); }
+.toc h2 { font-size: 16px; font-family: var(--sans); letter-spacing: 0.12em; color: var(--accent); margin-bottom: 12px; }
+.toc ul { list-style: none; padding: 0; }
+.toc li { padding: 4px 0; font-family: var(--sans); font-size: 14px; }
+.toc a { color: var(--ink); text-decoration: none; }
+.toc a:hover { color: var(--accent); }
+.toc .l2 { padding-left: 18px; color: var(--ink-soft); font-size: 13px; }
+
+h1 { font-size: 32px; margin: 40px 0 14px; padding-bottom: 6px; border-bottom: 2px solid var(--accent); }
+h2 { font-size: 24px; margin: 30px 0 10px; color: var(--accent); font-weight: 600; padding-bottom: 4px; border-bottom: 1px dashed var(--line); }
+h3 { font-size: 19px; margin: 22px 0 8px; color: var(--ink); font-weight: 600; }
+h4 { font-size: 16px; margin: 18px 0 6px; color: var(--ink-soft); font-weight: 600; font-family: var(--sans); letter-spacing: 0.04em; }
+
+p { margin: 9px 0; }
+strong { color: var(--accent); font-weight: 600; }
+em { color: var(--ink-soft); }
+a { color: var(--accent); text-decoration: none; border-bottom: 1px solid var(--accent-soft); }
+a:hover { border-bottom-color: var(--accent); }
+
+ul, ol { padding-left: 24px; margin: 8px 0; }
+li { margin: 3px 0; }
+li::marker { color: var(--accent); }
+
+blockquote { background: var(--quote-bg); border-left: 3px solid var(--accent); padding: 12px 18px; margin: 12px 0; color: var(--ink-soft); border-radius: 0 4px 4px 0; }
+
+code { font-family: var(--mono); font-size: 13px; background: var(--code-bg); padding: 2px 6px; border-radius: 3px; color: #6b4f3c; }
+pre { background: #2a2622; color: #f0e8d8; padding: 14px 18px; border-radius: 6px; overflow-x: auto; margin: 12px 0; font-size: 13px; line-height: 1.55; }
+pre code { background: transparent; color: inherit; padding: 0; font-size: 13px; }
+
+table { width: 100%; border-collapse: collapse; margin: 12px 0; font-family: var(--sans); font-size: 14px; background: #fff; box-shadow: var(--shadow); border-radius: 4px; overflow: hidden; }
+th { background: var(--accent-soft); color: var(--accent); padding: 10px 14px; text-align: left; font-weight: 600; letter-spacing: 0.04em; }
+td { padding: 10px 14px; border-top: 1px solid var(--line); vertical-align: top; }
+tr:hover td { background: #fcf9f4; }
+
+img { max-width: 100%; height: auto; display: block; margin: 12px auto; border-radius: 6px; box-shadow: var(--shadow); }
+.figure { text-align: center; margin: 16px 0; }
+.figure .cap { font-family: var(--sans); font-size: 13px; color: var(--ink-mute); margin-top: 6px; letter-spacing: 0.04em; }
+
+.img-row { display: flex; flex-wrap: wrap; gap: 12px; margin: 14px 0; justify-content: center; align-items: flex-start; }
+.img-row .figure { flex: 1 1 calc(33.333% - 8px); min-width: 200px; max-width: 100%; margin: 0; text-align: center; }
+.img-row img { margin: 0 auto; width: 100%; border-radius: 6px; box-shadow: var(--shadow); }
+.img-row .cap { font-family: var(--sans); font-size: 12px; color: var(--ink-mute); margin-top: 4px; letter-spacing: 0.02em; }
+@media (max-width: 720px) {
+  .img-row { gap: 8px; }
+  .img-row .figure { flex: 1 1 calc(50% - 4px); min-width: 140px; }
+  .img-row .cap { font-size: 11px; }
+}
+
+hr { border: none; border-top: 1px dashed var(--line); margin: 32px 0; }
+
+.foot { margin-top: 64px; padding-top: 20px; border-top: 1px solid var(--line); font-family: var(--sans); font-size: 12px; color: var(--ink-mute); text-align: center; letter-spacing: 0.06em; }
+
+/* ---- capability matrix ---- */
+.cap-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin: 20px 0; font-family: var(--sans); }
+@media (max-width: 720px) { .cap-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; } }
+.cap-card { background: #fff; border: 1px solid var(--line); border-radius: 10px; padding: 16px 16px 14px; box-shadow: var(--shadow); position: relative; }
+.cap-card .ic { font-size: 22px; margin-bottom: 8px; }
+.cap-card .k { font-size: 16px; font-weight: 700; color: var(--ink); margin-bottom: 4px; letter-spacing: 0.02em; }
+.cap-card .d { font-size: 12.5px; color: var(--ink-soft); line-height: 1.5; }
+.pill { display: inline-block; font-family: var(--sans); font-size: 11px; letter-spacing: 0.06em; padding: 2px 9px; border-radius: 999px; margin-top: 10px; font-weight: 600; }
+.pill.on { background: var(--green-soft); color: var(--green); }
+.pill.dev { background: var(--gold-soft); color: var(--gold); }
+.cap-card.dev { border-color: #e6d6ac; background: #fffdf7; }
+
+.cta { display: block; background: linear-gradient(135deg, #fff 0%, #fbf5ea 100%); border: 1.5px solid var(--accent); border-radius: 10px; padding: 18px 22px; margin: 22px 0; text-decoration: none; box-shadow: var(--shadow); }
+.cta:hover { background: #fdf6ec; border-bottom: 1.5px solid var(--accent); }
+.cta .t { font-family: var(--sans); font-size: 16px; font-weight: 700; color: var(--accent); margin-bottom: 4px; }
+.cta .s { font-family: var(--sans); font-size: 13px; color: var(--ink-soft); }
+
+.lead { font-family: var(--sans); font-size: 15px; color: var(--ink-soft); background: var(--quote-bg); border-radius: 8px; padding: 16px 20px; margin: 16px 0; line-height: 1.7; }
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <span class="badge">实战专项 · 图文发布全链路</span>
+  <h1>抖音图文自动发布方案</h1>
+  <div class="sub">GUI Agent + 反风控 · 把抖音图文发布交给系统</div>
+</div>
+<div class="toc"><h2>目 录</h2><ul><li class="l1"><a href="#抖音图文自动化发布方案">抖音图文自动化发布方案</a></li><li class="l2"><a href="#0-价值主张">0. 价值主张</a></li><li class="l2"><a href="#1-解决的问题">1. 解决的问题</a></li><li class="l2"><a href="#2-实现原理-5-层架构">2. 实现原理（5 层架构）</a></li><li class="l2"><a href="#3-实际效果">3. 实际效果</a></li><li class="l2"><a href="#4-客户需要准备什么">4. 客户需要准备什么</a></li><li class="l2"><a href="#5-交付流程">5. 交付流程</a></li><li class="l2"><a href="#6-常见问题与处理">6. 常见问题与处理</a></li><li class="l2"><a href="#7-数据回收与验收">7. 数据回收与验收</a></li><li class="l2"><a href="#8-跨平台扩展">8. 跨平台扩展</a></li><li class="l2"><a href="#9-附录">9. 附录</a></li></ul></div><h1 id="抖音图文自动化发布方案">抖音图文自动化发布方案</h1>
+<blockquote>面向商家与品牌方：用 GUI Agent + 反风控技术，把抖音图文笔记的全链路发布交给系统自动完成，实现规模化、稳定化、无人值守化。</blockquote>
+<hr>
+<h2 id="0-价值主张">0. 价值主张</h2>
+<p>把「抖音图文笔记全链路发布」从 30 分钟人工/条，压缩到 <strong>7-10 分钟自动/条</strong>。单设备每天可稳定发布 2-3 条，单月单人可触达 60-90 条，满足抖音商家激励等活动对内容规模的门槛要求。</p>
+<p>系统由三层核心能力构成：</p>
+<table><thead><tr><th>能力</th><th>作用</th></tr></thead><tbody><tr><td>GUI Agent</td><td>像人一样看屏幕、点按钮、输文字，完成抖音 App 内全部发布动作</td></tr><tr><td>反风控层</td><td>点击抖动、输入延迟、滑动变速，降低被平台识别为机器操作的概率</td></tr><tr><td>调度器</td><td>按设定轮次与间隔自动运行，支持断点续跑、超时重启、优雅停止</td></tr></tbody></table>
+<hr>
+<h2 id="1-解决的问题">1. 解决的问题</h2>
+<p>抖音图文笔记运营的三个核心痛点：</p>
+<ol><li><strong>人工难以规模化</strong>：每条 30 分钟 × 每天 5 条 = 2.5 小时/天，团队成本高且难持续</li><li><strong>内容不稳定</strong>：手动发布每次操作差异大，AI 润色、话题选择、门店定位靠人记</li><li><strong>激励规则要求规模化</strong>：抖音商家激励等活动通常要求单账号在活动期内稳定产出规模化内容，纯人工难以持续冲量</li></ol>
+<p></p>
+<div class="figure"><img src="009_assets/anim_painpoints.gif" alt="三大痛点对比：人工 → 自动化"><div class="cap">三大痛点对比：人工 → 自动化</div></div>
+<p></p>
+<hr>
+<h2 id="2-实现原理-5-层架构">2. 实现原理（5 层架构）</h2>
+<p></p>
+<div class="figure"><img src="009_assets/009_arch.svg" alt="抖音自动化 5 层架构图"><div class="cap">抖音自动化 5 层架构图</div></div>
+<p></p>
+<p></p>
+<div class="figure"><img src="009_assets/anim_arch_flow.gif" alt="5 层架构数据流动画"><div class="cap">5 层架构数据流动画</div></div>
+<p></p>
+<p><strong>L0 输入池</strong>：商家提前准备标题池、图片池、门店池，统一整理为内容配置文件。</p>
+<p><strong>L1 选题器</strong>：本地脚本从标题池随机抽取一条，调用大模型生成 50-100 字第一人称正文。正文不带 # 和 emoji 堆砌，话题由后续步骤单独添加。</p>
+<p><strong>L2 调度器</strong>：按 rounds=N + 间隔 M 分钟的策略循环运行，支持断点续跑、锁文件停止、超时监控、截图清理。</p>
+<p><strong>L3 GUI Agent 执行层</strong>（核心）：手机截图 → 云端多模态模型识别屏幕元素 → 调用 INFO/CLICK/TYPE/SCROLL/WAIT/COMPLETE/ABORT 等动作完成发布。配合反风控层与 ADB 输入法，模拟真人操作。</p>
+<p><strong>L4 验收</strong>：发布后回到「我 → 作品」页验证笔记存在，每日自动生成数据日报（点赞/评论/播放），活动期结束输出结算清单。</p>
+<hr>
+<h2 id="3-实际效果">3. 实际效果</h2>
+<p>自动化方案把单条图文发布压缩到 7-10 分钟，全程无需人工干预；规模化产量由内容池规模与调度策略决定，可按活动目标弹性配置，不以上述时长为上限。</p>
+<p></p>
+<div class="figure"><img src="009_assets/anim_results.gif" alt="实际效果：发布成功演示"><div class="cap">实际效果：发布成功演示</div></div>
+<p></p>
+<p><strong>关键结果帧</strong></p>
+<div class="img-row"><div class="figure"><img src="009_assets/frame_013.png" alt="发布成功 · 经验 Tab 出现笔记"><div class="cap">发布成功 · 经验 Tab 出现笔记</div></div><div class="figure"><img src="009_assets/frame_009.png" alt="5 个话题全部变蓝"><div class="cap">5 个话题全部变蓝</div></div><div class="figure"><img src="009_assets/frame_011.png" alt="门店定位成功"><div class="cap">门店定位成功</div></div></div>
+<p>关键指标说明：</p>
+<table><thead><tr><th>指标</th><th>人工操作</th><th>自动化方案</th></tr></thead><tbody><tr><td>单条耗时</td><td>约 30 分钟</td><td>7-10 分钟</td></tr><tr><td>日产量（单设备）</td><td>5 条约 2.5 小时</td><td>2-3 条，无人值守</td></tr><tr><td>7 天活动量</td><td>难以稳定达成活动门槛</td><td>按配置稳定输出，规模随内容池与调度策略弹性扩展</td></tr><tr><td>人工干预</td><td>全程手动</td><td>配置后 0 干预</td></tr></tbody></table>
+<hr>
+<h2 id="4-客户需要准备什么">4. 客户需要准备什么</h2>
+<h3 id="4-1-硬件清单">4.1 硬件清单</h3>
+<table><thead><tr><th>设备</th><th>规格</th><th>角色</th></tr></thead><tbody><tr><td>主力手机 × N</td><td>Android 7.0+，推荐 1080×2400 屏</td><td>自动化执行终端</td></tr><tr><td>控制机 × 1</td><td>Windows 10/11 + Python 3.12</td><td>调度器与脚本宿主</td></tr><tr><td>USB 数据线 × N</td><td>原装或高质量</td><td>ADB 通信</td></tr><tr><td>网络</td><td>4G / WiFi 均可</td><td>手机需能正常访问抖音</td></tr></tbody></table>
+<p><strong>建议</strong>：单人启动先用 1 台设备跑通流程，验证效果后再扩展矩阵。</p>
+<h3 id="4-2-软件清单">4.2 软件清单</h3>
+<table><thead><tr><th>软件</th><th>说明</th></tr></thead><tbody><tr><td>GUI Agent 框架</td><td>负责截图识别与动作决策</td></tr><tr><td>反风控模块</td><td>负责点击抖动、输入延迟、滑动变速</td></tr><tr><td>Python 运行环境</td><td>3.12+，用于运行调度器与发布脚本</td></tr><tr><td>ADB 输入法</td><td>安装到手机上，用于中文文本输入</td></tr></tbody></table>
+<h3 id="4-3-账号与内容清单">4.3 账号与内容清单</h3>
+<table><thead><tr><th>项目</th><th>说明</th></tr></thead><tbody><tr><td>抖音账号</td><td>需完成实名、可正常发布图文</td></tr><tr><td>标题池</td><td>20-50 条差异化标题，避免完全重复</td></tr><tr><td>图片池</td><td>与标题匹配的图片素材</td></tr><tr><td>门店池</td><td>商家门店名称与定位信息</td></tr><tr><td>话题清单</td><td>必须话题、可选话题、禁词清单</td></tr></tbody></table>
+<h3 id="4-4-项目文件结构-示例">4.4 项目文件结构（示例）</h3>
+<pre><code>project/
+├── publisher.py          # 单条发布脚本
+├── scheduler.py          # 多轮调度器
+├── content_pool.json     # 标题/图片/门店池
+├── locks/                # 锁文件
+├── logs/                 # 运行日志
+└── reports/              # 日报与结算单</code></pre>
+<p></p>
+<div class="figure"><img src="009_assets/anim_setup.gif" alt="装备自检动画"><div class="cap">装备自检动画</div></div>
+<p></p>
+<hr>
+<h2 id="5-交付流程">5. 交付流程</h2>
+<blockquote>先看 13 张真实截图拼成的完整发布流程，再进入分步拆解。</blockquote>
+<p></p>
+<div class="figure"><img src="009_assets/anim_full_demo.gif" alt="完整发布流程电影（13 帧）"><div class="cap">完整发布流程电影（13 帧）</div></div>
+<p></p>
+<h3 id="5-1-设备接入与初始化">5.1 设备接入与初始化</h3>
+<pre><code># 1. 连接手机，确认 ADB 识别
+adb devices
+# 期望输出：xxxxx    device
+
+# 2. 安装 ADB 中文输入法
+adb -s &lt;DEVICE_ID&gt; install -r yadb.apk
+adb -s &lt;DEVICE_ID&gt; shell ime list -a | grep yadb
+
+# 3. 开启 USB 调试 + 开发者模式
+# 设置 → 关于手机 → 连点 7 次版本号 → 开发者选项 → USB 调试</code></pre>
+<p><strong>关键校验</strong>：在手机上打开抖音 App，按 Home 键回桌面，再点抖音图标能回到首页 = 初始化成功。</p>
+<h3 id="5-2-单条发布验证">5.2 单条发布验证</h3>
+<p>打开发布脚本，确认 4 个关键参数：</p>
+<pre><code>PYTHON = Path("&lt;你的 Python 路径&gt;")
+GELAB_DIR = Path("&lt;GUI Agent 项目目录&gt;")
+DRIVER = Path("&lt;publisher.py 路径&gt;")
+DEVICE_ID = "&lt;你的设备 ID&gt;"
+TIMEOUT = 1200  # 20 分钟</code></pre>
+<p>启动 1 条测试：</p>
+<pre><code>cd &lt;PROJECT_DIR&gt;
+python -u publisher.py --seed 42 --seq 5 --device &lt;DEVICE_ID&gt;</code></pre>
+<p>观察日志，期望 7-10 分钟看到发布成功。</p>
+<h4 id="抖音-ui-流程对照-13-帧真实截图">抖音 UI 流程对照（13 帧真实截图）</h4>
+<p>以下截图来自真实跑通的抖音发布流程，按阶段分组展示。</p>
+<p><strong>1）启动入口</strong></p>
+<p></p>
+<div class="figure"><img src="009_assets/frame_001.png" alt="抖音首页"><div class="cap">抖音首页</div></div>
+<p></p>
+<p>底部 TabBar 中间「+」按钮就是发布入口。</p>
+<p><strong>2）文案池来源</strong></p>
+<div class="img-row"><div class="figure"><img src="009_assets/frame_002.png" alt="文案池源头 · 微信"><div class="cap">文案池源头 · 微信</div></div><div class="figure"><img src="009_assets/frame_003.png" alt="标题池 docx"><div class="cap">标题池 docx</div></div><div class="figure"><img src="009_assets/frame_004.png" alt="标题池(续)"><div class="cap">标题池(续)</div></div></div>
+<p>标题从商家提供的文档或表格中抽取，经过去重和差异化处理。</p>
+<p><strong>3）AI 润色与发布准备</strong></p>
+<div class="img-row"><div class="figure"><img src="009_assets/frame_005.png" alt="AI 润色界面"><div class="cap">AI 润色界面</div></div><div class="figure"><img src="009_assets/frame_006.png" alt="图文发布准备页"><div class="cap">图文发布准备页</div></div></div>
+<p>大模型根据标题生成正文；发布准备页可见 5 元素结构 = 添加标题 + 缩略图 + 5 话题按钮 + 选择地点按钮 + 底部发布按钮。<strong>关键发现：「# 话题」和「选择地点」都是按钮，不是 Tab 也不是页面</strong>。</p>
+<p><strong>4）输入正文 + 添加 5 话题</strong></p>
+<div class="img-row"><div class="figure"><img src="009_assets/frame_007.png" alt="输入正文"><div class="cap">输入正文</div></div><div class="figure"><img src="009_assets/frame_008.png" alt="+ #话题 过程"><div class="cap">+ #话题 过程</div></div><div class="figure"><img src="009_assets/frame_009.png" alt="5 话题已加完"><div class="cap">5 话题已加完</div></div></div>
+<p>正文 → 输入框内带 # 关键词 → 弹出话题列表 → 点第一项 → 变成蓝色字（<strong>蓝字才是成功，黑色不算</strong>）。抖音图文硬上限 5 个话题，加到 5 个后不要再点「# 话题」。</p>
+<p><strong>5）选择门店 + 发布</strong></p>
+<div class="img-row"><div class="figure"><img src="009_assets/frame_010.png" alt="添加位置页"><div class="cap">添加位置页</div></div><div class="figure"><img src="009_assets/frame_011.png" alt="门店列表"><div class="cap">门店列表</div></div></div>
+<p>搜索商家名称出门店列表，<strong>任选一家点入即定位成功</strong>。</p>
+<p><strong>6）异常处理与发布成功</strong></p>
+<div class="img-row"><div class="figure"><img src="009_assets/frame_012.png" alt="未成年模式弹窗 → BACK"><div class="cap">未成年模式弹窗 → BACK</div></div><div class="figure"><img src="009_assets/frame_013.png" alt="发布成功"><div class="cap">发布成功</div></div></div>
+<p>看到「未成年模式」弹窗一定按 <strong>BACK</strong> 返回，不要点「开启未成年模式」按钮。发布成功后在「经验 Tab 第一屏」看到自己笔记 + toast 显示「发布成功」= 验收点。</p>
+<h3 id="5-3-内容池配置">5.3 内容池配置</h3>
+<p>把标题、门店、图片整理成 JSON 格式：</p>
+<pre><code>{
+  "title_pool": [
+    {"id": 1, "title": "很好奇长期练普拉提的女生体态是不是都很好？", "tier": "S"},
+    {"id": 5, "title": "有好心的姐妹来劝劝我，练了三个月普拉提真的坚持不下去了", "tier": "S"}
+  ],
+  "store_pool": [
+    {"id": 1, "name": "提雅普拉提（五福桥店）", "address": "成都市金牛区五福桥东路", "tier": "⭐⭐⭐"}
+  ],
+  "image_pool": [
+    {"id": "tiya_01.jpg", "path": "&lt;图片路径&gt;", "watermark": "提雅普拉提 · 五福桥店"}
+  ]
+}</code></pre>
+<p><strong>必填话题清单示例</strong>：</p>
+<pre><code>#提雅普拉提  #普拉提  #成都普拉提  #成都姐妹  #塑形
+#普拉提大器械核心床  #普拉提打卡  #普拉提心得</code></pre>
+<p><strong>严禁</strong>：<code>#同城 #交友</code> 等无关标签、<code>#免费 #团购 #私聊</code> 等硬广词。</p>
+<p><strong>关键词与禁词清单</strong>：</p>
+<table><thead><tr><th>类型</th><th>关键词</th></tr></thead><tbody><tr><td><strong>必须</strong></td><td>#品牌词 #普拉提 #瑜伽 #健身</td></tr><tr><td><strong>可加</strong></td><td>#普拉提大器械核心床 #普拉提打卡 #塑形</td></tr><tr><td><strong>严禁</strong></td><td>"免费体验课"、"团购价"、"私聊我"、"原价xxx现在xxx"、"加我微信"</td></tr></tbody></table>
+<h3 id="5-4-反风控接入">5.4 反风控接入</h3>
+<p>抖音平台的风控比小红书更严格，反风控是必须环节。</p>
+<p>在 GUI Agent 的动作层，对三类核心动作加入随机扰动：</p>
+<pre><code># Click：加 ±3px 抖动
+def click_action(device_id, point):
+    real_point = (point[0] + random.randint(-3, 3), point[1] + random.randint(-3, 3))
+    adb_command = f"adb -s {device_id} shell input tap {real_point[0]} {real_point[1]}"
+    subprocess.run(adb_command, shell=True)
+
+# Type：加前后 0.3-0.8s 随机延迟
+def type_action(device_id, text):
+    time.sleep(random.uniform(0.3, 0.8))
+    encoded = text.replace(" ", "%s")
+    subprocess.run(f"adb -s {device_id} shell input text '{encoded}'", shell=True)
+    time.sleep(random.uniform(0.3, 0.8))
+
+# Scroll：拖动延长到 1500ms
+def scroll_action(device_id, start, end):
+    adb_command = f"adb -s {device_id} shell input swipe {start[0]} {start[1]} {end[0]} {end[1]} 1500"
+    subprocess.run(adb_command, shell=True)</code></pre>
+<p>抖音特化策略建议：</p>
+<pre><code>DAILY_LIMITS = {
+    "publish": 8,
+    "like": 40,
+    "comment": 10,
+    "follow": 15,
+    "search": 50,
+}
+PUBLISH_MIN_INTERVAL_MIN = 120    # 2 小时
+PUBLISH_MAX_INTERVAL_MIN = 180    # 3 小时
+BANNED_FEATURES = ["product_shop", "live_commerce", "group_buy"]</code></pre>
+<h3 id="5-5-5-步闭环动作链">5.5 5 步闭环动作链</h3>
+<blockquote>GUI Agent 在抖音图文发布上的标准动作序列。</blockquote>
+<p></p>
+<div class="figure"><img src="009_assets/009_loop.svg" alt="5 步闭环流程图"><div class="cap">5 步闭环流程图</div></div>
+<p></p>
+<table><thead><tr><th>STEP</th><th>动作</th><th>关键参数</th><th>失败回滚</th></tr></thead><tbody><tr><td>1</td><td>INFO</td><td>截屏 + 页面结构 dump</td><td>截屏失败 → 退出</td></tr><tr><td>2</td><td>CLICK</td><td>EditText 中心点 (±3px)</td><td>点击无反应 → 重试 1 次</td></tr><tr><td>3</td><td>WAIT</td><td>1-2 秒（键盘弹出）</td><td>等不及 → 加大到 3 秒</td></tr><tr><td>4</td><td>TYPE + point</td><td>ADB 输入 + 锁定焦点</td><td>输入不全 → 重新 INFO 校验</td></tr><tr><td>5</td><td>INFO verify</td><td>重新截屏看 EditText</td><td>文本不对 → 删掉重输</td></tr></tbody></table>
+<p><strong>关键约束</strong>：<strong>每个 STEP 完成后必须回到 INFO 校验</strong>，避免「盲打」累积错误。</p>
+<h4 id="完整动作演示-4-段-gif">完整动作演示（4 段 GIF）</h4>
+<p><strong>GIF 1-2：打开发布器 → 输入正文</strong></p>
+<div class="img-row"><div class="figure"><img src="009_assets/demo_step1_open_publisher.gif" alt="打开抖音图文发布器"><div class="cap">打开抖音图文发布器</div></div><div class="figure"><img src="009_assets/demo_step2_input_body.gif" alt="输入正文"><div class="cap">输入正文</div></div></div>
+<p><strong>GIF 3-4：添加 5 话题 → 选择地点 + 发布</strong></p>
+<div class="img-row"><div class="figure"><img src="009_assets/demo_step3_add_topics.gif" alt="添加 5 话题"><div class="cap">添加 5 话题</div></div><div class="figure"><img src="009_assets/demo_step4_select_location_publish.gif" alt="选择地点发布"><div class="cap">选择地点发布</div></div></div>
+<h4 id="抖音-5-步走完整流程">抖音 5 步走完整流程</h4>
+<pre><code>【STEP 1】INFO → 截屏看是否在抖音首页（推荐 Tab）
+  ↓ 不在就按 Home 键回桌面再点抖音图标
+
+【STEP 2】CLICK → 点底部 TabBar 中间 + 按钮
+  ↓ 弹创作菜单
+
+【STEP 3】CLICK → 点「文字图文」按钮
+  ↓ 跳到写文字页
+
+【STEP 4】INFO → 识别「分享你的想法」EditText 区域
+  ↓ 中心点约 (540, 776)
+
+【STEP 5】CLICK + WAIT + TYPE → 点 EditText → 等键盘 → ADB 输入正文
+  ↓ 点右上「下一步」1 次到发布准备页
+
+【STEP 6】5 次循环 (CLICK # 话题 → TYPE 关键词 → 点第一项) × 5 个话题
+  ↓ 加完看到 5 个蓝色 hashtag
+
+【STEP 7】CLICK + TYPE → 点「选择地点」→ 输入商家名称 → 点任一门店
+  ↓ 定位显示成功
+
+【STEP 8】CLICK → 底部红色「发布」按钮
+  ↓ 等 5 秒看到 toast「发布成功」</code></pre>
+<h3 id="5-6-多轮调度运行">5.6 多轮调度运行</h3>
+<p>调度器模板（5 轮 × 15-18 分钟间隔）：</p>
+<pre><code>#!/usr/bin/env python
+import os, subprocess, time, random
+from pathlib import Path
+from datetime import datetime
+
+PROJ = Path("&lt;PROJECT_DIR&gt;")
+PYTHON = Path("&lt;PYTHON&gt;")
+DRIVER = PROJ / "publisher.py"
+LOCK = PROJ / "locks" / "&lt;DEVICE_ID&gt;.lock"
+LOG_DIR = PROJ / "logs"
+
+rounds = 5
+imin_sec, imax_sec = 15*60, 18*60
+
+def clear_screenshots():
+    ss_dir = Path("&lt;SCREENSHOT_TMP_DIR&gt;")
+    n = 0
+    for p in ss_dir.glob("*.png"):
+        try: p.unlink(); n += 1
+        except: pass
+    return n
+
+for r in range(1, rounds + 1):
+    if not LOCK.exists():
+        break
+    round_log = LOG_DIR / f"round_{r}_{datetime.now():%Y%m%d_%H%M%S}.log"
+    cmd = [str(PYTHON), "-u", str(DRIVER),
+           "--seed", "42", "--seq", str(5+r-1), "--device", "&lt;DEVICE_ID&gt;"]
+    with open(round_log, "w", encoding="utf-8") as fout:
+        proc = subprocess.run(cmd, stdout=fout, stderr=subprocess.STDOUT,
+                              cwd=str(PROJ), stdin=subprocess.DEVNULL)
+    n = clear_screenshots()
+    if r &lt; rounds:
+        time.sleep(random.randint(imin_sec, imax_sec))</code></pre>
+<h4 id="启动方式-detached_process">启动方式（DETACHED_PROCESS）</h4>
+<p><strong>关键</strong>：调度器必须用 DETACHED_PROCESS 启动，否则关闭控制终端会杀进程。</p>
+<pre><code>import subprocess
+DETACHED_PROCESS = 0x00000008
+p = subprocess.Popen(
+    [sys.executable, "scheduler.py"],
+    creationflags=DETACHED_PROCESS,
+    stdout=open(log_path, 'w'),
+    stderr=subprocess.STDOUT,
+    cwd=project_dir,
+)</code></pre>
+<p>创建锁文件并启动：</p>
+<pre><code>import subprocess, sys
+from pathlib import Path
+LOCK_DIR = Path("&lt;PROJECT_DIR&gt;/locks")
+LOCK_DIR.mkdir(parents=True, exist_ok=True)
+(LOCK_DIR / '&lt;DEVICE_ID&gt;.lock').write_text('&lt;DEVICE_ID&gt;', encoding='utf-8')
+p = subprocess.Popen(
+    [sys.executable, r'&lt;PROJECT_DIR&gt;\scheduler.py'],
+    creationflags=0x00000008,
+    stdout=open(r'&lt;PROJECT_DIR&gt;\logs\scheduler.out', 'w'),
+    stderr=subprocess.STDOUT,
+    cwd=r'&lt;PROJECT_DIR&gt;',
+)
+print(f'PID={p.pid}')</code></pre>
+<h4 id="停止方式">停止方式</h4>
+<pre><code># 1. 优雅停止（调度器下一轮检测时退出）
+del &lt;PROJECT_DIR&gt;\locks\&lt;DEVICE_ID&gt;.lock
+
+# 2. 强制停止（立即杀进程）
+powershell.exe -Command "Stop-Process -Id &lt;调度器PID&gt; -Force"
+
+# 3. 清场（杀残留 + 清锁 + 清截图）
+powershell.exe -Command "Get-Process python* | Stop-Process -Force"
+del &lt;PROJECT_DIR&gt;\locks\*.lock
+del &lt;SCREENSHOT_TMP_DIR&gt;\*.png</code></pre>
+<h3 id="5-7-运行环境隔离修复">5.7 多轮运行的文件清理兼容</h3>
+<p></p>
+<div class="figure"><img src="009_assets/009_safedelete.svg" alt="截图清理兼容修复对比"><div class="cap">截图清理兼容修复对比</div></div>
+<p></p>
+<p>部分运行环境会拦截文件删除操作，导致多轮运行时从第 2 轮起截图清理被拒绝。修复方式是在启动子进程前清理相关环境变量：</p>
+<pre><code>env = os.environ.copy()
+env["PYTHONIOENCODING"] = "utf-8"
+env["PYTHONUTF8"] = "1"
+# 清理可能拦截文件删除的环境变量
+for k in list(env.keys()):
+    if k.startswith("CODEBUDDY_SAFE_DELETE") or k in (
+        "CODEBUDDY_TOOL_CALL_ID",
+        "CODEBUDDY_CONVERSATION_REQUEST_ID",
+        "CODEBUDDY_SESSION_ID",
+    ):
+        del env[k]
+
+proc = subprocess.run(
+    cmd, cwd=str(GELAB_DIR),
+    capture_output=True, text=True, timeout=1200,
+    env=env,
+    input="\n" * 100,  # 让可能的 input() 立即得到空串，避免后台卡死
+)</code></pre>
+<h3 id="5-8-监控-重启规则-7-分钟原则">5.8 监控 + 重启规则（7 分钟原则）</h3>
+<blockquote>单轮超过 7 分钟没完成 → 直接重启。</blockquote>
+<h4 id="卡死判定标准">卡死判定标准</h4>
+<table><thead><tr><th>状态</th><th>时长</th><th>处理</th></tr></thead><tbody><tr><td>单轮跑 7-10 分钟</td><td>正常</td><td>等</td></tr><tr><td>单轮跑 11-15 分钟</td><td>卡死边缘</td><td>准备重启</td></tr><tr><td>单轮跑 16+ 分钟</td><td>确定卡死</td><td>立刻杀重启</td></tr><tr><td>子进程 TimeoutExpired</td><td>20 分钟</td><td>内部已超时</td></tr></tbody></table>
+<h4 id="卡死监控">卡死监控</h4>
+<pre><code>import time, subprocess
+from pathlib import Path
+
+start_time = time.time()
+while True:
+    if time.time() - start_time &gt; 420:  # 7 分钟
+        subprocess.run(["powershell.exe", "-Command",
+                        f"Get-Process python* | Where-Object {{$_.Id -eq {sub_pid}}} | Stop-Process -Force"])
+        break
+    time.sleep(60)</code></pre>
+<h4 id="状态机总结">状态机总结</h4>
+<p></p>
+<div class="figure"><img src="009_assets/009_state.svg" alt="多轮调度器状态机"><div class="cap">多轮调度器状态机</div></div>
+<p></p>
+<hr>
+<h2 id="6-常见问题与处理">6. 常见问题与处理</h2>
+<table><thead><tr><th>#</th><th>现象</th><th>根因</th><th>处理</th></tr></thead><tbody><tr><td>1</td><td>第 1 轮成功，第 2 轮起全部失败</td><td>运行环境的删除拦截机制</td><td>启动子进程前清理相关环境变量</td></tr><tr><td>2</td><td>运行到用户输入决策点卡死</td><td>后台启动无 stdin</td><td><code>input="\n"*100</code> 让 input() 立即返回</td></tr><tr><td>3</td><td>抖音启动后停在「分享你的想法」界面</td><td>没识别「草稿恢复」弹窗</td><td>在动作序列开头增加 STEP 0：先看屏幕中央弹窗</td></tr><tr><td>4</td><td>正文 + # 混在一起变成 #### 污染</td><td>把 # 当 Type 的一部分</td><td>明确「# 话题是按钮，不是 Tab」</td></tr><tr><td>5</td><td>话题加完只剩黑色，不是蓝色</td><td>没等自动弹列表</td><td>等 1-2 秒后再点第一项</td></tr><tr><td>6</td><td>"下一步"点了 2 次进入错误页面</td><td>写文字页和发布准备页都有"下一步"</td><td>显式说明只点 1 次</td></tr><tr><td>7</td><td>5 话题按钮点完出现 6 个</td><td>抖音硬上限 5 个</td><td>在动作序列中增加「加到 5 个后不要再点 # 话题」</td></tr><tr><td>8</td><td>未成年模式弹窗误点开启</td><td>弹窗诱惑按钮</td><td>在动作序列中增加「看到未成年模式按 BACK」</td></tr><tr><td>9</td><td>单轮跑 20 分钟 timeout</td><td>Agent 死循环 / 模型卡死</td><td>7 分钟监控 + 杀重启</td></tr><tr><td>10</td><td>调度器退出后没人继续</td><td>sleep 完没人叫醒</td><td>DETACHED_PROCESS + 锁文件轮询</td></tr><tr><td>11</td><td>USB 断了调度器不知道</td><td>ADB 断了但 publisher 没感知</td><td>监控加 <code>adb devices</code> 检测</td></tr><tr><td>12</td><td>截图累积爆 tmp 目录</td><td>每步截屏 + 未清理</td><td>调度器每轮结束清截图</td></tr></tbody></table>
+<hr>
+<h2 id="7-数据回收与验收">7. 数据回收与验收</h2>
+<h3 id="7-1-单条验收-10-分钟后">7.1 单条验收（10 分钟后）</h3>
+<pre><code># 回到「我 → 作品」页截图验证
+adb -s &lt;DEVICE_ID&gt; shell screencap -p /sdcard/verify.png
+adb -s &lt;DEVICE_ID&gt; pull /sdcard/verify.png logs/verify_&lt;DEVICE_ID&gt;_&lt;timestamp&gt;.png</code></pre>
+<h3 id="7-2-每日日报">7.2 每日日报</h3>
+<p>每台手机的日报告自动生成：</p>
+<pre><code>{
+  "date": "2026-07-12",
+  "device_id": "&lt;DEVICE_ID&gt;",
+  "published": [{"seq": 5, "title": "示例标题", "time": "19:48"}],
+  "stats": {"likes": 12, "comments": 3, "views": 234}
+}</code></pre>
+<h3 id="7-3-活动期结算单">7.3 活动期结算单</h3>
+<pre><code>python daily_check.py --date 2026-07-12 --output report/final_summary.json
+python daily_check.py --output report/payout.csv</code></pre>
+<hr>
+<h2 id="8-跨平台扩展">8. 跨平台扩展</h2>
+<h3 id="8-1-迁移到小红书图文">8.1 迁移到小红书图文</h3>
+<table><thead><tr><th>模块</th><th>抖音版</th><th>小红书版</th><th>差异</th></tr></thead><tbody><tr><td>设备</td><td>Android + 抖音</td><td>Android + 小红书</td><td>包名不同</td></tr><tr><td>5 步闭环</td><td>复用</td><td>复用</td><td>无</td></tr><tr><td>反风控</td><td>±3px / 0.3-0.8s</td><td>±2px / 0.2-0.6s</td><td>小红书严度低</td></tr><tr><td>调度</td><td>复用</td><td>复用</td><td>无</td></tr><tr><td>安全删除修复</td><td>复用</td><td>复用</td><td>无</td></tr><tr><td>文案池</td><td>商家提供</td><td>商家提供</td><td>内容换</td></tr><tr><td>单日上限</td><td>8 条</td><td>5 条</td><td>小红书更严</td></tr><tr><td>间隔下限</td><td>120 分钟</td><td>60 分钟</td><td>小红书允许更密</td></tr></tbody></table>
+<p>迁移成本约 80% 复用，只需修改包名、文案池、反风控严度。</p>
+<h3 id="8-2-迁移到视频号-微信">8.2 迁移到视频号（微信）</h3>
+<p>视频号比抖音更严，需要额外接入：</p>
+<ol><li>微信小程序授权登录（不能用 ADB 输入密码）</li><li>视频号发布流程（短视频，非图文）</li><li>企业微信绑定</li></ol>
+<h3 id="8-3-迁移到-b-站-知乎-小红书视频">8.3 迁移到 B 站 / 知乎 / 小红书视频</h3>
+<p>相同框架，仅修改文案模板和 UI 流程识别。</p>
+<hr>
+<h2 id="9-附录">9. 附录</h2>
+<h3 id="9-1-项目文件结构-示例">9.1 项目文件结构（示例）</h3>
+<pre><code>&lt;PROJECT_DIR&gt;/
+├── publisher.py          # 单条发布脚本
+├── scheduler.py          # 多轮调度器
+├── content_pool.json     # 标题/图片/门店池
+├── locks/                # 锁文件
+├── logs/                 # 运行日志
+└── reports/              # 日报与结算单</code></pre>
+<h3 id="9-2-实测案例">9.2 实测案例</h3>
+<pre><code>调度器: scheduler.py
+启动时间: 2026-07-12 19:04
+设备: Android 测试机
+间隔: 15-18 分钟
+
+R1 19:04-19:11  成功
+R2 19:27-19:34  成功
+R3 19:50-19:57  成功
+R4 20:13-20:20  成功
+R5 20:36-20:43  成功
+
+5/5 全成功 · 总耗时 99 分钟 · 单轮平均 7 分钟</code></pre>
+<hr>
+<p>_最后更新：2026-07-26_</p>
+<footer class="foot">
+抖音图文自动发布方案 · 实战专项 · 2026-07
+</footer>
+</body>
+</html>

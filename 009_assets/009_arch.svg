@@ -1,0 +1,76 @@
+<svg viewBox="0 0 680 460" width="100%" role="img" xmlns="http://www.w3.org/2000/svg">
+<title>抖音自动化 5 层架构图</title>
+<desc>输入层→选题器层→调度器层→GELab-Zero 执行层→验收层的端到端架构</desc>
+<defs>
+<marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+<path d="M2 1L8 5L2 9" fill="none" stroke="#444" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+</marker>
+</defs>
+<style>
+  .t { font: 500 14px system-ui, -apple-system, sans-serif; fill: #222; }
+  .th { font: 500 14px system-ui, -apple-system, sans-serif; fill: #222; }
+  .ts { font: 400 12px system-ui, -apple-system, sans-serif; fill: #555; }
+  .arr { stroke: #555; stroke-width: 1.5; fill: none; }
+  rect { stroke-width: 0.5; }
+  .c-blue rect { fill: #E6F1FB; stroke: #185FA5; }
+  .c-blue text { fill: #0C447C; }
+  .c-teal rect { fill: #E1F5EE; stroke: #0F6E56; }
+  .c-teal text { fill: #085041; }
+  .c-amber rect { fill: #FAEEDA; stroke: #BA7517; }
+  .c-amber text { fill: #633806; }
+  .c-coral rect { fill: #FAECE7; stroke: #993C1D; }
+  .c-coral text { fill: #4A1B0C; }
+  .c-green rect { fill: #EAF3DE; stroke: #3B6D11; }
+  .c-green text { fill: #173404; }
+  .c-purple rect { fill: #EEEDFE; stroke: #534AB7; }
+  .c-purple text { fill: #26215C; }
+  .c-red rect { fill: #FCEBEB; stroke: #A32D2D; }
+  .c-red text { fill: #501313; }
+  .c-pink rect { fill: #FBEAF0; stroke: #993556; }
+  .c-pink text { fill: #4B1528; }
+  .box rect { fill: #fff; stroke: #aaa; }
+  .box text { fill: #333; }
+</style>
+
+<text class="t" x="340" y="28" text-anchor="middle">抖音图文笔记自动化 5 层架构</text>
+
+<g class="c-blue">
+<rect x="40" y="50" width="600" height="60" rx="12"/>
+<text class="th" x="340" y="74" text-anchor="middle">L0 输入池</text>
+<text class="ts" x="340" y="94" text-anchor="middle">28 条标题池 + 50 张图片池 + 5 家门店池</text>
+</g>
+
+<line class="arr" x1="340" y1="115" x2="340" y2="135" marker-end="url(#arrow)"/>
+
+<g class="c-teal">
+<rect x="40" y="140" width="600" height="68" rx="12"/>
+<text class="th" x="340" y="164" text-anchor="middle">L1 选题器（本地 Python）</text>
+<text class="ts" x="340" y="183" text-anchor="middle">随机选题 + step-3.7-flash AI 润色正文</text>
+<text class="ts" x="340" y="198" text-anchor="middle">输出：title / content / image_path / store_name</text>
+</g>
+
+<line class="arr" x1="340" y1="210" x2="340" y2="230" marker-end="url(#arrow)"/>
+
+<g class="c-amber">
+<rect x="40" y="235" width="600" height="68" rx="12"/>
+<text class="th" x="340" y="259" text-anchor="middle">L2 调度器（_scheduler_Xr.py）</text>
+<text class="ts" x="340" y="278" text-anchor="middle">DETACHED_PROCESS + 锁文件 + 间隔守护</text>
+<text class="ts" x="340" y="293" text-anchor="middle">支持 N 轮 × M 分钟间隔，跨平台可重入</text>
+</g>
+
+<line class="arr" x1="340" y1="305" x2="340" y2="325" marker-end="url(#arrow)"/>
+
+<g class="c-coral">
+<rect x="40" y="330" width="600" height="68" rx="12"/>
+<text class="th" x="340" y="354" text-anchor="middle">L3 GELab-Zero 执行（核心）</text>
+<text class="ts" x="340" y="373" text-anchor="middle">手机截图 → 云端模型 → INFO / CLICK / TYPE / WAIT 动作链</text>
+<text class="ts" x="340" y="388" text-anchor="middle">配 anti_detection 反风控 + yadb 输入法</text>
+</g>
+
+<line class="arr" x1="340" y1="400" x2="340" y2="420" marker-end="url(#arrow)"/>
+
+<g class="c-green">
+<rect x="40" y="425" width="600" height="28" rx="8"/>
+<text class="ts" x="340" y="442" text-anchor="middle">L4 验收 + 防撤回：回作品页验证 + 每日 23:55 日报</text>
+</g>
+</svg>
