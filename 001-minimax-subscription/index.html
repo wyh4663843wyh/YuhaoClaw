@@ -15,6 +15,10 @@
       --accent-soft: #f4e9d6;
       --green: #3f7a54;
       --green-soft: #e6f0e8;
+      --blue: #3b5a78;
+      --blue-soft: #e4ecf3;
+      --gold: #a9822c;
+      --gold-soft: #f5ecd6;
       --code-bg: #efe9dd;
       --quote-bg: #f6f1e6;
       --shadow: 0 1px 2px rgba(60, 50, 40, .06), 0 6px 24px -8px rgba(60, 50, 40, .08);
@@ -75,7 +79,19 @@
     .step-card .title { font-size: 18px; font-weight: 600; color: var(--ink); margin-bottom: 8px; }
     .step-card .desc { font-family: var(--sans); font-size: 14px; color: var(--ink-soft); line-height: 1.6; }
 
-    .lead { font-family: var(--sans); font-size: 15px; color: var(--ink-soft); background: var(--quote-bg); border-radius: 8px; padding: 16px 20px; margin: 16px 0; line-height: 1.7; }
+    /* ===== 痛点脑图（按人群）===== */
+    .painmap { background: #fff; border: 1px solid var(--line); border-radius: 12px; padding: 24px; margin: 20px 0; box-shadow: var(--shadow); overflow-x: auto; }
+    .painmap .pm-title { font-family: var(--sans); font-size: 14px; color: var(--accent); letter-spacing: 0.12em; margin-bottom: 16px; text-align: center; }
+    .painmap svg { display: block; margin: 0 auto; max-width: 100%; height: auto; }
+
+    .persona-table { width: 100%; border-collapse: collapse; margin: 16px 0; font-family: var(--sans); font-size: 14px; background: #fff; box-shadow: var(--shadow); border-radius: 8px; overflow: hidden; }
+    .persona-table th { background: var(--accent-soft); color: var(--accent); padding: 10px 14px; }
+    .persona-table td { padding: 10px 14px; border-top: 1px solid var(--line); }
+    .persona-table tr:hover td { background: #fcf9f4; }
+    .tag { display: inline-block; font-size: 11px; padding: 2px 8px; border-radius: 999px; font-weight: 600; margin-right: 4px; }
+    .tag-novice { background: var(--blue-soft); color: var(--blue); }
+    .tag-mid { background: var(--gold-soft); color: var(--gold); }
+    .tag-team { background: var(--green-soft); color: var(--green); }
 
     .foot { margin-top: 64px; padding-top: 20px; border-top: 1px solid var(--line); font-family: var(--sans); font-size: 12px; color: var(--ink-mute); text-align: center; letter-spacing: 0.06em; }
   </style>
@@ -91,24 +107,189 @@
 <div class="toc"><h2>目 录</h2>
   <ul>
     <li class="l1"><a href="#1-一句话价值">一句话价值</a></li>
-    <li class="l1"><a href="#2-解决的问题">解决的问题</a></li>
-    <li class="l1"><a href="#3-实现原理">实现原理</a></li>
-    <li class="l1"><a href="#4-准备条件">准备条件</a></li>
-    <li class="l1"><a href="#5-操作步骤">操作步骤</a></li>
-    <li class="l1"><a href="#6-最终达成">最终达成</a></li>
+    <li class="l1"><a href="#2-人群与痛点脑图">人群与痛点脑图</a></li>
+    <li class="l1"><a href="#3-真实痛点证据">真实痛点证据</a></li>
+    <li class="l1"><a href="#4-实现原理">实现原理</a></li>
+    <li class="l1"><a href="#5-准备条件">准备条件</a></li>
+    <li class="l1"><a href="#6-操作步骤">操作步骤</a></li>
+    <li class="l1"><a href="#7-最终达成">最终达成</a></li>
   </ul>
 </div>
 
 <h2 id="1-一句话价值">1 一句话价值</h2>
 <p>在 WorkBuddy 里接入 MiniMax 订阅套餐后，对话 token 走套餐额度计费，不再按单次调用量付费，从而压缩 AI 工具的固定支出。</p>
 
-<h2 id="2-解决的问题">2 解决的问题</h2>
-<p>WorkBuddy 默认按量付费模式下，高频对话、长上下文或批量任务会让 token 消耗快速累积，费用不可预期。</p>
+<hr>
 
-<h2 id="3-实现原理">3 实现原理</h2>
+<h2 id="2-人群与痛点脑图">2 人群与痛点脑图</h2>
+
+<h3>2.1 目标人群分层</h3>
+<table class="persona-table">
+  <thead><tr><th>分层</th><th>典型用户</th><th>使用强度</th></tr></thead>
+  <tbody>
+    <tr><td><span class="tag tag-novice">初学者</span></td><td>个人探索者 / 文旅从业者尝鲜</td><td>偶尔用，对 AI 工具好奇</td></tr>
+    <tr><td><span class="tag tag-mid">进阶者</span></td><td>OPC 学员 / 内容创作者 / 研学从业者</td><td>每天多次对话，跑批量任务</td></tr>
+    <tr><td><span class="tag tag-team">企业老板</span></td><td>团队管理者 / 项目负责人</td><td>多账号协作，需做预算管控</td></tr>
+  </tbody>
+</table>
+
+<h3>2.2 痛点脑图（按人群垂类拆解）</h3>
+
+<div class="painmap">
+  <div class="pm-title">WorkBuddy 按量付费成本痛点 · 按人群垂类拆解</div>
+  <svg viewBox="0 0 920 540" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <style>
+        .pm-node { fill: #fff; stroke: #e3dccf; stroke-width: 1.5; rx: 6; ry: 6; }
+        .pm-node-root { fill: #f4e9d6; stroke: #a8302d; stroke-width: 2; }
+        .pm-node-novice { fill: #e4ecf3; stroke: #3b5a78; stroke-width: 1.5; }
+        .pm-node-mid { fill: #f5ecd6; stroke: #a9822c; stroke-width: 1.5; }
+        .pm-node-team { fill: #e6f0e8; stroke: #3f7a54; stroke-width: 1.5; }
+        .pm-line { stroke: #8a8177; stroke-width: 1; stroke-dasharray: 4 3; fill: none; }
+        .pm-text { font-family: "Noto Sans SC", "PingFang SC", sans-serif; fill: #2a2622; }
+        .pm-text-root { font-weight: 700; fill: #a8302d; }
+        .pm-text-novice { font-weight: 600; fill: #3b5a78; }
+        .pm-text-mid { font-weight: 600; fill: #a9822c; }
+        .pm-text-team { font-weight: 600; fill: #3f7a54; }
+      </style>
+    </defs>
+
+    <!-- 根节点 -->
+    <rect class="pm-node pm-node-root" x="360" y="20" width="200" height="50" />
+    <text class="pm-text pm-text-root" x="460" y="42" text-anchor="middle" font-size="15">AI 工具成本</text>
+    <text class="pm-text pm-text-root" x="460" y="60" text-anchor="middle" font-size="13">不可预期 / 不可控</text>
+
+    <!-- 一级连接线 -->
+    <path class="pm-line" d="M 460 70 L 460 100" />
+    <path class="pm-line" d="M 460 100 L 160 100" />
+    <path class="pm-line" d="M 460 100 L 460 100" />
+    <path class="pm-line" d="M 460 100 L 760 100" />
+    <path class="pm-line" d="M 160 100 L 160 140" />
+    <path class="pm-line" d="M 460 100 L 460 140" />
+    <path class="pm-line" d="M 760 100 L 760 140" />
+
+    <!-- 三个人群根 -->
+    <rect class="pm-node pm-node-novice" x="60" y="140" width="200" height="50" />
+    <text class="pm-text pm-text-novice" x="160" y="162" text-anchor="middle" font-size="14">初学者</text>
+    <text class="pm-text pm-text-novice" x="160" y="180" text-anchor="middle" font-size="12">个人 / 尝鲜</text>
+
+    <rect class="pm-node pm-node-mid" x="360" y="140" width="200" height="50" />
+    <text class="pm-text pm-text-mid" x="460" y="162" text-anchor="middle" font-size="14">进阶者</text>
+    <text class="pm-text pm-text-mid" x="460" y="180" text-anchor="middle" font-size="12">OPC / 内容 / 研学</text>
+
+    <rect class="pm-node pm-node-team" x="660" y="140" width="200" height="50" />
+    <text class="pm-text pm-text-team" x="760" y="162" text-anchor="middle" font-size="14">企业老板</text>
+    <text class="pm-text pm-text-team" x="760" y="180" text-anchor="middle" font-size="12">团队 / 项目管理</text>
+
+    <!-- 初学者子痛点 -->
+    <path class="pm-line" d="M 160 190 L 160 220" />
+    <path class="pm-line" d="M 160 220 L 60 220" />
+    <path class="pm-line" d="M 160 220 L 160 220" />
+    <path class="pm-line" d="M 160 220 L 260 220" />
+    <path class="pm-line" d="M 60 220 L 60 250" />
+    <path class="pm-line" d="M 160 220 L 160 250" />
+    <path class="pm-line" d="M 260 220 L 260 250" />
+
+    <rect class="pm-node pm-node-novice" x="20" y="250" width="80" height="60" />
+    <text class="pm-text" x="60" y="272" text-anchor="middle" font-size="11">不懂 token</text>
+    <text class="pm-text" x="60" y="288" text-anchor="middle" font-size="11">看到账单</text>
+    <text class="pm-text" x="60" y="304" text-anchor="middle" font-size="11">才慌</text>
+
+    <rect class="pm-node pm-node-novice" x="120" y="250" width="80" height="60" />
+    <text class="pm-text" x="160" y="272" text-anchor="middle" font-size="11">怕钱烧光</text>
+    <text class="pm-text" x="160" y="288" text-anchor="middle" font-size="11">不敢</text>
+    <text class="pm-text" x="160" y="304" text-anchor="middle" font-size="11">放开用</text>
+
+    <rect class="pm-node pm-node-novice" x="220" y="250" width="80" height="60" />
+    <text class="pm-text" x="260" y="272" text-anchor="middle" font-size="11">不知道</text>
+    <text class="pm-text" x="260" y="288" text-anchor="middle" font-size="11">有套餐</text>
+    <text class="pm-text" x="260" y="304" text-anchor="middle" font-size="11">/ 订阅</text>
+
+    <!-- 进阶者子痛点 -->
+    <path class="pm-line" d="M 460 190 L 460 220" />
+    <path class="pm-line" d="M 460 220 L 360 220" />
+    <path class="pm-line" d="M 460 220 L 460 220" />
+    <path class="pm-line" d="M 460 220 L 560 220" />
+    <path class="pm-line" d="M 360 220 L 360 250" />
+    <path class="pm-line" d="M 460 220 L 460 250" />
+    <path class="pm-line" d="M 560 220 L 560 250" />
+
+    <rect class="pm-node pm-node-mid" x="320" y="250" width="80" height="60" />
+    <text class="pm-text" x="360" y="272" text-anchor="middle" font-size="11">每天 10+</text>
+    <text class="pm-text" x="360" y="288" text-anchor="middle" font-size="11">次对话</text>
+    <text class="pm-text" x="360" y="304" text-anchor="middle" font-size="11">月底账单</text>
+
+    <rect class="pm-node pm-node-mid" x="420" y="250" width="80" height="60" />
+    <text class="pm-text" x="460" y="272" text-anchor="middle" font-size="11">跑批量</text>
+    <text class="pm-text" x="460" y="288" text-anchor="middle" font-size="11">任务</text>
+    <text class="pm-text" x="460" y="304" text-anchor="middle" font-size="11">消耗成倍</text>
+
+    <rect class="pm-node pm-node-mid" x="520" y="250" width="80" height="60" />
+    <text class="pm-text" x="560" y="272" text-anchor="middle" font-size="11">长上下文</text>
+    <text class="pm-text" x="560" y="288" text-anchor="middle" font-size="11">一次扣费</text>
+    <text class="pm-text" x="560" y="304" text-anchor="middle" font-size="11">喝一壶</text>
+
+    <!-- 企业老板子痛点 -->
+    <path class="pm-line" d="M 760 190 L 760 220" />
+    <path class="pm-line" d="M 760 220 L 660 220" />
+    <path class="pm-line" d="M 760 220 L 760 220" />
+    <path class="pm-line" d="M 760 220 L 860 220" />
+    <path class="pm-line" d="M 660 220 L 660 250" />
+    <path class="pm-line" d="M 760 220 L 760 250" />
+    <path class="pm-line" d="M 860 220 L 860 250" />
+
+    <rect class="pm-node pm-node-team" x="620" y="250" width="80" height="60" />
+    <text class="pm-text" x="660" y="272" text-anchor="middle" font-size="11">多账号</text>
+    <text class="pm-text" x="660" y="288" text-anchor="middle" font-size="11">成本</text>
+    <text class="pm-text" x="660" y="304" text-anchor="middle" font-size="11">不可预测</text>
+
+    <rect class="pm-node pm-node-team" x="720" y="250" width="80" height="60" />
+    <text class="pm-text" x="760" y="272" text-anchor="middle" font-size="11">预算</text>
+    <text class="pm-text" x="760" y="288" text-anchor="middle" font-size="11">难管控</text>
+    <text class="pm-text" x="760" y="304" text-anchor="middle" font-size="11">难审批</text>
+
+    <rect class="pm-node pm-node-team" x="820" y="250" width="80" height="60" />
+    <text class="pm-text" x="860" y="272" text-anchor="middle" font-size="11">ROI</text>
+    <text class="pm-text" x="860" y="288" text-anchor="middle" font-size="11">无法衡量</text>
+    <text class="pm-text" x="860" y="304" text-anchor="middle" font-size="11">难复盘</text>
+
+    <!-- 底部结论 -->
+    <rect class="pm-node pm-node-root" x="280" y="380" width="360" height="80" />
+    <text class="pm-text pm-text-root" x="460" y="406" text-anchor="middle" font-size="14">三种人群的共同诉求</text>
+    <text class="pm-text" x="460" y="428" text-anchor="middle" font-size="12">把"按次计费、不可预期"</text>
+    <text class="pm-text" x="460" y="446" text-anchor="middle" font-size="12">切换为"套餐额度、固定可控"</text>
+
+    <!-- 解决路径 -->
+    <path class="pm-line" d="M 460 310 L 460 380" stroke="#a8302d" stroke-dasharray: none; stroke-width="2" />
+    <polygon points="455,375 465,375 460,385" fill="#a8302d" />
+
+    <!-- 底部解决方案 -->
+    <rect class="pm-node pm-node-root" x="280" y="490" width="360" height="40" />
+    <text class="pm-text pm-text-root" x="460" y="515" text-anchor="middle" font-size="13">→ 001：WorkBuddy 接入 MiniMax 订阅套餐</text>
+    <path class="pm-line" d="M 460 460 L 460 490" stroke="#a8302d" stroke-dasharray: none; stroke-width="2" />
+    <polygon points="455,485 465,485 460,495" fill="#a8302d" />
+  </svg>
+</div>
+
+<hr>
+
+<h2 id="3-真实痛点证据">3 真实痛点证据</h2>
+
+<p>WorkBuddy 用量明细页（套餐与用量 → 用量明细）就是"按次计费"的最直接证据：每条请求一行，积分消耗看得清清楚楚。</p>
+
+<div class="figure">
+  <img src="pain_evidence_billing.png" alt="WorkBuddy 用量明细：每条请求按次扣费">
+  <div class="cap">WorkBuddy「用量明细」真实截图 · 每条对话都按积分消耗结算</div>
+</div>
+
+<blockquote><strong>看截图能发现</strong>：单次对话消耗 0~180 积分不等，模型不同消耗差异巨大；高频使用下月底账单完全不可预期。这就是 001 要解决的问题。</blockquote>
+
+<hr>
+
+<h2 id="4-实现原理">4 实现原理</h2>
 <blockquote>MiniMax Token Plan 是独立于按量付费的订阅额度体系。在 WorkBuddy 中把 MiniMax 配置成自定义模型后，相关请求可走该订阅 Key 的额度池，把"按量计费"切换为"套餐内可用额度"。</blockquote>
 
-<h2 id="4-准备条件">4 准备条件</h2>
+<h2 id="5-准备条件">5 准备条件</h2>
 <ul>
   <li>已注册 MiniMax 平台账号并开通 Token Plan 订阅</li>
   <li>WorkBuddy 设置权限，可进入模型管理页</li>
@@ -117,7 +298,7 @@
 
 <hr>
 
-<h2 id="5-操作步骤">5 操作步骤</h2>
+<h2 id="6-操作步骤">6 操作步骤</h2>
 
 <div class="step-card">
   <div class="num">第 1 步</div>
@@ -165,7 +346,7 @@
 
 <hr>
 
-<h2 id="6-最终达成">6 最终达成</h2>
+<h2 id="7-最终达成">7 最终达成</h2>
 <p>WorkBuddy 中新增一条可用的 MiniMax 自定义模型配置，后续相关对话可走该订阅套餐额度计费，减少按量付费支出。</p>
 
 <div class="foot">
