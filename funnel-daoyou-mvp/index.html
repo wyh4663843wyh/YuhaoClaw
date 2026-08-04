@@ -8,281 +8,473 @@
 * { box-sizing: border-box; margin: 0; padding: 0; }
 html { scroll-behavior: smooth; }
 body {
-  font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif;
-  background: #FAFBFC;
+  font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", "Helvetica Neue", Arial, sans-serif;
+  background: linear-gradient(180deg, #F5F7FA 0%, #ECEFF4 100%);
   color: #2C3E50;
-  line-height: 1.5;
-  padding: 20px;
-  max-width: 1400px;
+  line-height: 1.55;
+  padding: 24px 20px;
+  max-width: 980px;
   margin: 0 auto;
   font-size: 13px;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
-header {
-  background: #2C3E50;
+
+/* 顶部 Hero */
+.hero {
+  background: linear-gradient(135deg, #2C3E50 0%, #1E2A38 100%);
   color: #FFFFFF;
-  padding: 20px 24px;
-  border-radius: 10px;
-  margin-bottom: 16px;
+  padding: 28px 32px;
+  border-radius: 14px;
+  margin-bottom: 18px;
+  box-shadow: 0 6px 20px rgba(44, 62, 80, 0.15);
+  position: relative;
+  overflow: hidden;
 }
-header h1 {
-  font-size: 18px;
-  font-weight: 500;
+.hero::before {
+  content: "";
+  position: absolute;
+  top: -50%; right: -50%;
+  width: 200%; height: 200%;
+  background: radial-gradient(circle, rgba(255,255,255,0.05) 0%, transparent 60%);
+  pointer-events: none;
+}
+.hero .breadcrumb {
+  font-size: 11px;
+  color: #7FA8C9;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+  position: relative;
+}
+.hero h1 {
+  font-size: 22px;
+  font-weight: 600;
   margin-bottom: 6px;
+  letter-spacing: 0.3px;
+  position: relative;
 }
-header .subtitle {
+.hero .subtitle {
+  font-size: 12px;
+  color: #B5D4F4;
+  position: relative;
+}
+.hero .stats {
+  display: flex;
+  gap: 24px;
+  margin-top: 16px;
+  padding-top: 14px;
+  border-top: 1px solid rgba(255,255,255,0.1);
+  position: relative;
+}
+.hero .stat-item {
+  flex: 1;
+}
+.hero .stat-label {
+  font-size: 10px;
+  color: #7FA8C9;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 4px;
+}
+.hero .stat-value {
+  font-size: 16px;
+  font-weight: 600;
+  color: #FFD580;
+  letter-spacing: 0.3px;
+}
+.hero .stat-value .unit {
   font-size: 11px;
   color: #B5D4F4;
+  font-weight: 400;
+  margin-left: 2px;
 }
+
+/* 使用说明 */
 .note-banner {
-  background: #FFF4E5;
+  background: linear-gradient(135deg, #FFF9E6 0%, #FFF4E5 100%);
   border: 1px dashed #E07A5F;
   color: #993C1D;
-  padding: 10px 16px;
-  border-radius: 6px;
+  padding: 11px 18px;
+  border-radius: 8px;
   font-size: 11px;
-  margin-bottom: 16px;
+  margin-bottom: 14px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
-.note-banner strong { color: #993C1D; }
+.note-banner .icon { font-size: 14px; }
+.note-banner strong { color: #993C1D; font-weight: 600; }
 
+/* 漏斗层 */
 .layer {
   background: #FFFFFF;
-  border-radius: 10px;
+  border-radius: 12px;
   margin-bottom: 10px;
   overflow: hidden;
-  border: 1px solid #E1E5EB;
-  transition: box-shadow 0.2s;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.04), 0 4px 12px rgba(0,0,0,0.03);
+  transition: all 0.25s ease;
+  border: 1px solid rgba(0,0,0,0.04);
 }
-.layer:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.04); }
+.layer:hover {
+  box-shadow: 0 4px 8px rgba(0,0,0,0.06), 0 8px 20px rgba(0,0,0,0.06);
+  transform: translateY(-1px);
+}
 .layer-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 10px 20px;
-  border-bottom: 1px solid rgba(255,255,255,0.5);
+  padding: 11px 22px;
   flex-wrap: wrap;
   gap: 8px;
+  position: relative;
+}
+.layer-header::before {
+  content: "";
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  width: 4px;
+  background: currentColor;
+  opacity: 0.4;
 }
 .layer-header .title {
-  font-size: 13px;
-  font-weight: 500;
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.2px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.layer-header .title .num {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px; height: 22px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.7);
+  font-size: 11px;
+  font-weight: 700;
 }
 .layer-header .meta {
   font-size: 11px;
   opacity: 0.85;
+  font-weight: 500;
 }
 .layer-header .badge {
   font-size: 10px;
-  font-weight: 500;
-  padding: 2px 8px;
-  background: rgba(255,255,255,0.6);
-  border-radius: 10px;
+  font-weight: 600;
+  padding: 3px 10px;
+  background: rgba(255,255,255,0.65);
+  border-radius: 12px;
+  letter-spacing: 0.3px;
 }
 
 /* 6 层色调 */
-.l1 .layer-header { background: #E6F1FB; color: #0C447C; }
-.l2 .layer-header { background: #D6E8F7; color: #0C447C; }
-.l3 .layer-header { background: #EAF3DE; color: #173404; }
-.l4 .layer-header { background: #FAEEDA; color: #412402; }
-.l5 .layer-header { background: #EAF3DE; color: #173404; }
-.l6 .layer-header { background: #FAECE7; color: #4A1B0C; }
+.l1 .layer-header { background: linear-gradient(135deg, #E6F1FB 0%, #D0E4F7 100%); color: #0C447C; }
+.l2 .layer-header { background: linear-gradient(135deg, #D6E8F7 0%, #C6DCEE 100%); color: #0C447C; }
+.l3 .layer-header { background: linear-gradient(135deg, #EAF3DE 0%, #DCEAC9 100%); color: #173404; }
+.l4 .layer-header { background: linear-gradient(135deg, #FAEEDA 0%, #F0DFC5 100%); color: #412402; }
+.l5 .layer-header { background: linear-gradient(135deg, #EAF3DE 0%, #DCEAC9 100%); color: #173404; }
+.l6 .layer-header { background: linear-gradient(135deg, #FAECE7 0%, #F0DBD3 100%); color: #4A1B0C; }
 
 .layer-body {
   display: grid;
   grid-template-columns: 1fr 1fr 1fr 1fr;
-  gap: 1px;
-  background: #E1E5EB;
+  gap: 0;
+  padding: 14px 18px;
 }
 .layer-body .col {
-  background: #FFFFFF;
-  padding: 12px 14px;
+  padding: 0 12px;
+  border-right: 1px solid #ECEFF4;
 }
+.layer-body .col:last-child { border-right: none; }
 .layer-body .col-label {
   font-size: 9px;
-  font-weight: 500;
+  font-weight: 600;
   color: #5F5E5A;
   margin-bottom: 6px;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
+  letter-spacing: 1px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.layer-body .col-label::before {
+  content: "•";
+  color: #C7254E;
+  font-size: 12px;
+  line-height: 1;
 }
 .layer-body .col-content {
   font-size: 11px;
   color: #2C3E50;
-  line-height: 1.6;
+  line-height: 1.65;
 }
 .layer-body .col-content strong {
   color: #C7254E;
-  font-weight: 500;
+  font-weight: 600;
+  font-size: 12px;
+  display: block;
+  margin-bottom: 3px;
 }
 .layer-body .col-content ul {
   list-style: none;
   padding: 0;
-  margin: 4px 0 0 0;
+  margin: 0;
 }
 .layer-body .col-content li {
-  padding-left: 12px;
+  padding-left: 11px;
   position: relative;
   margin-bottom: 2px;
+  color: #5F5E5A;
+  font-size: 10.5px;
 }
 .layer-body .col-content li::before {
   content: "├";
   position: absolute;
   left: 0;
-  color: #5F5E5A;
+  color: #C1C8D2;
   font-size: 9px;
+  font-weight: 700;
 }
 
-/* 可编辑文本框 */
+/* 关键框 / 可编辑 */
 .editable {
-  background: #FFF4E5;
+  background: linear-gradient(135deg, #FFF9E6 0%, #FFF4E5 100%);
   border: 1px dashed #E07A5F;
-  border-radius: 4px;
-  padding: 8px 12px;
+  border-radius: 6px;
+  padding: 9px 14px;
   font-size: 11px;
   color: #2C3E50;
   outline: none;
   min-height: 32px;
   width: 100%;
-  transition: all 0.2s;
+  transition: all 0.2s ease;
   white-space: pre-wrap;
   word-break: break-word;
+  line-height: 1.6;
+  font-family: inherit;
 }
 .editable:focus {
-  background: #FFFCF5;
+  background: linear-gradient(135deg, #FFFCF5 0%, #FFF8E8 100%);
   border-color: #993C1D;
-  box-shadow: 0 0 0 2px rgba(224, 122, 95, 0.15);
+  border-style: solid;
+  box-shadow: 0 0 0 3px rgba(224, 122, 95, 0.12);
 }
 .editable:empty::before {
   content: attr(data-placeholder);
   color: #B5A89A;
   font-style: italic;
+  font-size: 10.5px;
 }
 
 .layer-foot {
-  padding: 12px 20px;
+  padding: 12px 22px 14px;
   background: #FAFBFC;
-  border-top: 1px solid #E1E5EB;
+  border-top: 1px solid #F0F2F5;
 }
 .layer-foot .key {
   font-size: 11px;
   color: #5F5E5A;
   margin-bottom: 8px;
   line-height: 1.6;
+  padding: 8px 12px;
+  background: #FFFFFF;
+  border-radius: 5px;
+  border-left: 3px solid #C7254E;
 }
 .layer-foot .key strong {
   color: #2C3E50;
-  font-weight: 500;
+  font-weight: 600;
 }
 .layer-foot .key .warn {
   color: #993C1D;
+  font-weight: 600;
 }
-.layer-foot .editable {
-  margin-top: 0;
+.layer-foot .key .highlight {
+  color: #C7254E;
+  font-weight: 600;
+}
+.layer-foot .key .success {
+  color: #4A7C2E;
+  font-weight: 600;
+}
+.layer-foot .key .logic {
+  color: #4A1B0C;
+  font-weight: 600;
 }
 
 /* 转化箭头 */
 .flow {
   text-align: center;
-  padding: 4px 0;
+  padding: 6px 0;
   font-size: 11px;
-  font-weight: 500;
+  font-weight: 600;
   color: #185FA5;
-  background: #FAFBFC;
+  background: transparent;
   position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
 }
 .flow::before {
-  content: "↓";
+  content: "";
+  width: 1px; height: 14px;
+  background: linear-gradient(180deg, transparent, #C1C8D2, transparent);
   display: block;
-  font-size: 14px;
+}
+.flow::after {
+  content: "↓";
+  font-size: 16px;
   color: #185FA5;
-  margin-bottom: 1px;
+  font-weight: 700;
 }
 
 /* 总账 */
 .summary {
-  background: #2C3E50;
+  background: linear-gradient(135deg, #2C3E50 0%, #1E2A38 100%);
   color: #FFFFFF;
-  padding: 20px 24px;
-  border-radius: 10px;
-  margin-top: 20px;
+  padding: 24px 28px;
+  border-radius: 14px;
+  margin-top: 18px;
+  box-shadow: 0 6px 20px rgba(44, 62, 80, 0.15);
+  position: relative;
+  overflow: hidden;
+}
+.summary::before {
+  content: "";
+  position: absolute;
+  top: -50%; right: -50%;
+  width: 200%; height: 200%;
+  background: radial-gradient(circle, rgba(255,213,128,0.08) 0%, transparent 60%);
+  pointer-events: none;
 }
 .summary h2 {
-  font-size: 13px;
-  font-weight: 500;
-  margin-bottom: 12px;
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 14px;
   color: #FFD580;
+  position: relative;
 }
 .summary .row {
-  font-size: 11px;
+  font-size: 11.5px;
   color: #B5D4F4;
   margin-bottom: 6px;
-  padding: 4px 0;
+  padding: 6px 0;
   border-bottom: 1px solid rgba(255,255,255,0.08);
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
-.summary .row strong { color: #FFFFFF; }
+.summary .row .label { color: #7FA8C9; min-width: 24px; }
+.summary .row strong { color: #FFFFFF; font-weight: 600; }
+.summary .row .key-val { color: #FFD580; font-weight: 600; font-size: 13px; }
 .summary .final {
   color: #FFFFFF;
   font-size: 12px;
-  padding: 8px 0;
-  border-top: 1px solid rgba(255,255,255,0.3);
-  margin-top: 8px;
+  padding: 10px 0 4px;
+  border-top: 1px solid rgba(255,255,255,0.2);
+  margin-top: 10px;
+  position: relative;
 }
 .summary .logic {
   color: #7FA8C9;
   font-size: 10px;
-  margin-top: 12px;
-  padding-top: 10px;
-  border-top: 1px solid rgba(255,255,255,0.15);
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px solid rgba(255,255,255,0.12);
+  position: relative;
+  line-height: 1.6;
 }
 .summary .editable {
   background: rgba(255, 244, 229, 0.95);
   color: #2C3E50;
   border: 1px dashed #FFD580;
   width: 100%;
-  margin-top: 10px;
-  padding: 10px 14px;
+  margin-top: 12px;
+  padding: 12px 16px;
   font-size: 11px;
-  border-radius: 4px;
+  border-radius: 6px;
   min-height: 60px;
+  position: relative;
+}
+.summary .editable:focus {
+  background: rgba(255, 252, 245, 0.98);
+  border-color: #FFD580;
+  border-style: solid;
+  box-shadow: 0 0 0 3px rgba(255, 213, 128, 0.2);
 }
 
 /* 响应式 */
 @media (max-width: 768px) {
-  body { padding: 12px; font-size: 12px; }
+  body { padding: 16px 12px; font-size: 12px; }
+  .layer-body { grid-template-columns: 1fr 1fr; padding: 12px 14px; }
+  .layer-body .col { padding: 0 8px; }
+  .layer-body .col:nth-child(2) { border-right: none; }
+  .hero { padding: 20px 22px; }
+  .hero .stats { flex-wrap: wrap; gap: 16px; }
+  .hero .stat-item { min-width: 80px; }
+  .summary { padding: 18px 20px; }
+}
+@media (max-width: 480px) {
   .layer-body { grid-template-columns: 1fr; }
-  .layer-header { padding: 8px 14px; }
-  .layer-body .col { padding: 10px 12px; }
-  .summary { padding: 16px 18px; }
+  .layer-body .col { border-right: none; border-bottom: 1px solid #ECEFF4; padding: 8px 0; }
+  .layer-body .col:last-child { border-bottom: none; }
 }
 
 footer {
   text-align: center;
   color: #5F5E5A;
   font-size: 10px;
-  padding: 20px 0 10px;
-  margin-top: 12px;
+  padding: 24px 0 12px;
+  margin-top: 16px;
+  letter-spacing: 0.5px;
 }
-
-/* 隐藏滚动条箭头 */
-::-webkit-scrollbar { height: 8px; width: 8px; }
-::-webkit-scrollbar-thumb { background: #C1C8D2; border-radius: 4px; }
-::-webkit-scrollbar-track { background: #FAFBFC; }
+footer .divider {
+  width: 40px;
+  height: 1px;
+  background: #C1C8D2;
+  margin: 0 auto 12px;
+}
 </style>
 </head>
 <body>
 
-<header>
+<div class="hero">
+  <div class="breadcrumb">OPC 研学培训 · 30 天 MVP 验证</div>
   <h1>完整变现漏斗 · 6 层全链路</h1>
-  <div class="subtitle">L1 钩子 9.9 → L2 升单 349 → L3 主课 1499 → 撬动 30 人首期（90 天 4.5 万 GMV）</div>
-</header>
+  <div class="subtitle">L1 钩子 9.9 → L2 升单 349 → L3 主课 1499 → 撬动 30 人首期</div>
+  <div class="stats">
+    <div class="stat-item">
+      <div class="stat-label">30 天 GMV</div>
+      <div class="stat-value">1,097<span class="unit">元</span></div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-label">90 天撬动 GMV</div>
+      <div class="stat-value">4.5<span class="unit">万元</span></div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-label">风险买断率</div>
+      <div class="stat-value">1 : 5</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-label">核心回报</div>
+      <div class="stat-value" style="font-size: 13px; color: #FFFFFF;">升单漏斗验证</div>
+    </div>
+  </div>
+</div>
 
 <div class="note-banner">
-  <strong>📝 使用说明</strong>：底部带黄底虚线框 = <strong>可编辑文本框</strong>，点击即可修改。内部同步时直接记录关键信息 / 备注 / 想法 / 决策点。修改仅在当前浏览器有效，刷新会还原，建议复制粘贴到飞书 / 备忘录。
+  <span class="icon">📝</span>
+  <span><strong>使用说明</strong>：底部带黄底虚线框 = <strong>可编辑文本框</strong>，点击即可修改。内部同步时直接记录关键信息 / 备注 / 想法 / 决策点。修改自动保存到本地（刷新不丢），建议截图或复制粘贴到飞书 / 备忘录。</span>
 </div>
 
 <!-- ① 曝光层 -->
 <section class="layer l1">
   <div class="layer-header">
-    <span class="title">① 曝光层</span>
+    <span class="title"><span class="num">1</span>曝光层</span>
     <span class="meta">60 篇笔记 → 9 万曝光</span>
     <span class="badge">入口层 · 全网流量</span>
   </div>
@@ -291,7 +483,7 @@ footer {
       <div class="col-label">用户行为</div>
       <div class="col-content">
         <strong>看笔记</strong>
-        <ul><li>1500 曝光/篇</li></ul>
+        <ul><li>1500 曝光 / 篇</li></ul>
       </div>
     </div>
     <div class="col">
@@ -329,7 +521,7 @@ footer {
     <div class="key">
       <strong>9 万曝光</strong> · 行业基准 3-5% 点击率 · 参考：@Claire 60 篇爆款 = 9 万曝光
     </div>
-    <div class="editable" contenteditable="true" data-placeholder="📝 点击记录本层关键信息 / 备注 / 想法……"></div>
+    <div class="editable" contenteditable="true" data-placeholder="📝 记录本层关键信息 / 备注 / 想法……"></div>
   </div>
 </section>
 
@@ -338,7 +530,7 @@ footer {
 <!-- ② 商品卡点击 -->
 <section class="layer l2">
   <div class="layer-header">
-    <span class="title">② 商品卡点击</span>
+    <span class="title"><span class="num">2</span>商品卡点击</span>
     <span class="meta">9 万 → 3000 次</span>
     <span class="badge">兴趣层 · 详情页承接</span>
   </div>
@@ -386,7 +578,7 @@ footer {
     <div class="key">
       <strong>3000 次点击</strong> · 行业基准 1-3% 下单转化 · <span class="warn">⚠</span> 详情页顶部加粗"购买后 3 分钟内会收到短信 → 点击短信链接 → 飞书顶部扫码加微"
     </div>
-    <div class="editable" contenteditable="true" data-placeholder="📝 点击记录本层关键信息 / 备注 / 想法……"></div>
+    <div class="editable" contenteditable="true" data-placeholder="📝 记录本层关键信息 / 备注 / 想法……"></div>
   </div>
 </section>
 
@@ -395,7 +587,7 @@ footer {
 <!-- ③ L1 付费层 -->
 <section class="layer l3">
   <div class="layer-header">
-    <span class="title">③ L1 付费层</span>
+    <span class="title"><span class="num">3</span>L1 付费层</span>
     <span class="meta">3000 → 5 单</span>
     <span class="badge">⭐ 钩子层 · 9.9 元</span>
   </div>
@@ -452,7 +644,7 @@ footer {
     <div class="key">
       <strong>5 单 × 9.9 元 = 49.5 元 GMV</strong> · 解决 4 大痛点：熬夜写讲解词 / 应急零散 / 互动经验主义 / 报告耗时长 / AI 工具不会用
     </div>
-    <div class="editable" contenteditable="true" data-placeholder="📝 点击记录本层关键信息 / 备注 / 想法……"></div>
+    <div class="editable" contenteditable="true" data-placeholder="📝 记录本层关键信息 / 备注 / 想法……"></div>
   </div>
 </section>
 
@@ -461,7 +653,7 @@ footer {
 <!-- ④ 履约加微层 -->
 <section class="layer l4">
   <div class="layer-header">
-    <span class="title">④ 履约加微层</span>
+    <span class="title"><span class="num">4</span>履约加微层</span>
     <span class="meta">5 单 → 30 私域</span>
     <span class="badge">⭐ 关键闭环 · 平台默许</span>
   </div>
@@ -520,7 +712,7 @@ footer {
     <div class="key">
       <strong>30 私域（10% 履约扫码率）</strong> · <span class="warn">⚠</span> 关键合规点：用户先付费再扫码，不是引流：笔记 / 评论 / 简介 加微 = 违规；订单履约物料内扫码 = 平台默许
     </div>
-    <div class="editable" contenteditable="true" data-placeholder="📝 点击记录本层关键信息 / 备注 / 想法……"></div>
+    <div class="editable" contenteditable="true" data-placeholder="📝 记录本层关键信息 / 备注 / 想法……"></div>
   </div>
 </section>
 
@@ -529,7 +721,7 @@ footer {
 <!-- ⑤ L2 升单层 -->
 <section class="layer l5">
   <div class="layer-header">
-    <span class="title">⑤ L2 升单层</span>
+    <span class="title"><span class="num">5</span>L2 升单层</span>
     <span class="meta">30 私域 → 3 单</span>
     <span class="badge">⭐ 升单层 · 349 元</span>
   </div>
@@ -550,8 +742,7 @@ footer {
         <strong>349 元 / 单</strong>
         <ul>
           <li>30 × 10% = 3 单</li>
-          <li>朋友圈 5 大剧本：</li>
-          <li>人设类 3/周 + 工具 / 案例</li>
+          <li>朋友圈 5 大剧本</li>
           <li>1v1 私聊 5 段对话</li>
         </ul>
       </div>
@@ -587,12 +778,12 @@ footer {
     </div>
   </div>
   <div class="layer-foot">
-    <div class="key" style="background: #FFF4E5; border: 1px dashed #E07A5F; padding: 10px 12px; border-radius: 4px; margin-bottom: 8px;">
-      <strong style="color: #993C1D;">3 单 × 349 元 = 1047 元 GMV</strong><br>
+    <div class="key">
+      <span class="highlight">3 单 × 349 元 = 1047 元 GMV</span><br>
       ├ 累计直接 GMV：49.5（L1）+ 1047（L2）= 1097 元<br>
-      <strong style="color: #27500A;">└ 价值主张：L1 模板（通用）→ L2 校准（你专属）= 节省 1 天试错</strong>
+      <strong class="success">└ 价值主张：L1 模板（通用）→ L2 校准（你专属）= 节省 1 天试错</strong>
     </div>
-    <div class="editable" contenteditable="true" data-placeholder="📝 点击记录本层关键信息 / 备注 / 想法……"></div>
+    <div class="editable" contenteditable="true" data-placeholder="📝 记录本层关键信息 / 备注 / 想法……"></div>
   </div>
 </section>
 
@@ -601,7 +792,7 @@ footer {
 <!-- ⑥ L3 主课层 -->
 <section class="layer l6">
   <div class="layer-header">
-    <span class="title">⑥ L3 主课层</span>
+    <span class="title"><span class="num">6</span>L3 主课层</span>
     <span class="meta">L2 完课 → 1 单种子</span>
     <span class="badge">⭐ 主课层 · 1499 元 · 90 天</span>
   </div>
@@ -659,43 +850,39 @@ footer {
     </div>
   </div>
   <div class="layer-foot">
-    <div class="key" style="background: #FFF4E5; border: 1px dashed #E07A5F; padding: 10px 12px; border-radius: 4px; margin-bottom: 8px;">
-      <strong style="color: #993C1D;">1 单 × 1499 + 撬动 30 人 × 1499 = 4.5 万 GMV（90 天）</strong><br>
+    <div class="key">
+      <span class="highlight">1 单 × 1499 + 撬动 30 人 × 1499 = 4.5 万 GMV（90 天）</span><br>
       ├ 解决：长期承接 / 招生 / 内容沉淀 3 倍提升<br>
       └ 主理人本人交付 6 节 + 1v1 辅导 3 次<br>
-      <strong style="color: #712B13;">⚠ 撬动逻辑：1 单种子 → 老学员推荐返 450 元/人 → 60-90 天达到 30 人首期</strong>
+      <strong class="logic">⚠ 撬动逻辑：1 单种子 → 老学员推荐返 450 元 / 人 → 60-90 天达到 30 人首期</strong>
     </div>
-    <div class="editable" contenteditable="true" data-placeholder="📝 点击记录本层关键信息 / 备注 / 想法……"></div>
+    <div class="editable" contenteditable="true" data-placeholder="📝 记录本层关键信息 / 备注 / 想法……"></div>
   </div>
 </section>
 
 <!-- 总账 -->
 <section class="summary">
   <h2>📊 总账 · 一图看完</h2>
-  <div class="row">├ 30 天直接 GMV：49.5（L1 5 单）+ 1047（L2 3 单）= <strong>1097 元</strong></div>
-  <div class="row">├ 90 天撬动 GMV：1 单种子 + 30 人首期 × 1499 元 = <strong>4.5 万元</strong></div>
-  <div class="row">├ 风险买断率 <strong>1:5</strong>（9050 元验证费 vs 4.5 万撬动 GMV）</div>
+  <div class="row"><span class="label">├</span><span>30 天直接 GMV：49.5（L1 5 单）+ 1047（L2 3 单）=</span><span class="key-val">1,097 元</span></div>
+  <div class="row"><span class="label">├</span><span>90 天撬动 GMV：1 单种子 + 30 人首期 × 1499 元 =</span><span class="key-val">4.5 万元</span></div>
+  <div class="row"><span class="label">├</span><span>风险买断率</span><span class="key-val">1 : 5</span><span>（9050 元验证费 vs 4.5 万撬动 GMV）</span></div>
   <div class="final">└ 核心回报：L1→L2→L3 升单漏斗验证，不只是 GMV</div>
-  <div class="editable" contenteditable="true" data-placeholder="📝 点击记录关键信息 / 经验 / 风险 / 决策点……"></div>
+  <div class="editable" contenteditable="true" data-placeholder="📝 记录关键信息 / 经验 / 风险 / 决策点……"></div>
   <div class="logic">逻辑闭环：60 篇笔记 → 3000 点击 → 5 单 L1 → 30 私域 → 3 单 L2 → 1 单 L3 种子 → 撬动 30 人首期</div>
 </section>
 
 <footer>
+  <div class="divider"></div>
   完整变现漏斗 v13 · L2 349 元 / L3 1499 元 · 单页公域版 · 部署于 GitHub Pages
 </footer>
 
 <script>
-// 自动保存到 localStorage（防止刷新丢失）
 document.addEventListener('DOMContentLoaded', function() {
   const editables = document.querySelectorAll('[contenteditable="true"]');
-  
-  // 恢复
   editables.forEach((el, idx) => {
     const key = 'funnel-edit-' + idx;
     const saved = localStorage.getItem(key);
     if (saved) el.textContent = saved;
-    
-    // 保存
     el.addEventListener('input', function() {
       localStorage.setItem(key, el.textContent);
     });
