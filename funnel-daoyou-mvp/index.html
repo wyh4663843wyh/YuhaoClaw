@@ -385,28 +385,59 @@ body {
   object-fit: cover;
   border: 1px solid #B5D4F4;
 }
+.compliance-strip a {
+  color: #185FA5;
+  text-decoration: none;
+  margin-left: 4px;
+}
+.compliance-strip a:hover { text-decoration: underline; }
+.compliance-strip > .cs-thumb { display: none; } /* 折叠后无 thumb */
 
-/* 经验沉淀区 */
-.experience-card {
+/* 经验沉淀区 · 折叠面板 */
+details.experience-card {
   margin-top: 14px;
   background: #FFFFFF;
   border: 1px solid #E1E5EB;
   border-radius: 10px;
-  padding: 14px 18px;
+  padding: 0;
+  overflow: hidden;
 }
-.experience-card h3 {
-  font-size: 13px;
-  font-weight: 600;
-  color: #2C3E50;
-  margin-bottom: 10px;
+details.experience-card > summary {
+  padding: 14px 18px;
+  cursor: pointer;
+  list-style: none;
   display: flex;
   align-items: center;
-  gap: 8px;
+  justify-content: space-between;
+  user-select: none;
+  font-size: 13px;
+  background: #FAFBFC;
+  transition: background 0.15s;
+}
+details.experience-card > summary:hover { background: #F0F2F5; }
+details.experience-card > summary::-webkit-details-marker { display: none; }
+details.experience-card > summary::before {
+  content: "▶";
+  font-size: 10px;
+  color: #98A0AC;
+  margin-right: 8px;
+  transition: transform 0.18s;
+}
+details.experience-card[open] > summary::before { transform: rotate(90deg); }
+details.experience-card > summary .summary-hint {
+  font-size: 10.5px;
+  color: #98A0AC;
+  font-weight: normal;
+}
+details.experience-card[open] > .exp-grid,
+details.experience-card[open] > .editable {
+  padding: 14px 18px 18px;
 }
 .experience-card .exp-grid {
   display: grid;
   grid-template-columns: 1fr 1fr 1fr;
   gap: 12px;
+  padding-top: 0;
 }
 @media (max-width: 768px) {
   .experience-card .exp-grid { grid-template-columns: 1fr; }
@@ -760,14 +791,13 @@ footer .divider {
   <span><strong>使用说明</strong>：底部带黄底虚线框 = <strong>可编辑文本框</strong>，点击即可修改。内部同步时直接记录关键信息 / 备注 / 想法 / 决策点。<strong style="color:#993C1D">文本框支持插入图片</strong>：点 "+ 图片" 按钮上传 / 直接 <code>Ctrl+V</code> 粘贴 / 拖拽图片到框内（自动压到 ≤500KB）。修改自动保存到本地（刷新不丢），建议截图或复制粘贴到飞书 / 备忘录。<strong style="color:#185FA5">点击图片可放大查看</strong>。</span>
 </div>
 
-<!-- 顶部合规证据条 -->
-<div class="compliance-strip" onclick="openLightbox('images/license.jpg')">
+<!-- 顶部合规证据条（精简版 · 不占大图） -->
+<div class="compliance-strip">
   <div class="cs-icon">✅</div>
   <div class="cs-text">
     <strong>小红书个人主体合规 · 真实截图</strong>
-    <small>经营类型：个人从事零星小额交易活动 · 经营地址：四川省 绵阳市 · 这是真实可查的小红书商家主体信息公示，证明 D3 闸门（个人能开店铺卖虚拟产品）已经通过。</small>
+    <small>经营类型：个人从事零星小额交易活动 · 经营地址：四川省 绵阳市 · D3 闸门已通过 ·<a href="images/license.jpg" target="_blank">查看完整截图 →</a></small>
   </div>
-  <img class="cs-thumb" src="images/license.jpg" alt="营业执照截图">
 </div>
 
 <!-- ① 曝光层 -->
@@ -833,7 +863,6 @@ footer .divider {
     <span class="meta">9 万 → 3000 次</span>
     <span class="badge">兴趣层 · 详情页承接</span>
   </div>
-  <div class="layer-with-example">
   <div class="layer-body">
     <div class="col">
       <div class="col-label">用户行为</div>
@@ -874,23 +903,6 @@ footer .divider {
       </div>
     </div>
   </div>
-  <aside class="example-card">
-    <span class="ec-badge good">✅ 优质案例</span>
-    <div class="ec-title">L1 商品详情页参考</div>
-    <img class="ec-img" src="images/l1-good.jpg" alt="L1 详情页模板" onclick="openLightbox('images/l1-good.jpg')">
-    <div class="ec-points">
-      <strong>关键要素（点击放大查看）</strong>
-      <ul>
-        <li>¥9.9 到手价 · 已售 2991</li>
-        <li>近 30 天 74 条好评 · TOP2 月销</li>
-        <li><strong>"付款后自动发货"</strong>（关键行为指引）</li>
-        <li>"不支持无理由退换"（平台规则明示）</li>
-        <li>评分 4.7 · 650+ 商品评价</li>
-      </ul>
-    </div>
-    <div class="ec-source">来源：@公孙羽（装修结束）店铺，月销 TOP2</div>
-  </aside>
-  </div>
   <div class="layer-foot">
     <div class="key">
       <strong>3000 次点击</strong> · 行业基准 1-3% 下单转化 · <span class="warn">⚠</span> 详情页顶部加粗"购买后 3 分钟内会收到短信 → 点击短信链接 → 飞书顶部扫码加微"
@@ -908,7 +920,6 @@ footer .divider {
     <span class="meta">3000 → 5 单</span>
     <span class="badge">⭐ 钩子层 · 9.9 元</span>
   </div>
-  <div class="layer-with-example">
   <div class="layer-body">
     <div class="col">
       <div class="col-label">用户行为</div>
@@ -958,23 +969,6 @@ footer .divider {
       </div>
     </div>
   </div>
-  <aside class="example-card">
-    <span class="ec-badge bad">⚠️ 反面教材</span>
-    <div class="ec-title">不要这样上架</div>
-    <img class="ec-img" src="images/l1-bad.jpg" alt="L1 反面教材" onclick="openLightbox('images/l1-bad.jpg')">
-    <div class="ec-points">
-      <strong>踩坑点（点击放大查看）</strong>
-      <ul>
-        <li>¥0.1 价格过低 → <strong>触发风控</strong>，被认为是刷单</li>
-        <li>无封面设计 + 无卖点说明</li>
-        <li>发货方式写"其他" → <strong>用户看不懂</strong></li>
-        <li>店铺名"不会技术的圆圈" → 缺乏专业感</li>
-        <li>0 销量 0 评价 → 冷启动恶性循环</li>
-      </ul>
-    </div>
-    <div class="ec-source">来源：搜索 esp32 时出现的萌新卖家页面</div>
-  </aside>
-  </div>
   <div class="layer-foot">
     <div class="key">
       <strong>5 单 × 9.9 元 = 49.5 元 GMV</strong> · 解决 4 大痛点：熬夜写讲解词 / 应急零散 / 互动经验主义 / 报告耗时长 / AI 工具不会用
@@ -992,7 +986,6 @@ footer .divider {
     <span class="meta">5 单 → 30 私域</span>
     <span class="badge">⭐ 关键闭环 · 平台默许</span>
   </div>
-  <div class="layer-with-example">
   <div class="layer-body">
     <div class="col">
       <div class="col-label">用户行为</div>
@@ -1044,23 +1037,6 @@ footer .divider {
       </div>
     </div>
   </div>
-  <aside class="example-card">
-    <span class="ec-badge good">✅ 真实店铺</span>
-    <div class="ec-title">@公孙羽（装修结束）</div>
-    <img class="ec-img" src="images/l1-shop.jpg" alt="公孙羽店铺" onclick="openLightbox('images/l1-shop.jpg')">
-    <div class="ec-points">
-      <strong>履约加微的实战背景</strong>
-      <ul>
-        <li>粉丝 6611 · 笔记 146 · 评分 4.9</li>
-        <li>2 个商品全部 <strong>¥9.9-19.9</strong></li>
-        <li>累计销量 1.7 万+（含 ¥19.9 × 1.3 万）</li>
-        <li>私域 1000+ 业主 · 5 个 200 人群</li>
-        <li>飞书 + 夸克 + 百度 <strong>3 种发货</strong></li>
-      </ul>
-    </div>
-    <div class="ec-source">来源：小红书 App 搜"公孙羽（装修结束）"</div>
-  </aside>
-  </div>
   <div class="layer-foot">
     <div class="key">
       <strong>30 私域（10% 履约扫码率）</strong> · <span class="warn">⚠</span> 关键合规点：用户先付费再扫码，不是引流：笔记 / 评论 / 简介 加微 = 违规；订单履约物料内扫码 = 平台默许
@@ -1078,7 +1054,6 @@ footer .divider {
     <span class="meta">30 私域 → 3 单</span>
     <span class="badge">⭐ 升单层 · 349 元</span>
   </div>
-  <div class="layer-with-example">
   <div class="layer-body">
     <div class="col">
       <div class="col-label">用户行为</div>
@@ -1130,22 +1105,6 @@ footer .divider {
         </ul>
       </div>
     </div>
-  </div>
-  <aside class="example-card">
-    <span class="ec-badge info">💡 L2 定价参考</span>
-    <div class="ec-title">@Claire 澳洲学姐语料库</div>
-    <img class="ec-img" src="images/l1-claire.jpg" alt="Claire 语料库" onclick="openLightbox('images/l1-claire.jpg')">
-    <div class="ec-points">
-      <strong>真实价格区间参考</strong>
-      <ul>
-        <li><strong>¥39</strong>（预售，涨价 ¥299）· 已售 6824</li>
-        <li>"预售后涨价"—— <strong>L2 标准策略</strong></li>
-        <li>A/G 类小作文 + 20 篇范文 + 视频讲解</li>
-        <li>小红书 App 担保 + 晚发必赔</li>
-      </ul>
-    </div>
-    <div class="ec-source">参考：<strong>涨 7 倍</strong>价差做 L2 升单锚点<br>我们的 L2 349 介于低（L2 升单）与高（L3 主课）之间</div>
-  </aside>
   </div>
   <div class="layer-foot">
     <div class="key">
@@ -1241,38 +1200,55 @@ footer .divider {
   <div class="logic">逻辑闭环：60 篇笔记 → 3000 点击 → 5 单 L1 → 30 私域 → 3 单 L2 → 1 单 L3 种子 → 撬动 30 人首期</div>
 </section>
 
-<!-- 经验沉淀 · 真实账号矩阵 -->
-<section class="experience-card">
-  <h3>📸 经验沉淀 · 真实账号矩阵（点击图片放大）</h3>
+<!-- 经验沉淀 · 真实账号矩阵（折叠面板，按需展开） -->
+<details class="experience-card">
+  <summary>
+    <strong>📚 讲解辅助 · 真实截图案例库</strong>
+    <span class="summary-hint">默认折叠 · 按需展开 · 5 张真实账号截图</span>
+  </summary>
   <div class="exp-grid">
+    <div class="exp-item">
+      <img src="images/license.jpg" alt="营业执照" onclick="openLightbox('images/license.jpg')">
+      <div class="exp-caption">
+        <strong>① 小红书个人主体公示</strong><br>
+        经营类型：个人从事零星小额交易活动 · 四川绵阳 · <strong>D3 闸门已通过</strong>
+      </div>
+    </div>
     <div class="exp-item">
       <img src="images/l1-good.jpg" alt="L1 优质商品页" onclick="openLightbox('images/l1-good.jpg')">
       <div class="exp-caption">
-        <strong>① L1 优质商品页</strong><br>
+        <strong>② L1 优质商品页</strong><br>
         @公孙羽装修报价单 ¥9.9 · 已售 2991 · 评分 4.7 · <strong>付款后自动发货</strong>
       </div>
     </div>
     <div class="exp-item">
       <img src="images/l1-bad.jpg" alt="L1 反面教材" onclick="openLightbox('images/l1-bad.jpg')">
       <div class="exp-caption">
-        <strong>② L1 反面教材</strong><br>
+        <strong>③ L1 反面教材</strong><br>
         ¥0.1 萌新卖家 · 无详情 · 发货"其他" · <strong>冷启动恶性循环</strong>
       </div>
     </div>
     <div class="exp-item">
       <img src="images/l1-shop.jpg" alt="店铺主页参考" onclick="openLightbox('images/l1-shop.jpg')">
       <div class="exp-caption">
-        <strong>③ 店铺主页参考</strong><br>
+        <strong>④ 店铺主页参考</strong><br>
         @公孙羽（装修结束）粉丝 6611 · 评分 4.9 · <strong>2 个商品全部低价</strong>
+      </div>
+    </div>
+    <div class="exp-item">
+      <img src="images/l1-claire.jpg" alt="L2 定价参考" onclick="openLightbox('images/l1-claire.jpg')">
+      <div class="exp-caption">
+        <strong>⑤ L2 定价参考</strong><br>
+        @澳洲学姐语料库 ¥39（预售涨 ¥299）· 已售 6824 · <strong>"涨 7 倍"价差锚点</strong>
       </div>
     </div>
   </div>
   <div class="editable" contenteditable="true" data-placeholder="📝 记录其他参考账号 / 模仿对象 / 灵感来源……" style="margin-top: 14px;"></div>
-</section>
+</details>
 
 <footer>
   <div class="divider"></div>
-  完整变现漏斗 v15 · L2 349 元 / L3 1499 元 · 单页公域版 · 部署于 GitHub Pages · 含真实截图案例库
+  完整变现漏斗 v16 · L2 349 元 / L3 1499 元 · 单页公域版 · 案例图库已移到末尾折叠
 </footer>
 
 <script>
