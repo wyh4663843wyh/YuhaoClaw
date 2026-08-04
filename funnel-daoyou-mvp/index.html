@@ -268,6 +268,102 @@ body {
   font-size: 10.5px;
 }
 
+/* 工具栏 + 图片 */
+.editable-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 10px;
+  padding: 0 2px;
+  flex-wrap: wrap;
+}
+.tool-btn {
+  background: #FFFFFF;
+  border: 1px solid #D9DEE5;
+  color: #2C3E50;
+  font-size: 11px;
+  padding: 3px 11px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.18s;
+  font-family: inherit;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+.tool-btn:hover {
+  background: #FFF4E5;
+  border-color: #E07A5F;
+  color: #993C1D;
+  transform: translateY(-1px);
+}
+.tool-btn:active { transform: translateY(0); }
+.tool-info {
+  font-size: 10px;
+  color: #98A0AC;
+}
+.tool-info::before { content: "📌 "; }
+.editable.drag-over {
+  background: linear-gradient(135deg, #FFFCF5 0%, #FFEFD5 100%);
+  border-color: #E07A5F;
+  border-style: solid;
+  box-shadow: 0 0 0 3px rgba(224, 122, 95, 0.2);
+}
+.img-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 6px 0 2px;
+}
+.img-wrap {
+  position: relative;
+  display: inline-block;
+  max-width: 180px;
+  border-radius: 4px;
+  overflow: hidden;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+  background: #F5F7FA;
+  border: 1px solid #E1E5EB;
+}
+.img-wrap img {
+  display: block;
+  max-width: 100%;
+  max-height: 220px;
+  object-fit: contain;
+}
+.img-del {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  background: rgba(44, 62, 80, 0.75);
+  color: #FFFFFF;
+  border: none;
+  border-radius: 50%;
+  width: 22px;
+  height: 22px;
+  cursor: pointer;
+  font-size: 14px;
+  line-height: 1;
+  font-family: inherit;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+.img-wrap:hover .img-del,
+.img-del:focus {
+  opacity: 1;
+}
+.img-meta {
+  font-size: 9.5px;
+  color: #98A0AC;
+  text-align: center;
+  padding: 2px 4px;
+  background: #FAFBFC;
+  border-top: 1px solid #E1E5EB;
+}
+
 .layer-foot {
   padding: 12px 22px 14px;
   background: #FAFBFC;
@@ -468,7 +564,7 @@ footer .divider {
 
 <div class="note-banner">
   <span class="icon">📝</span>
-  <span><strong>使用说明</strong>：底部带黄底虚线框 = <strong>可编辑文本框</strong>，点击即可修改。内部同步时直接记录关键信息 / 备注 / 想法 / 决策点。修改自动保存到本地（刷新不丢），建议截图或复制粘贴到飞书 / 备忘录。</span>
+  <span><strong>使用说明</strong>：底部带黄底虚线框 = <strong>可编辑文本框</strong>，点击即可修改。内部同步时直接记录关键信息 / 备注 / 想法 / 决策点。<strong style="color:#993C1D">文本框支持插入图片</strong>：点 "+ 图片" 按钮上传 / 直接 <code>Ctrl+V</code> 粘贴 / 拖拽图片到框内（自动压到 ≤500KB）。修改自动保存到本地（刷新不丢），建议截图或复制粘贴到飞书 / 备忘录。</span>
 </div>
 
 <!-- ① 曝光层 -->
@@ -879,13 +975,207 @@ footer .divider {
 <script>
 document.addEventListener('DOMContentLoaded', function() {
   const editables = document.querySelectorAll('[contenteditable="true"]');
+
+  // === 工具函数 ===
+
+  function estimateKB(base64) {
+    const padding = (base64.endsWith('==') ? 2 : (base64.endsWith('=') ? 1 : 0));
+    return ((base64.length * 3) / 4 - padding) / 1024;
+  }
+
+  // 压缩图片到 ≤ maxKB JPEG
+  async function compressImage(file, maxKB) {
+    const dataUrl = await new Promise((resolve, reject) => {
+      const r = new FileReader();
+      r.onload = (e) => resolve(e.target.result);
+      r.onerror = reject;
+      r.readAsDataURL(file);
+    });
+    const img = await new Promise((resolve, reject) => {
+      const i = new Image();
+      i.onload = () => resolve(i);
+      i.onerror = reject;
+      i.src = dataUrl;
+    });
+    let { width, height } = img;
+    const maxDim = 1400;
+    if (width > maxDim || height > maxDim) {
+      const k = maxDim / Math.max(width, height);
+      width = Math.round(width * k);
+      height = Math.round(height * k);
+    }
+    const canvas = document.createElement('canvas');
+    canvas.width = width;
+    canvas.height = height;
+    const ctx = canvas.getContext('2d');
+    ctx.fillStyle = '#FFFFFF';
+    ctx.fillRect(0, 0, width, height);
+    ctx.drawImage(img, 0, 0, width, height);
+    let quality = 0.9;
+    let result = canvas.toDataURL('image/jpeg', quality);
+    while (estimateKB(result) > maxKB && quality > 0.3) {
+      quality -= 0.1;
+      result = canvas.toDataURL('image/jpeg', quality);
+    }
+    return { dataUrl: result, w: width, h: height, kb: Math.round(estimateKB(result)) };
+  }
+
+  // 在 .editable 末尾插入图片 wrap
+  function insertImage(box, info) {
+    let grid = box.querySelector('.img-grid');
+    if (!grid) {
+      grid = document.createElement('div');
+      grid.className = 'img-grid';
+      box.appendChild(grid);
+    }
+    const wrap = document.createElement('span');
+    wrap.className = 'img-wrap';
+    wrap.innerHTML =
+      '<img src="' + info.dataUrl + '" alt="uploaded">' +
+      '<button class="img-del" type="button" title="删除图片" aria-label="删除图片">×</button>' +
+      '<div class="img-meta">' + info.w + '×' + info.h + ' · ' + info.kb + ' KB</div>';
+    grid.appendChild(wrap);
+    wrap.querySelector('.img-del').addEventListener('click', function(e) {
+      e.preventDefault();
+      e.stopPropagation();
+      wrap.remove();
+      if (grid && grid.children.length === 0) grid.remove();
+      saveBox(box);
+    });
+    saveBox(box);
+  }
+
+  // 把图片处理器绑到每个 .editable
+  function attachImageTools(box) {
+    // toolbar + file input
+    const toolbar = document.createElement('div');
+    toolbar.className = 'editable-toolbar';
+    const addBtn = document.createElement('button');
+    addBtn.type = 'button';
+    addBtn.className = 'tool-btn';
+    addBtn.innerHTML = '🖼 + 图片';
+    addBtn.title = '上传本地图片';
+    const info = document.createElement('span');
+    info.className = 'tool-info';
+    info.textContent = '也可直接粘贴 / 拖拽图片';
+    toolbar.appendChild(addBtn);
+    toolbar.appendChild(info);
+    box.parentNode.insertBefore(toolbar, box.nextSibling);
+
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = 'image/*';
+    input.multiple = true;
+    input.style.display = 'none';
+    box.parentNode.insertBefore(input, toolbar.nextSibling);
+
+    addBtn.addEventListener('click', () => input.click());
+
+    input.addEventListener('change', async (e) => {
+      const files = Array.from(e.target.files || []);
+      for (const f of files) {
+        if (!f.type.startsWith('image/')) continue;
+        try {
+          const info = await compressImage(f, 500);
+          insertImage(box, info);
+        } catch (err) {
+          alert('图片处理失败：' + (err.message || err));
+        }
+      }
+      input.value = '';
+    });
+
+    // 粘贴支持
+    box.addEventListener('paste', async (e) => {
+      const items = e.clipboardData && e.clipboardData.items;
+      if (!items) return;
+      const files = [];
+      for (const it of items) {
+        if (it.kind === 'file' && it.type.startsWith('image/')) {
+          const f = it.getAsFile();
+          if (f) files.push(f);
+        }
+      }
+      if (files.length === 0) return;
+      e.preventDefault();
+      for (const f of files) {
+        try {
+          const info = await compressImage(f, 500);
+          insertImage(box, info);
+        } catch (err) {
+          alert('图片处理失败：' + (err.message || err));
+        }
+      }
+    });
+
+    // 拖拽支持
+    box.addEventListener('dragover', (e) => {
+      if (e.dataTransfer && Array.from(e.dataTransfer.types || []).includes('Files')) {
+        e.preventDefault();
+        box.classList.add('drag-over');
+      }
+    });
+    box.addEventListener('dragleave', () => box.classList.remove('drag-over'));
+    box.addEventListener('drop', async (e) => {
+      e.preventDefault();
+      box.classList.remove('drag-over');
+      const files = Array.from(e.dataTransfer.files || []);
+      for (const f of files) {
+        if (!f.type.startsWith('image/')) continue;
+        try {
+          const info = await compressImage(f, 500);
+          insertImage(box, info);
+        } catch (err) {
+          alert('图片处理失败：' + (err.message || err));
+        }
+      }
+    });
+  }
+
+  // 保存（含图片）
+  function saveBox(box) {
+    const key = box.getAttribute('data-key');
+    if (!key) return;
+    try {
+      localStorage.setItem(key, box.innerHTML);
+    } catch (err) {
+      alert('本地存储已满，建议导出截图或导出文本。建议不要在浏览器里塞太多图片。');
+    }
+  }
+
+  // 重新绑图片删除按钮（load 后 / paste 后 / drag 后）
+  function rebindImageDeletes(box) {
+    box.querySelectorAll('.img-wrap').forEach((wrap) => {
+      const delBtn = wrap.querySelector('.img-del');
+      if (delBtn && !delBtn.dataset.bound) {
+        delBtn.addEventListener('click', function(e) {
+          e.preventDefault();
+          e.stopPropagation();
+          wrap.remove();
+          const grid = box.querySelector('.img-grid');
+          if (grid && grid.children.length === 0) grid.remove();
+          saveBox(box);
+        });
+        delBtn.dataset.bound = '1';
+      }
+    });
+  }
+
   editables.forEach((el, idx) => {
     const key = 'funnel-edit-' + idx;
+    el.setAttribute('data-key', key);
+
+    // 加载
     const saved = localStorage.getItem(key);
-    if (saved) el.textContent = saved;
-    el.addEventListener('input', function() {
-      localStorage.setItem(key, el.textContent);
-    });
+    if (saved) el.innerHTML = saved;
+    rebindImageDeletes(el);
+
+    // 保存
+    el.addEventListener('input', () => saveBox(el));
+    el.addEventListener('blur', () => saveBox(el));
+
+    // 图片工具
+    attachImageTools(el);
   });
 });
 </script>
