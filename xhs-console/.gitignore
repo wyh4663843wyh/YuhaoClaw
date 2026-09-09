@@ -1,0 +1,26 @@
+# ===== 密钥/环境 =====
+.env
+.env.*
+!.env.example
+
+# ===== 运行数据（采集/分级/回流/日志/截图）=====
+interceptor/out/
+*.csv
+*.log
+*.png
+*.jpg
+*.jpeg
+*.mp4
+*.json.bak
+proactive_run_state.json
+proactive_send_log.json
+session_last.json
+
+# ===== Python =====
+__pycache__/
+*.py[cod]
+*.pyo
+
+# ===== OS =====
+.DS_Store
+Thumbs.db

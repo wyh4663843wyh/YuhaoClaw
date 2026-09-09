@@ -1,0 +1,36 @@
+# 承接策略引擎配置（示例模板）
+# ------------------------------------------------------------------
+# ★ 半开源模板：结构示例，请按你的实际业务改写。
+#   route：manual=真人回（关键/涉价/求联）  auto=系统可自动回（低风险/资料类）  ignore=不回
+#   global：全局频控。⚠️ 红线词/频控决定合规风险，务必按你所在平台规则设置，见 README 合规说明。
+# ------------------------------------------------------------------
+rules:
+# - intent_contains: 主动求联/求对接
+#   route: manual
+#   auto_safe: false
+#   note: 对方主动求联=真商机, 真人 1v1 承接, 不自动
+# - intent_contains: 明确咨询课程/价格
+#   route: manual
+#   auto_safe: false
+#   note: 涉价, 人工承接
+# - intent_contains: 求模板|要资料|扣关键词
+#   route: auto
+#   auto_safe: true
+#   note: 白名单, 可自动回(资料类)
+# - intent_contains: 无效/广告/无关|纯表情
+#   route: ignore
+#   auto_safe: false
+#   note: 无关/广告, 不回
+- intent_contains: 求模板|要资料
+  route: auto
+  auto_safe: true
+  note: 示例：白名单, 可自动回(资料类)
+- intent_contains: 其他/待分类
+  route: manual
+  auto_safe: false
+  note: 待归类, 人工
+global:
+  auto_mode: semi
+  auto_enabled: true
+  auto_daily_cap: 12       # 白名单自动回复上限
+  auto_interval_min: 30    # 两条自动回复间隔

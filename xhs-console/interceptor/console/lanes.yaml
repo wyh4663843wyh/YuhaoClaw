@@ -1,0 +1,53 @@
+# 赛道 × 账号配置（示例模板）
+# ------------------------------------------------------------------
+# ★ 半开源模板：这里只含结构示例，请按你的实际业务改写。
+#   - tracks：赛道（人群视角层）。切换赛道 = 换一套承接话术视角。
+#   - accounts：账号（设备）→ 赛道映射。赛道跟账号走，一台账号一个定位。
+#   真实业务场景（具体人群/话术/投放目标）不内置，详见 README 合规说明。
+# ------------------------------------------------------------------
+tracks:
+  xueyan:
+    name: 研学·AI落地
+    desc: 打研学/带团/文旅从业者——AI 落地带团、提效、做内容
+    source: xueyan_ai
+    default_kws:
+    - 研学
+    - 研学旅行
+    - 带团
+    - 研学导师
+    - 地接
+    - 讲解词
+    # ↓ 在这里加你的赛道搜索词
+  opc:
+    name: OPC·接单变现
+    desc: 打想做 AI 副业/接单变现的人——AI 接单、入池、做任务
+    source: opc_recruit
+    default_kws:
+    - AI副业
+    - AI接单
+    - 0基础AI
+    - AI赚钱
+    - 副业变现
+    # ↓ 在这里加你的赛道搜索词
+  ai_training:
+    name: AI·技能培训
+    desc: 打想系统学AI/用AI提升/拿认证背书的人——AI 技能、职业转型、考证赋能
+    source: ai_training
+    default_kws:
+    - 学AI
+    - AI技能
+    - AI培训
+    - AI提效
+    - 转行AI
+    # ↓ 在这里加你的赛道搜索词
+
+accounts:
+  # 示例：账号（设备序列号）→ 赛道。真实序列号从 adb devices 读取，用 XHS_DEVICE 注入。
+  YOUR_DEVICE_SERIAL_1:
+    nick: 你的账号A
+    lane: xueyan
+    desc: 主做研学/带团 AI 落地——承接研学从业者
+  YOUR_DEVICE_SERIAL_2:
+    nick: 你的账号B
+    lane: opc
+    desc: 主打 AI 接单/副业——把想做自媒体的承接进来带做任务

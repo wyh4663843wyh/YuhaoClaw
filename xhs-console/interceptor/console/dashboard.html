@@ -1,0 +1,1794 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-page-node-id="wLWsCLWO6aBIWqx84pRv6j">
+<head data-page-node-id="5u1NU9pUyKMhdRcZMUgI6S">
+<meta charset="utf-8" data-page-node-id="MatjYdmnmDDiVu72DaOVUA">
+<meta name="viewport" content="width=device-width, initial-scale=1" data-page-node-id="j85UFZu9h9sYQG5ZktOUBx">
+<title>小红书 · 客户回复台</title>
+
+<style>
+  :root{
+    /* ✦ Editorial Luxury · 高级编辑器风 (对应用户审美: 极简/杂志/水墨, 去营销感)
+       暖骨白底 + 墨色文字 + 衬线大数字 + 发丝线 + 呼吸留白。功能先用, 视觉克制高级。 */
+    --bg:#F7F6F3; --bg2:#FFFFFF; --bg3:#F1EFEA; --line:#E7E4DE; --dark:#F1EFEA;
+    --tx:#1A1A18; --tx2:#6B6862; --tx3:#9A968E;
+    --blue:#1F6C9F; --blue2:#17547D; --bluebg:rgba(31,108,159,.10);
+    --red:#9F2F2D; --redbg:rgba(159,47,45,.09);
+    --amber:#956400; --amberbg:rgba(149,100,0,.11);
+    --green:#346538; --greenbg:rgba(52,101,56,.10);
+    --acc:#7C3AED;                      /* 主动获客节奏强调色(紫, 唯一高饱和, 谨慎用) */
+    --graybg:#F1EFEA;
+    --shadow:0 1px 2px rgba(26,26,24,.04),0 2px 10px rgba(26,26,24,.04);
+    --serif:"Newsreader","Instrument Serif","Playfair Display","Songti SC","STSong",Georgia,serif;
+    --sans:-apple-system,"SF Pro Display","Helvetica Neue","PingFang SC","Microsoft YaHei",sans-serif;
+    --mono:"SF Mono","JetBrains Mono","Cascadia Code",Consolas,monospace;
+  }
+  ::selection{background:rgba(31,108,159,.14)}
+  body{background:var(--bg);color:var(--tx);font-family:var(--sans)}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--bg);color:var(--tx);font:16px/1.65 var(--sans);padding:26px 34px 72px;max-width:1600px;margin:0 auto}
+  a{color:var(--blue)}
+  /* 顶部头 */
+  header{display:flex;align-items:center;gap:16px;margin-bottom:20px;flex-wrap:wrap}
+  .logo{font-weight:800;font-size:21px;letter-spacing:-.01em;display:flex;align-items:center;gap:10px;font-family:var(--serif)}
+  .logo .dot{width:11px;height:11px;border-radius:50%;background:var(--green);box-shadow:0 0 0 1px var(--green);flex-shrink:0}
+  .tag{font-size:13px;letter-spacing:.02em;color:var(--tx3);background:var(--bg3);border:1px solid var(--line);padding:3px 11px;border-radius:8px}
+  .grow{flex:1}
+  #refreshBtn{border:1px solid var(--line);background:var(--bg2);color:var(--tx2);padding:7px 15px;border-radius:8px;cursor:pointer;font-size:14px;transition:.18s}
+  #refreshBtn:hover{border-color:var(--blue);color:var(--blue)}
+  #lastUpd{color:var(--tx3);font-size:13px;font-family:var(--mono)}
+  /* 值班模式三态切换器 (分段控件: 白底发丝线, 选中态衬线小色块) */
+  .modewrap{display:flex;align-items:center;gap:10px}
+  .modelabel{font-size:13px;letter-spacing:.02em;color:var(--tx3)}
+  .modebox{display:flex;background:var(--bg2);border:1px solid var(--line);border-radius:9px;overflow:hidden;box-shadow:var(--shadow)}
+  .modebtn{padding:7px 16px;font-size:14px;font-weight:600;letter-spacing:.01em;cursor:pointer;color:var(--tx3);border:none;background:transparent;transition:.16s;user-select:none}
+  .modebtn:hover{color:var(--tx)}
+  .modebtn.on-semi{background:var(--blue2);color:#fff}
+  .modebtn.on-full{background:var(--green);color:#fff}
+  .modebtn.on-manual{background:#9A6A00;color:#fff}
+  .modebtn .mico{margin-right:5px}
+  /* 平台切换器 (聚合工作台: 小红书/抖音/视频号, 为后续开发预留框架) */
+  .platwrap{display:flex;align-items:center;gap:10px}
+  .platbox{display:flex;background:var(--bg2);border:1px solid var(--line);border-radius:9px;overflow:hidden;box-shadow:var(--shadow)}
+  .platbtn{padding:7px 15px;font-size:13.5px;font-weight:600;letter-spacing:.01em;cursor:pointer;color:var(--tx3);border:none;background:transparent;transition:.16s;user-select:none;white-space:nowrap;display:flex;align-items:center;gap:6px}
+  .platbtn:hover{color:var(--tx)}
+  .platbtn.on{background:var(--tx);color:#FBFBF9}
+  .platbtn.on .pico{color:currentColor}
+  .platbtn .pico{color:var(--tx3)}
+  /* 平台占位骨架 (抖音/视频号: 只呈现框架, 不接数据/不做功能) */
+  .plat-empty{background:var(--bg2);border:1px solid var(--line);border-radius:12px;padding:40px;text-align:center;color:var(--tx2)}
+  .plat-empty .pe-icon{width:56px;height:56px;margin:0 auto 16px;color:var(--tx3)}
+  .plat-empty .pe-icon svg{width:100%;height:100%;display:block;margin:0 auto}
+  .plat-empty .pe-title{font-size:20px;font-weight:700;color:var(--tx);font-family:var(--serif);letter-spacing:-.01em}
+  .plat-empty .pe-sub{font-size:13.5px;color:var(--tx3);margin-top:8px;line-height:1.7;max-width:420px;margin-left:auto;margin-right:auto}
+  .plat-empty .pe-tag{display:inline-block;margin-top:14px;font-size:12px;color:var(--blue);background:var(--bluebg);border:1px solid var(--line);padding:3px 12px;border-radius:9999px}
+  /* 细线 SVG 图标 (Phosphor/feather 风格: currentColor + 1.5px 描边, 契合高级编辑器风) */
+  .ic{display:inline-block;vertical-align:-0.14em;width:1.05em;height:1.05em;stroke:currentColor;stroke-width:1.6;fill:none;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0}
+  .btn .ic,.modebtn .ic,.expand-btn .ic,.helpbtn .ic{vertical-align:-0.16em;margin-right:4px}
+  .ctrl-title .ic,.tab .ic,.devlabel .ic,.ab-icon .ic{vertical-align:-0.14em;margin-right:5px}
+  .chip .ic,.src-chip .ic{vertical-align:-0.12em;margin-right:3px}
+  .mico .ic{margin-right:0}
+  /* 值班模式提示条 */
+  .mode-note{font-size:13px;color:var(--tx3);padding:8px 13px;border-radius:8px;background:var(--bg2);border:1px solid var(--line);margin-bottom:14px;line-height:1.7}
+  .mode-note b{color:var(--tx2)}
+  .mode-note.semi{border-left:3px solid var(--blue2)}
+  .mode-note.full{border-left:3px solid var(--green)}
+  .mode-note.manual{border-left:3px solid #9A6A00}
+  /* 合规提示条(降噪): 默认收起=一行紧凑 pill, 点击展开完整说明 */
+  .compliance-bar{font-size:13px;color:var(--tx2);border-radius:8px;background:var(--bg2);border:1px solid var(--line);border-left:3px solid var(--blue2);margin-bottom:14px;line-height:1.75}
+  .compliance-bar.high{border-left-color:var(--red);background:var(--redbg)}
+  .compliance-bar b{color:var(--tx)}
+  .compliance-bar .cb-head{display:flex;align-items:center;gap:8px;padding:8px 13px;cursor:pointer;user-select:none}
+  .compliance-bar .cb-head:hover{color:var(--tx)}
+  .compliance-bar .cb-head .cb-caret{font-size:11px;color:var(--tx3)}
+  .compliance-bar .cb-body{padding:0 13px 10px;display:none}
+  .compliance-bar.open .cb-body{display:block}
+  .compliance-bar .cb-tag{display:inline-block;font-size:11px;letter-spacing:.04em;font-weight:700;padding:2px 9px;border-radius:9999px;margin-right:8px;vertical-align:1px}
+  .compliance-bar .cb-tag.ok{background:var(--greenbg);color:var(--green)}
+  .compliance-bar .cb-tag.risk{background:var(--redbg);color:var(--red)}
+  /* 通用"收起→点击展开"说明(降噪): 默认折叠, 点击展开详情 */
+  .collapse-note{margin-bottom:14px}
+  .collapse-note .cn-head{display:flex;align-items:center;gap:7px;font-size:13px;color:var(--tx3);cursor:pointer;user-select:none;padding:7px 12px;background:var(--bg2);border:1px solid var(--line);border-radius:8px;transition:.16s}
+  .collapse-note .cn-head:hover{border-color:var(--blue);color:var(--blue)}
+  .collapse-note .cn-head .cn-caret{font-size:11px;transition:transform .18s}
+  .collapse-note.open .cn-head .cn-caret{transform:rotate(90deg)}
+  .collapse-note .cn-body{display:none;font-size:13px;color:var(--tx2);line-height:1.8;padding:10px 14px;background:var(--bg3);border:1px solid var(--line);border-top:none;border-radius:0 0 8px 8px}
+  .collapse-note.open .cn-body{display:block}
+  .tabs{display:flex;gap:2px;margin-bottom:18px;border-bottom:1px solid var(--line);flex-wrap:wrap}
+  .tab{padding:10px 20px;cursor:pointer;color:var(--tx3);border-bottom:2px solid transparent;border-radius:0;font-size:15px;font-weight:600;letter-spacing:.01em;user-select:none;position:relative;transition:.16s}
+  .tab:hover{color:var(--tx)}
+  .tab.on{color:var(--tx);border-bottom-color:var(--blue)}
+  .tab .nb{background:var(--red);color:#fff;border-radius:9999px;padding:1px 8px;font-size:12px;margin-left:7px;vertical-align:1px;font-weight:700}
+  .tab.on .nb{background:var(--blue)}
+  .hintbox{font-size:14px;color:var(--tx3);background:var(--bg3);border:1px solid var(--line);padding:10px 14px;border-radius:8px;margin-bottom:20px}
+  .hintbox b{color:var(--tx2)}
+  /* 汇总卡 (衬线大数字 + 发丝线 + 呼吸留白) */
+  .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:14px;margin-bottom:22px}
+  .card{background:var(--bg2);border:1px solid var(--line);border-radius:12px;padding:18px 20px;box-shadow:var(--shadow);transition:.2s}
+  .card:hover{transform:translateY(-1px);box-shadow:0 2px 3px rgba(26,26,24,.05),0 6px 16px rgba(26,26,24,.06)}
+  .card .cnum{font-size:34px;font-weight:500;line-height:1.05;letter-spacing:-.03em;font-family:var(--serif);color:var(--tx)}
+  .card .clab{display:flex;align-items:center;gap:7px;font-size:12.5px;letter-spacing:.05em;color:var(--tx3);margin-top:8px;font-weight:600}
+  .card .n{font-size:40px;font-weight:500;line-height:1.05;letter-spacing:-.03em;font-family:var(--serif)}
+  .card .l{display:flex;align-items:center;gap:7px;font-size:12.5px;letter-spacing:.05em;color:var(--tx3);margin-top:8px;font-weight:600;text-transform:uppercase}
+  .card .l .dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+  .c-red .l .dot{background:var(--red)} .c-amber .l .dot{background:var(--amber)}
+  .c-green .l .dot{background:var(--green)} .c-blue .l .dot{background:var(--blue2)}
+  .c-nav .l .dot{background:var(--tx3)}
+  .c-red .n{color:var(--red)} .c-amber .n{color:var(--amber)} .c-green .n{color:var(--green)} .c-blue .n{color:var(--blue2)}
+  .c-nav .n{color:var(--tx)}
+  /* 表格 */
+  .panel{background:var(--bg2);border:1px solid var(--line);border-radius:12px;overflow:hidden;box-shadow:var(--shadow)}
+  /* 控制器面板 */
+  .ctrl{margin-bottom:16px;padding:14px 18px}
+  .ctrl-head{display:flex;align-items:center;gap:10px;margin-bottom:12px;flex-wrap:wrap}
+  .ctrl-title{font-weight:700;font-size:15px;letter-spacing:.01em}
+  .ctrl-sub{font-size:12px;color:var(--tx3)}
+  .ctrl-switch{display:flex;align-items:center;gap:6px;font-size:13px;color:var(--tx2);cursor:pointer}
+  .ctrl-grid{display:flex;gap:14px;align-items:flex-end;flex-wrap:wrap;margin-bottom:10px}
+  .ctrl-item{display:flex;flex-direction:column;gap:4px}
+  .ctrl-item .sel{width:120px}
+  .ctrl-stat{min-width:150px;font-size:13px;color:var(--green)}
+  .ctrl-actions{display:flex;gap:8px;margin-left:auto}
+  .ctrl-rules{font-size:12px;color:var(--tx3);border-top:1px solid var(--line);padding-top:10px;line-height:1.75}
+  .th{display:grid;gap:0;background:var(--bg3);padding:0;font-size:12px;color:var(--tx3);font-weight:600;letter-spacing:.05em;text-transform:uppercase}
+  .row,.th{display:grid;align-items:center;column-gap:10px}
+  .tr{border-bottom:1px solid var(--line)}
+  .tr:last-child{border-bottom:none}
+  .tr:hover{background:#FBFAF8}
+  .tr.is-done{opacity:.5}
+  .cell{padding:14px 10px;overflow:hidden;min-width:0}
+  .cell.tiny{font-size:13px;color:var(--tx3)}
+  /* 回完记一笔 表单 */
+  .recbox{background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:10px 12px}
+  .rec-title{font-size:13px;font-weight:700;color:var(--tx2);margin-bottom:8px}
+  .rec-row{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+  .rec-row label{font-size:13px;color:var(--tx3);width:70px;flex-shrink:0;text-align:right}
+  .rec-row .sel{flex:1;min-width:0}
+  .rec-actions{display:flex;align-items:center;gap:8px;margin-top:8px}
+  .rec-actions .btn{flex:1}
+  /* 记一笔入口按钮(默认紧凑态): 一行小按钮, 避免表单撑高每行 */
+  .rec-fold{padding:2px}
+  .rec-entry{display:flex;flex-direction:column;gap:3px;align-items:flex-start;width:100%;background:var(--bg2);border:1px solid var(--line);border-radius:10px;padding:10px 14px;cursor:pointer;text-align:left;transition:.16s}
+  .rec-entry:hover{border-color:var(--blue);transform:translateY(-1px)}
+  .rec-entry-t{font-size:13px;font-weight:600;color:var(--tx2);white-space:nowrap}
+  .rec-entry-s{font-size:12px;color:var(--tx3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+  /* 徽章 */
+  .bdg{display:inline-block;font-size:12px;font-weight:600;letter-spacing:.02em;padding:2px 9px;border-radius:9999px;white-space:nowrap}
+  .b0{background:var(--redbg);color:var(--red)} .b1{background:var(--amberbg);color:var(--amber)}
+  .b2{background:var(--greenbg);color:var(--green)} .b3,.bna{background:var(--graybg);color:var(--tx2)}
+  /* 分流徽章(策略引擎) */
+  .route{display:inline-block;font-size:11px;font-weight:600;letter-spacing:.03em;padding:2px 9px;border-radius:9999px;margin-left:6px;white-space:nowrap;vertical-align:1px}
+  .r-auto{background:var(--greenbg);color:var(--green);border:1px solid rgba(52,101,56,.2)}
+  .r-manual{background:var(--amberbg);color:var(--amber);border:1px solid rgba(149,100,0,.2)}
+  .r-ignore{background:var(--graybg);color:var(--tx2);border:1px solid var(--line)}
+  .route-note{font-size:11px;color:var(--tx3);margin-top:2px}
+  .src{font-size:13px;color:var(--tx3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .uname{font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .msg{color:var(--tx2);font-size:15px}
+  /* 对方对话气泡(多轮) */
+  .msgchat{display:flex;flex-direction:column;gap:5px}
+  .mb{display:flex;flex-direction:column;gap:2px;max-width:100%}
+  .mb-bub{display:inline-block;background:var(--bg3);border:1px solid var(--line);border-radius:3px 11px 11px 11px;padding:7px 12px;font-size:14px;color:var(--tx);line-height:1.55;max-width:100%;word-break:break-word}
+  .mb-time{font-size:11px;color:var(--tx3);padding-left:2px;font-family:var(--mono)}
+  /* 折叠对话按钮: 浅色小链接样式, 不抢眼 */
+  .expand-btn{background:none;border:none;color:var(--blue);font-size:12px;cursor:pointer;padding:2px 0;margin-top:2px;text-align:left;display:inline-block}
+  .expand-btn:hover{text-decoration:underline}
+  .draftbox{background:var(--bg2);border:1px solid var(--line);border-radius:8px;padding:9px 12px;font-size:14px;color:var(--tx);width:100%;min-height:56px;resize:vertical;font-family:inherit;line-height:1.6;transition:.16s}
+  .draftbox:focus{outline:none;border-color:var(--blue)}
+  .btn{border:1px solid var(--line);background:var(--bg2);color:var(--tx2);padding:5px 13px;border-radius:7px;cursor:pointer;font-size:13px;letter-spacing:.01em;font-weight:500;white-space:nowrap;transition:.16s}
+  .btn:hover{border-color:var(--blue);color:var(--blue)}
+  .btn.auto{background:var(--bluebg);border-color:rgba(31,108,159,.22);color:var(--blue2)}
+  .btn.auto:hover{background:rgba(31,108,159,.16)}
+  .btn.green{background:var(--greenbg);border-color:rgba(52,101,56,.22);color:var(--green)}
+  .btn.green:hover{background:var(--green);color:#fff}
+  .btn.warn{background:var(--redbg);border-color:rgba(159,47,45,.22);color:var(--red)}
+  .btn.warn:hover{background:var(--red);color:#fff}
+  .copied{color:var(--green);font-size:13px;margin-left:4px}
+  .sel{background:var(--bg2);border:1px solid var(--line);color:var(--tx);border-radius:7px;padding:5px 8px;font-size:13px;font-family:inherit;transition:.16s}
+  .sel:focus{outline:none;border-color:var(--blue)}
+  .mini{font-size:13px;color:var(--tx3)}
+  .emptystate{text-align:center;color:var(--tx3);padding:48px 0;font-size:15px;letter-spacing:.01em}
+  .tiercol{width:56px}.usercol{min-width:140px}.srccol{min-width:130px}
+  .msgcol{min-width:190px}.draftcol{min-width:280px;flex:1}.statcol{min-width:360px;flex:1.2}
+  .followup{display:grid;grid-template-columns:auto auto auto 1fr;gap:6px;align-items:center;font-size:14px}
+  .chip{font-size:12px;padding:2px 8px;border-radius:9999px;background:var(--bg3);color:var(--tx2);white-space:nowrap}
+  .chip.note{color:var(--amber)}
+  .cmt-row{display:grid;grid-template-columns:minmax(110px,130px) minmax(130px,1.4fr) minmax(180px,2fr) minmax(90px,1fr) minmax(200px,2.2fr);gap:10px;align-items:center;padding:12px 14px;border-bottom:1px solid var(--line)}
+  .cmt-row:hover{background:#FBFAF8}
+  .cmt-head{display:grid;grid-template-columns:minmax(110px,130px) minmax(130px,1.4fr) minmax(180px,2fr) minmax(90px,1fr) minmax(200px,2.2fr);gap:10px;padding:11px 14px;font-size:12px;color:var(--tx3);font-weight:600;letter-spacing:.05em;background:var(--bg3)}
+  .actionpill{font-size:12px;font-weight:600;padding:2px 9px;border-radius:9999px;background:var(--graybg);color:var(--tx2);white-space:nowrap}
+  .actionpill.reply{background:var(--blue2);color:#fff}
+  /* —— 评论区: 卡片化看板(去平铺表格, 每条=一张卡: 谁/说了啥/建议回啥) —— */
+  .cmt-toolbar{display:flex;align-items:center;gap:12px;margin-bottom:14px;flex-wrap:wrap}
+  .cmt-toolbar-l{display:flex;align-items:center;gap:12px}
+  .cmt-toolbar-r{display:flex;align-items:center;gap:8px;margin-left:auto}
+  .cmt-filter{display:inline-flex;align-items:center;gap:6px;font-size:14px;color:var(--tx2);cursor:pointer;background:var(--bg2);border:1px solid var(--line);border-radius:9999px;padding:6px 14px;box-shadow:var(--shadow);transition:.16s}
+  .cmt-filter:hover{border-color:var(--blue)}
+  .cmt-filter input{accent-color:var(--blue)}
+  .cmt-list{display:flex;flex-direction:column;gap:12px}
+  .cmt-card{background:var(--bg2);border:1px solid var(--line);border-radius:12px;padding:16px 18px;box-shadow:var(--shadow);transition:.18s}
+  .cmt-card:hover{border-color:var(--line);box-shadow:0 2px 3px rgba(26,26,24,.05),0 6px 16px rgba(26,26,24,.05)}
+  .cmt-card.replied{opacity:.62}
+  .cmt-card-head{display:flex;align-items:center;gap:10px;margin-bottom:10px;flex-wrap:wrap}
+  .cmt-user{display:flex;align-items:center;gap:8px;min-width:0}
+  .cmt-avatar{width:28px;height:28px;border-radius:50%;background:var(--bg3);border:1px solid var(--line);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:var(--tx2);flex-shrink:0}
+  .cmt-name{font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .cmt-act{font-size:12px;color:var(--tx3)}
+  .cmt-time{font-size:12px;color:var(--tx3);font-family:var(--mono);margin-left:auto;white-space:nowrap}
+  .cmt-body{font-size:15px;line-height:1.65;color:var(--tx);padding:9px 12px;background:var(--bg);border:1px solid var(--line);border-radius:8px;margin-bottom:12px}
+  .cmt-reply{display:flex;flex-direction:column;gap:5px}
+  .cmt-reply-label{font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--tx3);display:flex;align-items:center;gap:6px}
+  .cmt-reply-label .dot{width:5px;height:5px;border-radius:50%;background:var(--blue2)}
+  .cmt-reply-text{font-size:14px;color:var(--blue2);line-height:1.6;background:var(--bluebg);border:1px solid rgba(31,108,159,.18);border-radius:8px;padding:8px 12px}
+  .cmt-reply.empty{color:var(--tx3);background:var(--graybg);border-color:var(--line);font-size:13px}
+  .cmt-reply-meta{display:flex;align-items:center;gap:8px;font-size:11px;color:var(--tx3)}
+  .cmt-card-foot{display:flex;align-items:center;gap:8px;margin-top:10px;flex-wrap:wrap}
+  .src-chip{font-size:12px;padding:2px 9px;border-radius:9999px;background:var(--greenbg);color:var(--green)}
+  .cmt-card-foot .mini{color:var(--tx3)}
+  /* —— 私信: 优先级分组(可折叠) —— */
+  .dm-groups{display:flex;flex-direction:column;gap:14px}
+  .dmgroup-head{display:flex;align-items:center;gap:10px;padding:11px 16px;background:var(--bg2);border:1px solid var(--line);border-radius:11px;box-shadow:var(--shadow);cursor:pointer;user-select:none;transition:.16s}
+  .dmgroup-head:hover{border-color:var(--blue)}
+  .dmgroup-caret{font-size:13px;color:var(--tx3);width:16px;text-align:center;flex-shrink:0}
+  .dmgroup-title{font-weight:700;font-size:15px;letter-spacing:.01em}
+  .dmgroup-count{margin-left:auto;display:inline-flex;align-items:center;justify-content:center;min-width:26px;height:26px;border-radius:9999px;padding:0 10px;font-size:13px;font-weight:700;background:var(--graybg);color:var(--tx2)}
+  .dmgroup-body{display:flex;flex-direction:column;gap:8px;margin-top:2px}
+  /* 每组内的行: 卡片式(仍是表格网格, 但每行独立成卡, 不再挤在一张长表里) */
+  .dm-groups .tr{background:var(--bg2);border:1px solid var(--line);border-radius:11px;box-shadow:var(--shadow);margin:0;padding:4px 2px}
+  .dm-groups .tr:hover{background:#FBFAF8;border-color:var(--blue)}
+  .dm-groups .tr.is-done{opacity:.62}
+  .dm-groups .cell{padding:12px 12px}
+  .row-top{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+  .row-top .uname{font-weight:700}
+  .foot{color:var(--tx3);font-size:13px;margin-top:18px;text-align:center;line-height:1.85}
+  /* 多设备选择器 & 设备汇总提示(紧凑单行,不再和汇总卡重复堆叠) */
+  .devwrap{display:flex;align-items:center;gap:6px;margin-right:8px}
+  .devlabel{font-size:13px;color:var(--tx3)}
+  /* 当前账号定位(赛道)只读徽章: 来自账号定位, 非用户手选 */
+  .accbadge{display:inline-flex;align-items:center;gap:6px;background:var(--bg2);border:1px solid var(--line);border-radius:9999px;padding:4px 12px;margin-right:8px;font-size:13px;box-shadow:var(--shadow)}
+  .accbadge .ab-icon{font-size:14px}
+  .accbadge .ab-lane{font-weight:700;color:var(--blue);white-space:nowrap}
+  .accbadge .ab-desc{color:var(--tx3);font-size:12px;white-space:nowrap;max-width:260px;overflow:hidden;text-overflow:ellipsis}
+  /* 赛道切换器 */
+  .trackwrap{display:flex;align-items:center;gap:6px;margin-right:12px}
+  .trackwrap select{font-weight:700;color:var(--blue)}
+  /* 设备分布: 单行 pill, 只在多设备时显示每台待回数; 单设备隐藏 */
+  .devstrip{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:16px}
+  .devstrip.hide{display:none}
+  .devpill{display:inline-flex;align-items:center;gap:7px;background:var(--bg2);border:1px solid var(--line);border-radius:20px;padding:5px 12px;font-size:13px;color:var(--tx2)}
+  .devpill .di{font-size:15px}
+  .devpill .dn{color:var(--tx);font-weight:700}
+  .devpill .dc{color:var(--tx2)}
+  .devpill .dp{font-weight:800;color:var(--red);font-size:15px}
+  /* 右侧回流宽列纵向 */
+  .flowcol{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+  .savecell{position:sticky;right:0}
+  /* 一键自动派发: 白名单预览标签 */
+  .autobatch{display:flex;flex-wrap:wrap;gap:6px;align-items:center;font-size:13px;margin-top:2px}
+  .abitem{display:inline-flex;align-items:center;gap:6px;background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:3px 9px}
+  .abitem .au{font-weight:700;color:var(--tx)}
+  .abitem .ai{color:var(--tx2);font-size:12px}
+  .abtag{font-size:12px;color:var(--green);font-weight:700;padding:1px 8px;border-radius:9999px;background:var(--greenbg)}
+  .abusy{cursor:wait;opacity:.65}
+  /* ===== 屏幕自适应: 宽屏/普通笔记本只做细微放大, 保持编辑器的精致字号 ===== */
+  @media (min-width:1440px) and (max-width:2200px){
+    body{font-size:16.5px;padding:24px 30px 64px;max-width:1600px}
+    .logo{font-size:22px}
+    .card .n{font-size:46px}
+    .card .l{font-size:13.5px}
+    .tab{padding:10px 20px}
+    .msg{font-size:15.5px}
+    .draftbox{min-height:60px}
+  }
+  /* <1440px 的窄屏(老笔记本/小屏)再整体放大一点, 但保证能装下 */
+  @media (max-width:1439px){
+    body{font-size:16px;padding:20px 22px 56px}
+  }
+  /* 顶部三步操作引导 */
+  .steps{display:flex;gap:10px;flex-wrap:wrap;background:var(--bg2);border:1px solid var(--line);border-radius:12px;padding:12px 16px;margin-bottom:14px}
+  .step{flex:1;min-width:200px;display:flex;align-items:flex-start;gap:10px}
+  .step .num{width:24px;height:24px;border-radius:50%;background:var(--blue2);color:#fff;font-weight:800;font-size:15px;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
+  .step .st-t{font-weight:700;font-size:15px;margin-bottom:2px}
+  .step .st-d{font-size:13px;color:var(--tx2);line-height:1.5}
+  /* 行内第一列: 是否要他回 的标识 */
+  .who-badge{font-size:13px;font-weight:700;padding:2px 9px;border-radius:6px;display:inline-block;white-space:nowrap}
+  .who-you{background:var(--amberbg);color:var(--amber);border:1px solid rgba(149,100,0,.24)}
+  .who-sys{background:var(--greenbg);color:var(--green);border:1px solid rgba(52,101,56,.24)}
+  .who-ign{background:var(--graybg);color:var(--tx2);border:1px solid var(--line)}
+  /* 话术框默认收起: 长话术只露几行, 点开看全文, 避免每行铺满 */
+  .draftbox{height:auto;max-height:80px;overflow-y:auto;min-height:56px}
+  .draftbox:focus{max-height:300px;overflow-y:auto}
+  /* ===== 降噪: 帮助按钮 + 帮助弹层 + 确认条 ===== */
+  .helpbtn{display:inline-flex;align-items:center;gap:5px;border:1px solid var(--line);background:var(--bg2);color:var(--tx2);padding:6px 13px;border-radius:20px;cursor:pointer;font-size:14px;vertical-align:middle}
+  .helpbtn:hover{border-color:var(--blue);color:var(--blue)}
+  .helpbtn .q{width:17px;height:17px;border-radius:50%;background:var(--blue2);color:#fff;font-size:12px;font-weight:800;display:inline-flex;align-items:center;justify-content:center}
+  .helplayer{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:60;display:none;align-items:flex-start;justify-content:center;padding:60px 20px;overflow:auto}
+  .helplayer.show{display:flex}
+  .helpcard{background:var(--bg2);border:1px solid var(--line);border-radius:14px;max-width:680px;width:100%;padding:22px 26px;position:relative}
+  .helpcard h3{font-size:18px;margin-bottom:12px;display:flex;align-items:center;gap:8px}
+  .helpcard .hx{font-size:14px;color:var(--tx2);line-height:1.75;margin-bottom:14px}
+  .helpcard .hx b{color:var(--tx)}
+  .helpx{position:absolute;top:12px;right:16px;background:none;border:none;color:var(--tx3);font-size:22px;cursor:pointer;line-height:1}
+  .helpx:hover{color:var(--red)}
+  .helpcard .step{flex:1;min-width:200px;display:flex;align-items:flex-start;gap:10px;margin-bottom:12px}
+  .helpcard .step .num{width:22px;height:22px;border-radius:50%;background:var(--blue2);color:#fff;font-weight:800;font-size:14px;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
+  .helpcard .step .st-t{font-weight:700;font-size:14px;margin-bottom:2px}
+  .helpcard .step .st-d{font-size:13px;color:var(--tx2);line-height:1.5}
+  /* 值班模式确认条: 切换前二次确认, 防止误触全自动 */
+  .mode-confirm{display:none;align-items:center;gap:12px;background:var(--bg2);border:1px solid var(--line);border-left:3px solid var(--amber);border-radius:10px;padding:11px 16px;margin-bottom:12px;flex-wrap:wrap}
+  .mode-confirm.show{display:flex}
+  .mode-confirm .mc-txt{font-size:15px;color:var(--tx)}
+  .mode-confirm .mc-txt b{color:var(--amber)}
+  .mode-confirm.isfull{border-left-color:var(--green)}
+  .mode-confirm .mc-action{display:flex;gap:8px;margin-left:auto;flex-wrap:wrap}
+  /* 控制器面板折叠区 */
+  .fold{display:none}
+  .fold.show{display:block}
+  /* 自动回复规则: 默认摘要, 点开看全部 */
+  .rules-wrap{display:flex;flex-wrap:wrap;align-items:center;gap:6px}
+  .rules-sum{font-size:13px;color:var(--tx3);display:inline-flex;align-items:center;gap:8px;flex-wrap:wrap}
+  .rules-sum .expand-btn{margin:0}
+  /* 顶部双层头: ①品牌行(标题+平台+帮助+刷新) ②工具栏(回复谁来管+账号+定位) —— 清爽分区, 不横向堆挤 */
+  .hrow{display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+  .hrow1{font-size:15px}
+  .hrow2{font-size:13px;border-top:1px solid var(--line);padding-top:14px;margin-top:4px;color:var(--tx3)}
+  .hrow2 .modelabel,.hrow2 .devlabel{font-size:12.5px;color:var(--tx3)}
+  .hrow2 .modebtn{padding:5px 13px;font-size:13px}
+  .hrow2 .appl{font-size:12px;color:var(--tx3)}
+  .hrow2 .accbadge .ab-lane{font-size:13px}
+  /* 自动回复设置: 整块默认折叠成一行(标题+当前状态+一键自动发), 点开才展开详情 —— 首屏清爽 */
+  .fold-ctrl{padding:0}
+  .fold-ctrl .fc-head{display:flex;align-items:center;gap:9px;padding:12px 16px;cursor:pointer;user-select:none;transition:.16s}
+  .fold-ctrl .fc-head:hover{background:var(--bg3)}
+  .fold-ctrl .fc-caret{font-size:11px;color:var(--tx3);transition:transform .18s;flex-shrink:0}
+  .fold-ctrl.open .fc-caret{transform:rotate(90deg)}
+  .fold-ctrl .fc-title{font-weight:700;font-size:15px;letter-spacing:.01em;display:flex;align-items:center;gap:7px;white-space:nowrap}
+  .fold-ctrl .fc-state{font-size:12.5px;color:var(--tx3);min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .fold-ctrl.open .fc-head{border-bottom:1px solid var(--line)}
+  .fold-ctrl .fc-body{padding:14px 18px}
+</style>
+
+</head>
+<body data-page-node-id="agKCAPrI1npD8gxLH4hL9R">
+
+<header data-page-node-id="8prKMLMus8H5v6HHmapKKB">
+  <!-- ① 品牌行: 标题 + 平台切换 + 帮助 + 刷新 -->
+  <div class="hrow hrow1" data-page-node-id="2v9daUbqtE0ValC2aOvyYH">
+    <div class="logo" data-page-node-id="w0mT2FgMcTAxNetA0AZpaB"><span class="dot" data-page-node-id="Zby3cziU23DsrfPCWlAylj"></span><span id="workTitle" data-page-node-id="CTToQV9KmjS6NsK1skV2Qj">小红书 · 聚合工作台</span></div>
+    <div class="platwrap" title="平台切换：当前主推小红书，抖音/视频号已预留框架，后续基于此开发" data-page-node-id="e6Tm1jfYdn7c5IzqHbpBOW">
+      <div class="platbox" id="platBox" data-page-node-id="xHOZnQLaUoDHPDOnlfE81n">
+        <button class="platbtn on" data-plat="xhs" data-page-node-id="NSCFeus04LgSPsqzuJOvfM"><span class="pico" data-page-node-id="OqBFtua1cKivTI4pAFkXvp"><i class="ic" data-ic="book" data-page-node-id="6CeqYGJXDjOI2lZQEjOG2W"></i></span>小红书</button>
+        <button class="platbtn" data-plat="douyin" data-page-node-id="jQyFZlj1lhgn2r1lBdvGSR"><span class="pico" data-page-node-id="k22vAzJDSLFI5ViO5v3TRY"><i class="ic" data-ic="video" data-page-node-id="HSCl9hClmICpji9K2Jjm2M"></i></span>抖音</button>
+        <button class="platbtn" data-plat="shipinhao" data-page-node-id="aWJGr0JUmUoKGZEvpRjUPF"><span class="pico" data-page-node-id="Bl07KqFVAaXzQpPvH2C9yI"><i class="ic" data-ic="channel" data-page-node-id="M7heNPbTHeC6j8vvl6pAyG"></i></span>视频号</button>
+      </div>
+    </div>
+    <span class="hrow-app" style="font-size:12px;color:var(--tx3)" data-page-node-id="ncqEfGqhHjXm46QeAEaEvj"><i class="ic" data-ic="sparkle" data-inline data-page-node-id="Lj45yTes3Qq4VV3oG6aepI"></i>自动整理私信，帮你快速回复</span>
+    <div class="grow" data-page-node-id="3cJzuwjWfDECykuc9pJldT"></div>
+    <button class="helpbtn" id="helpBtn" data-page-node-id="inF9lipW5gaW2lS5X6NIVv"><span class="q" data-page-node-id="qzN5GToN5DBc4ONInuwIQ3">?</span> 新手引导</button>
+    <span id="lastUpd" data-page-node-id="E5rsWGpCW4TfSkX5hjc7J7"></span>
+    <button id="refreshBtn" data-page-node-id="XXfWzxaABb5IzVu4fWW5DC"><i class="ic" data-ic="refresh" data-page-node-id="B2dy1Q9PtU9K5EHtBxWr1N"></i>刷新</button>
+  </div>
+  <!-- ② 工具栏: 回复谁来管(值班模式) + 看哪台账号 + 账号定位 -->
+  <div class="hrow hrow2" data-page-node-id="i0VogEVmTGb7hixNjBkGOr">
+    <span class="appl" data-page-node-id="eookvkCqJY2v7tBxlgtBwV"><i class="ic" data-ic="halfmoon" data-inline data-page-node-id="CbSBu1XqUDNVPEbu8qpMMu"></i>怎么帮你回：</span>
+    <div class="modewrap" data-page-node-id="RoLe2TNsULAHiJcMstJJun">
+      <div class="modebox" id="modeBox" data-page-node-id="qixh7efVu9pCSYJdGgkUDF">
+        <button class="modebtn" data-mode="semi" id="mbSemi" title="系统只自动回安全消息，敏感的留你真人" data-page-node-id="TkCwJ0bOvuI9v2cbHQSAIE"><span class="mico" data-page-node-id="QEGLhWVYScckCz2gxeNahF"></span>半自动</button>
+        <button class="modebtn" data-mode="full" id="mbFull" title="除无关广告外全部自动回" data-page-node-id="zJxZAKpCCNHP14LDVS7Nq4"><span class="mico" data-page-node-id="PxnuFko8fSJ34mvTxAoNsk"></span>全自动</button>
+        <button class="modebtn" data-mode="manual" id="mbManual" title="全部真人回，系统不自动" data-page-node-id="Y9XRNGUKZ6DAe7P9XQbvkA"><span class="mico" data-page-node-id="b1tKyDtGRHOl6ZMLIeQGxO"></span>全人工</button>
+      </div>
+      <span class="appl" style="color:var(--tx3)" data-page-node-id="2lH0rW5EiP9ZEpiiHKLS71">推荐·半自动</span>
+    </div>
+    <div class="grow" data-page-node-id="mFVdgNguaQI252RvDDWVDn"></div>
+    <div class="devwrap" id="accWrap" title="选账号=切赛道策略(账号定位决定赛道)" data-page-node-id="2D0xw84sDP2gYUo4BFONNm">
+      <span class="devlabel" data-page-node-id="YSr4g7Bwg8RLnY5NNyedpJ">看哪台账号</span>
+      <select class="sel" id="devSel" style="width:auto;max-width:210px" data-page-node-id="eNyTetS476VXbRoCuDLbpn"></select>
+    </div>
+    <div class="accbadge" id="accBadge" title="账号定位决定赛道; 换账号自动换赛道策略" data-page-node-id="FHuFKoByIIJZpEtxECNhMz">
+      <span class="ab-icon" data-page-node-id="KfkvBIFtneeWaiqSoBe4fx"></span>
+      <span class="ab-lane" id="abLane" data-page-node-id="sItkiguFLuXQjcFPm009Hj">—</span>
+      <span class="ab-desc" id="abDesc" data-page-node-id="cDGLFNA0e9KAcYbqLUvux9"></span>
+    </div>
+  </div>
+</header>
+
+<!-- ================= 工作台主体（按平台切换） ================= -->
+<!-- 小红书工作台: 完整功能 -->
+<div id="work-xhs" class="work-view" data-page-node-id="vREHPoCs1bdFjyfdNJenFz">
+<!-- 合规提示条: 告知当前自动回范围与平台AI托管号风险 (数据来自 /api/state compliance) -->
+<div class="compliance-bar" id="complianceBar" style="display:none" data-page-node-id="1ldHdfReKPVClRySMQLto2"></div>
+
+<!-- 值班模式提示条: 告知当前模式会怎么处理 (降噪: 默认折叠, 点开帮助弹层查看) -->
+<div class="mode-note" id="modeNote" style="display:none" data-page-node-id="hcwvmP35r5zNW2nykTQrNE"></div>
+
+<!-- 值班模式切换二次确认条 (防误触: 点全自动/全人工时弹出, 确认才生效) -->
+<div class="mode-confirm" id="modeConfirm" style="display:none" data-page-node-id="2IXdMk1pfvMQoESH5Bn0uK">
+  <div class="mc-txt" id="modeConfirmTxt" data-page-node-id="F0HBhQ8U5HJMK4D68uZH9N"></div>
+  <div class="mc-action" data-page-node-id="01QzIGFxHrUq1mSW5BUl70">
+    <button class="btn green" id="modeConfirmOk" data-page-node-id="9ATDYs9qhz2t49Cb009Hcd">确认切换</button>
+    <button class="btn" id="modeConfirmNo" data-page-node-id="u7E310viwct63d5BRCnt5Q">取消</button>
+  </div>
+</div>
+
+<!-- 使用说明弹层 (从首屏"一句话说明 + 三步引导"收进来, 首屏更干净) -->
+<div class="helplayer" id="helpLayer" data-page-node-id="5f6MRmwU7QwNH0DnHuj5Ia">
+  <div class="helpcard" data-page-node-id="AiqOfVUKtfo41KHk78PVE5">
+    <button class="helpx" id="helpClose" data-page-node-id="898ChFpCZ1XndGrz42Tb7C">×</button>
+    <h3 data-page-node-id="bo0tOwdn6sh6Q4GJFlOtlz"><i class="ic" data-ic="book" data-page-node-id="JZLH34uu12n7aHjLUpp1j7"></i>这里是你的私信回复台</h3>
+    <div class="hx" data-page-node-id="hIwJr4s8GS8YKfIX9jDVmq">系统帮你把「谁发了私信、他想干嘛、该怎么回」整理好。你只需要 <b data-page-node-id="hgeTeaFXJgpI3MIfDf6RgL">看 → 改 → 复制 → 去 App 发</b>，回完点一下「记一笔」。</div>
+    <div class="hx" data-page-node-id="gxVMgAVgS6AE908P19mGat">
+      <div class="step" data-page-node-id="1CAPq8Q4kwFaBrBjyCRloA"><div class="num" data-page-node-id="2hmIAi0xIwlnGvfEIqyv98">1</div><div data-page-node-id="qh1us2pKqiEbWGw2VigESX"><div class="st-t" data-page-node-id="Ad1xEejW4TCU4IPirWPmLf">看「谁来管」</div><div class="st-d" data-page-node-id="L8fp4vfH7QpAYrlL2dltCL"><b style="color:var(--amber)" data-page-node-id="KoKmXP8l4uKTmHz3stgbGl">你来回</b>=要你真人处理 / <b style="color:var(--green)" data-page-node-id="imR7hgBc3ua62OJ8jXtAei">系统回</b>=系统会自动回 / <b style="color:var(--tx2)" data-page-node-id="azu6bIs6gvRuxVkY28F12F">不用管</b>=可以忽略</div></div></div>
+      <div class="step" data-page-node-id="zVs09PydU4BcSQpOu93kFr"><div class="num" data-page-node-id="fUYDeZDmRbXMWIDsi8f2MQ">2</div><div data-page-node-id="MHHeyW5uP4MZGeqY8TFy9k"><div class="st-t" data-page-node-id="jSwzQeF3IXAOgmESvBUTOo">复制话术</div><div class="st-d" data-page-node-id="20GDJrBrlBV46p3ywsQZs9">看「回什么」那格，可以改，点 <b data-page-node-id="KHH4hxTVPl6D5Y0eX0OwiK"><i class="ic" data-ic="copy" data-inline data-page-node-id="UpHXFN3YXb1ds8aeIP5rg9"></i>复制这段话</b></div></div></div>
+      <div class="step" data-page-node-id="oHBBr6AVY07BqyVHCg1LSU"><div class="num" data-page-node-id="68DKUKfZ7GV6q2rgwNdFvp">3</div><div data-page-node-id="JhXk0iwkS2Z6215sLzEz0l"><div class="st-t" data-page-node-id="kmXjs18lpMHDTsKlKjRh8a">去 App 发，回来记一笔</div><div class="st-d" data-page-node-id="0NHEHTqWZAHO41Zdnco5ga">到小红书 App 发完，回来点 <b data-page-node-id="HCrLEobVHut9CkRODmL8oC">记一笔</b>，选「回了吗/对方啥反应」</div></div></div>
+    </div>
+    <h3 style="margin-top:18px" data-page-node-id="dulz80VIjfp4RRMKKRGjCb"><i class="ic" data-ic="gear" data-page-node-id="jNh7uXYy93H95Ev6HmGmGO"></i>三种回复模式（顶部切换）</h3>
+    <div class="hx" data-page-node-id="nMtOWnFGDyeX3nRhvWkU50">
+      <div style="margin-bottom:8px" data-page-node-id="Wt7cToOEIMrQ7JDLoY1CkG"><b style="color:var(--blue2)" data-page-node-id="VzRXIU0UDN0x9H1gvAJzvv"><i class="ic" data-ic="halfmoon" data-inline data-page-node-id="UEVvZw3sTRjhIzmyUu4eZ9"></i>半自动</b>：系统只自动回「要资料/要模板」这类简单安全的；涉及钱、加微信、约见面、想做研学的，系统<b data-page-node-id="dwrWZ4VzUZlSJHFuYzzQqw">不会</b>动，留给你真人。<span style="color:var(--green)" data-page-node-id="amCbpRpAtKh4sIOwzgz7DV">（推荐日常用）</span></div>
+      <div style="margin-bottom:8px" data-page-node-id="DHsTZC7HgMfjm9hgAiCZHu"><b style="color:var(--green)" data-page-node-id="fTIZHQiapVeK5SZRQlFySx"><i class="ic" data-ic="rocket" data-inline data-page-node-id="u7g9whDKtETebG2dgh9xdr"></i>全自动</b>：除了「无关广告」，系统全部自动回（含问价、咨询、求对接）。有数量上限，刚起步建议先观察。</div>
+      <div data-page-node-id="KNzHEzeZtzM135KEcG06hH"><b style="color:var(--amber)" data-page-node-id="y3shv5yUzXeJFoR1Y8xzXV"><i class="ic" data-ic="user" data-inline data-page-node-id="pDI3l5X3bbt0SZ4msTYBDP"></i>全人工</b>：所有私信都等你真人回，系统不自动发任何消息。适合刚起号、想完全自己把控节奏的阶段。</div>
+    </div>
+    <div class="hx" style="color:var(--tx3);font-size:13px;margin-top:10px" data-page-node-id="V16CXwgKhoRhF0Gh8yJcTe"><i class="ic" data-ic="chat" data-inline data-page-node-id="92IoIs9W34ibBgSkcDNEVu"></i>评论区是公开可见的，别留微信、别批量回「私信我」。想做研学/AI的真人逐条回，每条可顺手注明来自哪篇笔记。</div>
+    <h3 style="margin-top:18px" data-page-node-id="tzSA5FW0wLOY4ugspyFKUM"><i class="ic" data-ic="shield" data-page-node-id="m5vFsQAYmb6kQA9XBP92AA"></i>平台怎么管 AI？（AI 辅助 允许 · AI 托管 违规）</h3>
+    <div class="hx" style="font-size:13px;color:var(--tx2)" data-page-node-id="vDqBHvsu6paAbuwtHAydxo">
+      <div style="margin-bottom:8px" data-page-node-id="jkbVigdrNKGAzYUKWemI0v">平台 2026-07-17 公告：处置了一批 AI 批量生成/自动发布的「AI 托管号」。定义很简单——
+        <b data-page-node-id="82WB7yyUd82djtGDhkjO1N"><i class="ic" data-ic="check" data-inline data-page-node-id="d7SisNhBV7peESRU3b8dGX"></i>AI 辅助 允许</b>（AI 帮你选题/润色/分析/配图，<b data-page-node-id="D8lGfLsDWhbmwRa5gQEXO6">发布你手动、关键回复你发</b>）；
+        <b data-page-node-id="bg73tMYBMOleBCgk44xB2N"><i class="ic" data-ic="cross" data-inline data-page-node-id="95YqEuPNSktjFrOnSC5qGh"></i>AI 托管 违规</b>（脚本/自动 App 代替你自动发布、自动私信、模拟对话）。</div>
+      <div style="margin-bottom:8px" data-page-node-id="UeqDovm7S1IC22X6wowHwQ">本系统属于「<b style="color:var(--green)" data-page-node-id="LCrgHA075iTbK6X4jZInpB">AI 辅助 + 真人始终在环</b>」：AI 只帮你写草稿、归类、判断该谁回，<b data-page-node-id="FfnJ3loyGGGLBmpJjwm5iM">涉及报价、求对接、加微信等关键回复，全都由你真人发</b>。别图省事切「全自动」让它连发——那最容易被判成「AI 托管号」。</div>
+      <div style="color:var(--tx3)" data-page-node-id="s8PWGnE37syZFnyLzHcvYI">① 评论区只种草/提问，<b data-page-node-id="T5HtW43K1QSBSL3PlDb9Gt">绝不留微信/联系方式/报价</b>；② AI 生成内容发前标注「AI辅助创作」；③ 教育类<b data-page-node-id="ty6dg5h2nUpdHsMLX4AptO">禁「保过/包就业/100%通过」</b>；④ 绝对化用语（天花板/封神/第一）严打。</div>
+    </div>
+  </div>
+</div>
+
+<div class="tabs" data-page-node-id="kHZtOxZXO19pvsZSsrblm6">
+    <div class="tab on" data-tab="dm" data-page-node-id="PHj5WDH9lkRfg3Sqg5Gt8p"><i class="ic" data-ic="mailin" data-page-node-id="itAxRhbZNgEsh7iMh1OdMh"></i>私信待回 <span class="nb" id="nbDm" data-page-node-id="0OChQGqPkxFMCmBSIPiXBH">0</span></div>
+    <div class="tab" data-tab="cmt" data-page-node-id="ebDzDKM4vi6mcGqFBRGsyA"><i class="ic" data-ic="chat" data-page-node-id="WdhXQCeamZyf1qH8dkPk0s"></i>评论区 <span class="nb" id="nbCmt" style="display:none" data-page-node-id="4rKPbRIFtKpQwEeuU9cHWS"></span></div>
+    <div class="tab" data-tab="pro" data-page-node-id="qQWakud5jxmMh2mjpEubVr"><i class="ic" data-ic="target" data-page-node-id="CgIzkdRG9sVDefZi0ElcCT"></i>主动获客 <span class="nb" id="nbPro" style="display:none" data-page-node-id="YjSLYzhSsHCeHJSRStyWFs"></span></div>
+    <div class="tab" data-tab="content" data-page-node-id="cTmpContent01"><i class="ic" data-ic="doc" data-page-node-id="cTmpContent02"></i>内容排期</div>
+</div>
+
+<!-- ======= 自动回复设置（整块默认折叠成一行, 点开才展开详情） ======= -->
+<div class="panel ctrl fold-ctrl" id="ctrlPanel" data-page-node-id="K2hM5LA6kCqtHW9efY2wto">
+  <div class="fc-head" id="ctrlHead" data-page-node-id="64pHvMQuKU4TxJfZrw7ul6">
+    <span class="fc-caret" data-page-node-id="kyobHVQGRHpWMAKHjtsdjX">▸</span>
+    <span class="fc-title" data-page-node-id="0x4fjuwskex4kMhJrSD7mp"><i class="ic" data-ic="robot" data-page-node-id="qD5Z4EG0HApbQfGZTp37LH"></i>自动回复设置</span>
+    <span class="fc-state" id="fcState" data-page-node-id="aUa5z5qAcjAwGKK6kGHIZj">点开可调「自动回」的范围与节奏</span>
+    <div class="grow" data-page-node-id="hW7YXXQutmL0ztYcp7mOkI"></div>
+    <button class="btn green" id="runAuto" style="padding:4px 12px;font-size:12.5px" data-page-node-id="WwZIkyr3N8eQ7jadwnLdwN"><i class="ic" data-ic="zap" data-page-node-id="3REzpftaYaTdK3vCwNJL7T"></i>一键自动发</button>
+  </div>
+  <div class="fc-body" id="ctrlBody" style="display:none" data-page-node-id="mDKo90Bd1Wh56OuCj2za4W">
+    <div class="ctrl-head" data-page-node-id="T8YJ5zZPzKzzinpUxvtuiA">
+      <label class="ctrl-switch" data-page-node-id="jaeeCwpQpGO4Vha1MJpsTP"><input type="checkbox" id="autoToggle" data-page-node-id="IlAEOZAwkKnn4ALaGxGXD0"> 允许系统自动回</label>
+      <span class="ctrl-sub" style="margin-left:6px" data-page-node-id="t4qFENRr4y9wGMqOusuRk7">开了才会自动回；关闭则全部等你真人。</span>
+    </div>
+    <div class="ctrl-grid" id="ctrlGrid" data-page-node-id="ftYihDivHx4OOB92DOou2C">
+      <div class="ctrl-stat" data-page-node-id="OnA65w4oxqdSkBfVB0AeeI"><div class="mini" data-page-node-id="iiX1rxl2ShFD2jscLv9ENv">当前待回</div><div id="routeStat" data-page-node-id="iXmsWY69FkdOWEcvcAtdLy">系统回 0 · 你来回 0 · 不用管 0</div></div>
+      <div class="ctrl-actions" data-page-node-id="IBfN3tsHDXYrDifnS29xQ0">
+        <button class="btn auto" id="previewAuto" data-page-node-id="ydjaEK0RgzElEYWPbqKcoN"><i class="ic" data-ic="eye" data-page-node-id="bklx2clBeMabWtY0ZUi9JU"></i>看看能自动回谁</button>
+      </div>
+    </div>
+    <!-- 高级设置(频控参数)折叠: 默认收起, 点开才调细粒度 -->
+    <div class="ctrl-grid fold" id="ctrlAdv" data-page-node-id="N1TxA7zYKliDf9miBaq6jL">
+      <div class="ctrl-item" data-page-node-id="Go4hzCkARJHFuILuYkq3Mf"><div class="mini" data-page-node-id="UhHFDGCHYyzg5cp1b99JUc">每天最多自动回</div><input type="number" id="autoCap" class="sel" min="0" value="5" data-page-node-id="8zX3ICyH1T8B2AOSqqXrI1"></div>
+      <div class="ctrl-item" data-page-node-id="AEGoP4y0yJySDVp8U2fbe9"><div class="mini" data-page-node-id="npLlr7drt4FOxN3ucuRKEO">两条之间隔</div><input type="number" id="autoIv" class="sel" min="0" value="120" data-page-node-id="8TPT6aymIK1u1b0p7ubP8X"><span class="mini" data-page-node-id="qcrJwbiREKQPc79zXQ2GAU">分钟</span></div>
+      <div class="ctrl-actions" data-page-node-id="N9Jr3mkMxccDAYXkOzewJt">
+        <button class="btn" id="ctrlSave" data-page-node-id="4tBH7P4UGxxK21qUa9iNG5">保存设置</button>
+        <button class="btn" id="refreshBtn2" data-page-node-id="RpISVR6ew0k5ZXDtRs3vW1"><i class="ic" data-ic="refresh" data-page-node-id="8EHjzdB304FLGbbiccbIUj"></i>刷新</button>
+      </div>
+    </div>
+    <!-- 高级设置开关行 -->
+    <div class="ctrl-rules" style="padding-top:6px" data-page-node-id="9s6D8Dz5hU2FBDnb65XlSh">
+      <button class="expand-btn" id="advToggle" data-page-node-id="YGte3CaFtDFW0dOHWSXYfW"><i class="ic" data-ic="gear" data-page-node-id="P8oxzZg3ZyLDsRy8drwA09"></i>高级设置（频控/保存）<span class="cn-caret" data-page-node-id="ShSOvtZY9T1BVPStCIq7bW">▾</span></button>
+    </div>
+    <div class="ctrl-rules" id="ctrlRules" data-page-node-id="KU6FqqjM1EauWsfQCR2Fqp"><!-- 规则可视化 --></div>
+    <div class="ctrl-rules" id="autoBatch" style="display:none;border-top:none;padding-top:0;margin-top:4px" data-page-node-id="I3EFUJCTAf2BQnqCl3W2Sg"><!-- 白名单预览 --></div>
+  </div>
+</div>
+
+<!-- ======= 私信 Tab ======= -->
+<div id="view-dm" data-page-node-id="YVsbLaaByLdm6Brk3Hihdu">
+  <!-- 设备分布: 单行紧凑提示(多设备才显示), 不再和汇总卡重复堆叠 -->
+  <div class="devstrip hide" id="devStrip" data-page-node-id="TDPAEekHm7hZ5ktZBRqqBx"></div>
+
+  <div class="cards" id="cards" data-page-node-id="SyV14xkDpamUNBiTa0d6zY"></div>
+
+  <!-- ★ 待回私信 · 优先级分组(2026-09-07 重构: 不6列平铺全摊开, 按"你来回/系统回/已回"分组, 默认折叠掉次要的) -->
+  <div id="dmBody" class="dm-groups" data-page-node-id="on3jDnYr2td3mxrESRHKda"></div>
+  <div class="emptystate" id="dmEmpty" style="display:none" data-page-node-id="rTXj2J7QjsSE6ezKnbW4DJ">暂无待回私信——先去采集最新私信，系统整理后这里会浮出来</div>
+</div>
+
+<!-- ======= 评论区 Tab ======= -->
+<div id="view-cmt" style="display:none" data-page-node-id="bQ9zRmsatP5645Qoe8Mt1k">
+  <!-- 评论看板工具条: 只看要回 + 统计 + 帮助 -->
+  <div class="cmt-toolbar" data-page-node-id="1Byesp8C9FEGiKuPPB54ZB">
+    <div class="cmt-toolbar-l" data-page-node-id="M0594uSw4q9dx7MdArAeJW">
+      <label class="cmt-filter" data-page-node-id="pGAmRTdB9Nk2uFVWGYOgAb"><input type="checkbox" id="cmtOnlyNeed" data-page-node-id="2Lmg52B2d3aGqdmwdm85HQ"> 只看要回</label>
+      <span class="mini" id="cmtStat" style="color:var(--tx3)" data-page-node-id="jIcEJBroufsLwfn7IudnFv"></span>
+    </div>
+    <div class="cmt-toolbar-r" data-page-node-id="xfURCSssDfnP2IAXXgNZmA">
+      <button class="btn" id="cmtHelp" style="padding:3px 10px;font-size:13px" data-page-node-id="KCv8snOjt9PTmXtBsBtGai"><i class="ic" data-ic="chat" style="margin-right:3px" data-page-node-id="zTWO3BQRuwHBdoZanck0RQ"></i>说明</button>
+    </div>
+  </div>
+  <!-- 评论卡片列表 -->
+  <div id="cmtBody" class="cmt-list" data-page-node-id="5jxeNBwBsSidPrVLQZy6eu"></div>
+  <div class="emptystate" id="cmtEmpty" style="display:none" data-page-node-id="h6NXoM2Z1gORUJTmK58hio">暂无评论数据——先采集评论再刷新</div>
+</div>
+
+<!-- ======= 主动获客 Tab ======= -->
+<div id="view-pro" style="display:none" data-page-node-id="Fc6vpqCjJ9OFrZxGFJRQX5">
+  <div class="collapse-note" id="proHelpNote" style="margin-bottom:14px" data-page-node-id="RgvAvO3oY0ZDvTnrPaWNtm">
+    <div class="cn-head" data-page-node-id="1xI6gy9TwJvd2hHXGJ4XEV"><span class="cn-caret" data-page-node-id="DBO64cUcmxKvCvVCVsgRZP">▸</span> <i class="ic" data-ic="target" data-page-node-id="4HUOBmuBK4upNw8WChtqmV"></i>「主动去留言」是干嘛？怎么做才不踩红线？</div>
+    <div class="cn-body" data-page-node-id="63pBgHQTJ3r8hCFaG7awVY">
+      系统会自动去别人笔记下留言，帮你找潜在客户。留的只能是<b data-page-node-id="wpcBEzIckpBe0uD8TViOhB">互动+价值</b>，<b data-page-node-id="QJiUOGH1adj4OhKSV9blaw">绝不导流</b>（留微信/卖课/报价=封号红线）。真引流只在对方进了你私信、你真人回的时候做。
+      <button class="btn" id="proHelp" style="margin-left:8px;padding:2px 9px;font-size:13px" data-page-node-id="nuaUf275sRa08DSGCCaxGs">了解更多</button>
+    </div>
+  </div>
+
+  <!-- 每日获客看板 (置顶: 先看这轮效果) -->
+  <div class="cards" id="proCards" style="margin-bottom:16px" data-page-node-id="FQATQxdOAKeUWfpLA44qWs"></div>
+
+  <!-- ★ 层次关系: ① 先配置策略 → ② 再触发执行。两个是上下层, 不是平铺。 -->
+  <div class="panel ctrl" style="margin-bottom:16px;overflow:hidden" data-page-node-id="RDZ6Q59l8oiIyWlmdbcHLs">
+    <div class="ctrl-head" style="background:var(--dark);border-bottom:1px solid var(--line)" data-page-node-id="WZzLTGToKir3E60iQlQCOF">
+      <span class="ctrl-title" style="color:var(--acc)" data-page-node-id="nNQPODUSObLqsfBetpERuT"><i class="ic" data-ic="target" data-page-node-id="mwRAi2TWSY4Znq1z8yFAUm"></i>主动获客节奏</span>
+      <span class="ctrl-sub" data-page-node-id="RR0Da48GFaP2jcsWhGICMn">第一步 <b data-page-node-id="5aafnME4G2OASi5FrytWI6">① 配好</b> 要打谁、留什么话 → 再 <b data-page-node-id="Qrx2dcWJxO316a1qX8w5wB">② 跑一轮</b> 看看效果</span>
+      <div class="grow" data-page-node-id="TDmQR99E3Jv4qImt4CTNN0"></div>
+    </div>
+
+    <!-- ① 策略配置层 -->
+    <div style="border-bottom:1px solid var(--line)" data-page-node-id="F5HhtRiAwHgp4BSa8dMuLT">
+      <div class="ctrl-head" style="padding:7px 14px;background:transparent" data-page-node-id="Dwy5dPg6jN2jsquHDBxmXH">
+        <span class="mini" style="color:var(--acc);font-weight:700" data-page-node-id="hoBXG4Dl0lBRlX2o4kGHFz">①</span>
+        <span class="ctrl-sub" style="font-weight:600;color:var(--tx2)" data-page-node-id="fzxiswMXbT1n35VMbZ2gRA">配好：打哪类人 · 留什么话 · 多久留一次</span>
+        <div class="grow" data-page-node-id="payJ3r8wLVsLqJxwBol0ks"></div>
+        <button class="btn green" id="proSave" style="margin-right:6px" data-page-node-id="HL5XDGtjdpgCFqTQkF1Ehv">保存策略</button>
+        <button class="btn" id="proRefresh" data-page-node-id="ZgmMm4LApQaNLYQAIkIBLJ"><i class="ic" data-ic="refresh" data-page-node-id="rIpFuwofEzHlyNNC673fJQ"></i>刷新</button>
+      </div>
+      <div id="proCtlBody" data-page-node-id="1n9BMAQo1XXphctx9Sw5uA"></div>
+    </div>
+
+    <!-- ② 执行层 -->
+    <div style="padding:9px 14px 4px" data-page-node-id="8OPoEufNs8ksPuy3IytYQO">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:9px;flex-wrap:wrap" data-page-node-id="hhLU0OFEwzH2j2k1fiMCT6">
+        <span class="mini" style="color:var(--acc);font-weight:700" data-page-node-id="Xh1A1jxZkOfhXYCpYVT2R1">②</span>
+        <span class="ctrl-sub" style="font-weight:600;color:var(--tx2)" data-page-node-id="CTjdyUA4Xrz0zyBEyuVZa3">跑一轮试效果</span>
+        <span class="mini" style="color:var(--tx3)" data-page-node-id="Uw8slfYoTAPPsfWyyysEWO">按①配好的，自动搜笔记 → 挑对的人 → 写留言。默认只写出来不真发</span>
+        <div class="grow" data-page-node-id="sWYDQ9Uyr2sJmZc34uuTxi"></div>
+        <button id="proStop" class="btn" style="display:none;color:var(--red)" data-page-node-id="FSt8yFb54CdDjmWJXwOYV9"><i class="ic" data-ic="stop" data-page-node-id="3x4LrL0bi1p7AZpMSSBq3z"></i>停止</button>
+        <button class="btn green" id="proRun" data-page-node-id="nFne31SwTTQETk3hgeJyPE"><i class="ic" data-ic="zap" data-page-node-id="h1Qfrb225BPi28kvtpTw0S"></i>执行一轮</button>
+      </div>
+      <div class="ctrl-grid" style="grid-template-columns:1.4fr 1.4fr 1fr 1.4fr" data-page-node-id="k3YT4jF2cFr901irLDoSAr">
+        <div class="ctrl-item" data-page-node-id="YdnMjQVdlAREGGjtPHE3K5"><div class="mini" data-page-node-id="gvt9CaeV3nuXSOmNNr4g8c">搜什么词</div><input id="proKw" class="sel" value="研学" data-page-node-id="vN3binu6CYIlA2tPy31GfV"></div>
+        <div class="ctrl-item" data-page-node-id="0VcHBpWTpTVHVxwEAATcdi"><div class="mini" data-page-node-id="wcEm7EqCoRHsed4eEGa721">打哪类人</div><select id="proTarget" class="sel" data-page-node-id="jf9f1GFFX6hRmyVj9wBHOg"><option value="" data-page-node-id="oRFcuVQj13J924blQgD6C0">自动匹配</option></select></div>
+        <div class="ctrl-item" data-page-node-id="flvm3Nqq8yt6lxKlgp9mR8"><div class="mini" data-page-node-id="e5SEzA9Ghf7mCLDgKbUQJl">这轮发几条</div><div style="display:flex;align-items:center;gap:6px" data-page-node-id="koTUAcFHIMAxdIYnlgea4t"><input id="proMax" type="number" class="sel" min="1" value="1" style="width:64px" data-page-node-id="vgOe6zNsuZ8sPw7qofkJW8"><span class="mini" style="color:var(--tx3)" data-page-node-id="j1CwARciWklKzokDkH3Uvm">条</span></div></div>
+        <div class="ctrl-item" data-page-node-id="E6nWMhsjX2CYHqcu2Jqlbx"><div class="mini" data-page-node-id="zvmSIgULVwTKEfkYmshQTG">真发？</div><label class="ctrl-switch" title="高危：勾选后，真会在别人笔记下留公开评论" data-page-node-id="P9L9QwRA4Ly4jeb4WEreBH"><input type="checkbox" id="proSendChk" data-page-node-id="xXXsflTGyChxNsETCsOlfV"> 真发（谨慎）</label></div>
+      </div>
+    </div>
+
+    <!-- 进度区 (点执行后出现, 实时轮询) -->
+    <div id="proProgress" style="display:none;padding:9px 14px;border-top:1px solid var(--line);background:var(--dark)" data-page-node-id="OYXiOMyRcAVrcvT5F2WgGT">
+      <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap" data-page-node-id="mxDyvNB7eYm9NiIy09lwt2">
+        <span id="proPhase" class="mini" style="color:var(--acc);font-weight:700" data-page-node-id="DMpl28OszNMtXsCdfWdvM6"><i class="ic" data-ic="hourglass" data-inline data-page-node-id="p0UFHUwY1qfuKLjlpWMuAf"></i>启动中</span>
+        <span id="proMode" class="mini" style="color:var(--tx3)" data-page-node-id="DhWAGuyUttphaDa1v8vIjj"></span>
+        <div class="grow" data-page-node-id="ezR24lF7aH4bIJHrAWqyWl"></div>
+        <span class="mini" id="proPid" style="color:var(--tx3)" data-page-node-id="1gQVnqzVeAYDcGM742k3dE"></span>
+      </div>
+      <div class="probar" id="proBar" style="height:6px;border-radius:4px;background:var(--line);margin:8px 0 4px;overflow:hidden" data-page-node-id="q2pGBQIYeFDsE0zsoAX5Im">
+        <div id="proBarFill" style="height:100%;width:0%;border-radius:4px;background:var(--acc);transition:width .4s" data-page-node-id="O9HBLCgIjbEl36Hth2aUob"></div>
+      </div>
+      <div id="proStepLog" class="mini" style="color:var(--tx2);max-height:120px;overflow-y:auto;font-family:monospace;font-size:12px;white-space:pre-wrap;line-height:1.5" data-page-node-id="YpP9U6ScV7UIqN9Ei7102a"></div>
+    </div>
+  </div>
+
+  <!-- 进度详细日志(执行中实时滚动, 独立显示更清晰) -->
+  <div class="panel" id="proRunLogPanel" style="margin-bottom:16px;display:none;overflow:hidden" data-page-node-id="6q9hABYv6la6n4Uq4Z6fem">
+    <div class="th" style="padding:8px 12px;font-size:13px;font-weight:600;color:var(--tx2)" data-page-node-id="QfplkMRfQ361kg0xqCUd5D">
+      <span data-page-node-id="bugGHw3DAZnDZ1WlbVHKze"><i class="ic" data-ic="scroll" data-page-node-id="OE6Zq6XmcnhB1uvOJ109CV"></i>本轮执行日志</span>
+      <span class="mini" style="color:var(--tx3);margin-left:10px" data-page-node-id="G7hvW2OUBODskGDtxm3Fjc">实时滚动 · 点执行后自动展开</span>
+    </div>
+    <div id="proRunLog" class="mini" style="padding:6px 12px;color:var(--tx2);max-height:260px;overflow-y:auto;font-family:monospace;font-size:12px;white-space:pre-wrap;line-height:1.5" data-page-node-id="X1FLmuTn7x24mLpWVwHvj8"></div>
+  </div>
+
+  <!-- 最近一条 · 一眼可判(醒目状态条) -->
+  <div class="panel" id="proLatest" style="margin-bottom:16px;overflow:hidden;display:none" data-page-node-id="iB450R3HngYAU5DSu5Hj1T">
+    <div class="th" style="padding:8px 12px;font-size:13px;font-weight:600;color:var(--tx2)" data-page-node-id="3U9gvBfC8ZCcxaTYTjebF0">
+      <span data-page-node-id="zWsHMeAiPZhGFnLCTKMk17"><i class="ic" data-ic="target" data-page-node-id="7oZXdGYV5knXf0IrwFIHVG"></i>最近一次动作</span>
+      <span class="mini" style="color:var(--tx3);margin-left:10px" data-page-node-id="ucFBeCgS3C1aFCdcihwOTy">第一眼就看这条：这条到底发出去没有</span>
+    </div>
+    <div id="proLatestBody" data-page-node-id="bDsmkG02QXVBQHhP6tirLo"></div>
+  </div>
+
+  <!-- 获客流水表 -->
+  <div class="panel" data-page-node-id="3w2YSWmhHEpzebigXz6YlO">
+    <div class="th" id="proHead" style="display:flex;gap:8px;padding:8px 12px;font-size:13px;font-weight:600;color:var(--tx2)" data-page-node-id="7tQxT15ON4V7QFcLhptaFR">
+      <span style="flex:0 0 92px" data-page-node-id="3EMWCfVWJHXNWZXgCg1En5">时间</span><span style="flex:0 0 56px" data-page-node-id="pi6BEqH9EmBmm848exmfTY">动作</span><span style="flex:0 0 104px" data-page-node-id="GTrvCKghcys1GLMuAZQFO8">对方</span><span style="flex:1" data-page-node-id="CeHREdI8UbiLbAWhnFSGsp">留的话（完整）</span><span style="flex:0 0 52px" data-page-node-id="E3lGzqDBdLJQo0YrJQxe0U">方式</span><span style="flex:0 0 80px" data-page-node-id="4VAXxewYu3knCZ7O2Qtu2G">人群</span>
+    </div>
+    <!-- 状态图例: 让每个动作一眼看懂(颜色=含义) -->
+    <div style="padding:6px 12px;border-bottom:1px solid var(--line);display:flex;gap:14px;flex-wrap:wrap;align-items:center;font-size:11px;color:var(--tx2)" data-page-node-id="wlgm4tc1VoGFCcfkVvsztD">
+      <span style="display:flex;align-items:center;gap:4px" data-page-node-id="1v7xjio6b2mDwn8iX1HOj6"><span style="width:9px;height:9px;border-radius:50%;background:var(--green)" data-page-node-id="8DhqfkXFhE3kPxFP5Xcjil"></span>已真发</span>
+      <span style="display:flex;align-items:center;gap:4px" data-page-node-id="9e1TJek0AVl65fbq4k3e1r"><span style="width:9px;height:9px;border-radius:50%;background:var(--amber)" data-page-node-id="SFpgZ76fDwpwGROm6rOnUQ"></span>点了没确认</span>
+      <span style="display:flex;align-items:center;gap:4px" data-page-node-id="WGogykMe5BxK7zo684T1wX"><span style="width:9px;height:9px;border-radius:50%;background:var(--blue)" data-page-node-id="qUQWSbgg8dpCEo9U6Kg738"></span>已写没发</span>
+      <span style="display:flex;align-items:center;gap:4px" data-page-node-id="y3D4iXsOAWV5YYXi93AF55"><span style="width:9px;height:9px;border-radius:50%;background:var(--red)" data-page-node-id="dAaSHxTLHYBLveDyLKFyXY"></span>没发出去</span>
+      <span style="display:flex;align-items:center;gap:4px" data-page-node-id="F12W0DPEUVDvfRxsr4AZfZ"><span style="width:9px;height:9px;border-radius:50%;background:var(--tx3)" data-page-node-id="oIjDvadyzTQKga1PwNdwSS"></span>跳过/没找到人</span>
+      <span class="mini" style="color:var(--tx3);margin-left:auto" data-page-node-id="ZIiSfotBn8e7FjTwifsrku">绿=真正发出去了，其余都没算作已发</span>
+    </div>
+    <div id="proBody" data-page-node-id="uB93GKH8zwNxG7PRVg6nu2"></div>
+  </div>
+  <div class="emptystate" id="proEmpty" style="display:none" data-page-node-id="ptuI3d55rju1IBd4g8uDZL">还没有主动留言记录——点上方「② 跑一轮」试一次，或先让系统去采集积累数据</div>
+</div>
+
+<!-- ================= 内容排期（小红书平台内 · 第4个二级页签 · iframe 数据隔离） ================= -->
+<div id="view-content" style="display:none" data-page-node-id="vCTmpContent01">
+  <iframe src="/content_workbench.html" class="content-frame" title="内容排期与追踪" style="border:0;width:100%;height:calc(100vh - 150px);border-radius:14px;background:#fff;box-shadow:var(--shadow)" data-page-node-id="vCTmpContent02"></iframe>
+</div>
+
+<div class="foot" data-page-node-id="43X9M46arYejFT2Qra5kTf">
+  <div class="collapse-note" id="footHelp" data-page-node-id="j3I4h6kQAMXbDyfXRSA8Nx">
+    <div class="cn-head" data-page-node-id="WtHjpVVkuYUGF7oCReZCJM"><span class="cn-caret" data-page-node-id="qE711iUHxaKSusZCZNiuID">▸</span> 这些数据从哪来？哪些系统不会自动回？</div>
+    <div class="cn-body" data-page-node-id="U3j1kYy6bSnQPDw7dMj62w">
+      这里的数据来自你的<b data-page-node-id="2gYHrzTcdu7nyR30cL3Dct">采集 + 自动整理</b>，你只需 <b data-page-node-id="x5QKEh3jE9JRAlxGyAMrnr">看 → 改 → 复制 → 去 App 发</b>。<br data-page-node-id="3F001maCh7puuGepe3hLYx">
+      涉及钱、加微信、约见面、想做研学的，<b data-page-node-id="li2EB9VPtsTwFfgYxdefvq">系统不会自动回</b>，留给你真人处理——这是为了避免出问题。
+    </div>
+  </div>
+</div>
+</div><!-- /#work-xhs -->
+
+<!-- ================= 抖音工作台（占位骨架 · 后续开发） ================= -->
+<div id="work-douyin" class="work-view" style="display:none" data-page-node-id="S9e3Rq4YzEKxqgtF1MrLFB">
+  <div class="plat-empty" data-page-node-id="PdMek2C7m4eEAvAOpAVFIM">
+    <div class="pe-icon" data-page-node-id="CKA7rEMQ7QnNMGJ2szBimI"><i class="ic" data-ic="video" style="width:100%;height:100%" data-page-node-id="ntfaKpJ4dImlz6VUDgJwpO"></i></div>
+    <div class="pe-title" data-page-node-id="YLXdXBVbpDeQ94DzAWur9b">抖音 · 聚合工作台</div>
+    <div class="pe-sub" data-page-node-id="d4Oouuho3oGvDJkMTZp4oH">抖音工作台已预留框架，后续将基于本工作台开发——私信待回 / 评论区 / 主动获客等模块复用同一套消息架构与合规口径。</div>
+    <div class="pe-tag" data-page-node-id="TFY989HFQDUlThVdzdLEqn">框架已就位 · 待接入抖音数据源</div>
+  </div>
+</div>
+
+<!-- ================= 视频号工作台（占位骨架 · 后续开发） ================= -->
+<div id="work-shipinhao" class="work-view" style="display:none" data-page-node-id="Jd9Xe8OjIkPNIaul7wMQf5">
+  <div class="plat-empty" data-page-node-id="IJ6YhoesKCXXM69ziUpOnF">
+    <div class="pe-icon" data-page-node-id="5Bj1kozwWEXCGwvpEK2y9R"><i class="ic" data-ic="channel" style="width:100%;height:100%" data-page-node-id="KBIqo01RDuDk3RbFRBKV8D"></i></div>
+    <div class="pe-title" data-page-node-id="ZHhgpgJNcIRE4ueHKrSaDz">视频号 · 聚合工作台</div>
+    <div class="pe-sub" data-page-node-id="M9Ob8awGABqE7iGj1yWRic">视频号工作台已预留框架，后续将基于本工作台开发——私信待回 / 评论区 / 主动获客等模块复用同一套消息架构与合规口径。</div>
+    <div class="pe-tag" data-page-node-id="DJs9izsJl35gCvRFbiJLKW">框架已就位 · 待接入视频号数据源</div>
+  </div>
+</div>
+
+<script>
+// ---------------- 工具 ----------------
+const $ = s=>document.querySelector(s);
+// 细线图标: 内联 SVG 片段 (Phosphor/feather 风格), 用 <i> 包裹保证 vertical-align 生效
+const _ic=(path,extra="")=>`<i class="ic" aria-hidden="true">${extra?`<svg viewBox="0 0 24 24" width="1em" height="1em">${path}<line x1="4" y1="12" x2="20" y2="12" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>`:`<svg viewBox="0 0 24 24" width="1em" height="1em">${path}</svg>`}</i>`;
+// 常用图标 path (24×24 视口)
+const ICONS={
+  inbox:'<path d="M4 5h16v14H4z"/><path d="M4 14h4l2 3h4l2-3h4"/>',                       // 📥 收件箱
+  robot:'<rect x="5" y="8" width="14" height="10" rx="2.5"/><path d="M12 8V4"/><circle cx="12" cy="3.5" r="1"/><circle cx="9.5" cy="13" r="1"/><circle cx="14.5" cy="13" r="1"/><path d="M9.5 16h5"/>', // 🤖
+  user:'<circle cx="12" cy="8.5" r="3.5"/><path d="M5 20c.8-3.2 3.6-5 7-5s6.2 1.8 7 5"/>', // 🙋 人
+  check:'<path d="M4.5 12.5l4.5 4.5L19.5 7.5"/>',                                        // ✅
+  rocket:'<path d="M12 3c2.5 1 4 3.5 4 6l-2 5H10l-2-5c0-2.5 1.5-5 4-6z"/><path d="M5 15l2 2M19 15l-2 2M10 21l-1-3h6l-1 3"/>', // 🚀
+  target:'<circle cx="12" cy="12" r="7"/><circle cx="12" cy="12" r="3"/><circle cx="12" cy="12" r=".8" fill="currentColor"/>', // 🎯
+  halfmoon:'<path d="M15 12a7 7 0 1 1-4-6.4"/>',                                          // 🌓 半自动
+  gear:'<circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M19.1 4.9L17 7M7 17l-2.1 2.1"/>', // ⚙️
+  chat:'<path d="M4 5h16v11H9l-4 4V5z"/>',                                              // 💬
+  copy:'<rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15H4a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1h9a1 1 0 0 1 1 1v1"/>', // 📋
+  camera:'<rect x="3" y="6" width="18" height="14" rx="2.5"/><circle cx="12" cy="13" r="4"/><path d="M8 6l1.5-2h5L16 6"/>', // 📷
+  compass:'<circle cx="12" cy="12" r="8.5"/><path d="M15.5 8.5l-2 5-5 2 2-5z"/>',       // 🧭 定位/赛道
+  tool:'<path d="M14 6l4 4M9 19l-3 3M10 4l7 7-6 6-4-4z"/><path d="M5 15c-1.5 1.5-1.5 3.5 0 5"/>', // 🧰 工具路人
+  shield:'<path d="M12 3l7 3v6c0 4-3 7-7 9-4-2-7-5-7-9V6z"/><path d="M9 12l2 2 4-4"/>',    // 🛡️
+  sparkle:'<path d="M12 4l1.6 4.9L18 11l-4.4 1.6L12 18l-1.6-5.4L6 11l4.4-2.1z"/>',      // ✨
+  mountain:'<path d="M3 19h18M6 19l4-7 3 4 2-3 3 6"/>',                                  // ⛰
+  mailin:'<path d="M4 5h16v14H4z"/><path d="M4 7l8 6 8-6"/>',                           // 📩
+  pen:'<path d="M4 20h16"/><path d="M13 5l6 6-8 8H7v-4z"/>',                            // 📝
+  book:'<path d="M4 5h7v14H4zM13 5h7v14h-7z"/>',                                          // 📖
+  scroll:'<path d="M6 3h12v14H8a2 2 0 0 0-2 2z"/><path d="M8 21a2 2 0 0 1-2-2V5"/>',   // 📜
+  doc:'<path d="M6 3h9l4 4v14H6z"/><path d="M15 3v5h5"/>',                              // 📄
+  calendar:'<rect x="4" y="5" width="16" height="16" rx="2"/><path d="M4 10h16M8 3v4M16 3v4"/>', // 📅
+  search:'<circle cx="11" cy="11" r="6"/><path d="M16.5 16.5L21 21"/>',                 // 🔍
+  eye:'<path d="M2 12c2-5 6-7 10-7s8 2 10 7c-2 5-6 7-10 7s-8-2-10-7z"/><circle cx="12" cy="12" r="3"/>', // 👁
+  skip:'<path d="M5 5l14 14M5 19l9-9"/><path d="M14 5l5 5"/>',                          // ⏭ 跳过
+  hourglass:'<path d="M7 3h10v5l-3 4 3 4v5H7v-5l3-4-3-4z"/><path d="M6 3h12M6 21h12"/>', // ⏳
+  pause:'<rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/>', // ⏸
+  stop:'<rect x="6" y="6" width="12" height="12" rx="1.5"/>',                            // ⏹
+  clock:'<circle cx="12" cy="12" r="8.5"/><path d="M12 7v5l3 2"/>',                     // ⏱ 频控
+  refresh:'<path d="M20 12a8 8 0 1 1-2.5-5.8"/><path d="M20 4v4h-4"/>',                // ⟳
+  cross:'<path d="M6 6l12 12M18 6L6 18"/>',                                              // ✕
+  check2:'<path d="M5 13l4 4L19 7"/>',                                                  // ✓
+  phone:'<rect x="8" y="3" width="8" height="18" rx="2"/><path d="M11 18h2"/>',          // 📱 设备
+  video:'<rect x="3" y="6" width="13" height="12" rx="2.5"/><path d="M16 10l5-2v8l-5-2z"/>',  // 🎬 抖音/视频
+  channel:'<path d="M5 12h14"/><path d="M9 12l3-4v8z"/>',                               // 频道/视频号
+  platform:'<rect x="4" y="4" width="16" height="16" rx="2.5"/><path d="M4 9h16M9 20V9"/>',   // 平台/工作台
+  zap:'<path d="M13 2L5 13h6l-1 9 8-11h-6z"/>',                                         // ⚡ 一键
+};
+const _i=(k)=>{const p=ICONS[k];return p?`<svg class="ic" viewBox="0 0 24 24" width="1em" height="1em" aria-hidden="true">${p}</svg>`:'';};
+// 把静态 HTML 里所有 data-ic 占位(空 <i>/SVG 容器)填入真实 SVG; .mico 按按钮 mode 填
+function decorateIcons(){
+  // 1) 所有 `<i class="ic" data-ic="...">` / `<i class="ic" data-ic="..." data-inline>` → 替换为真实 SVG
+  document.querySelectorAll('i.ic[data-ic]').forEach(el=>{
+    const k=el.getAttribute('data-ic');
+    if(ICONS[k]) el.outerHTML=_i(k);
+  });
+  // 2) 值班模式按钮的 .mico 图标 (semi/full/manual)
+  const mIco={semi:'halfmoon', full:'rocket', manual:'user'};
+  document.querySelectorAll('.modebtn').forEach(b=>{
+    const m=b.getAttribute('data-mode'); const mi=b.querySelector('.mico');
+    if(mi && mIco[m]) mi.innerHTML=_i(mIco[m]);
+  });
+  // 3) 账号定位徽章图标
+  const ab=document.querySelector('.accbadge .ab-icon');
+  if(ab) ab.innerHTML=_i('compass');
+  // 4) 平台切换按钮图标 (小红书/抖音/视频号)
+  const pIco={xhs:'book', douyin:'video', shipinhao:'channel'};
+  document.querySelectorAll('.platbtn').forEach(b=>{
+    const p=b.getAttribute('data-plat'); const pi=b.querySelector('.pico');
+    if(pi && pIco[p]) pi.innerHTML=_i(pIco[p]);
+  });
+}
+const tierOrder={"P0":0,"P1":1,"P2":2,"P3":3};
+const tierBdg={"P0":"b0","P1":"b1","P2":"b2","P3":"b3"};
+function esc(s){return (s==null?"":String(s)).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));}
+function tsNow(){const d=new Date();return d.toLocaleTimeString('zh-CN',{hour:'2-digit',minute:'2-digit',second:'2-digit'});}
+
+let state={dm:[],comments:[],summary:{},devices:[]};
+let curDevice='all'; // 设备筛选: 'all'=全部, 否则=具体设备名
+let perUserNote={}; // 记忆打开发过的备注(不持久,回填才持久)
+
+// ---------------- 平台切换 (聚合工作台: 小红书/抖音/视频号) ----------------
+const PLAT_TITLE={xhs:'小红书 · 聚合工作台', douyin:'抖音 · 聚合工作台', shipinhao:'视频号 · 聚合工作台'};
+let curPlat='xhs'; // 默认主推小红书
+function switchPlatform(p){
+  if(!PLAT_TITLE[p]) return;
+  curPlat=p;
+  // 1) 标题
+  const t=$('#workTitle'); if(t) t.textContent=PLAT_TITLE[p];
+  // 2) 切换器高亮
+  document.querySelectorAll('.platbtn').forEach(b=>b.classList.toggle('on', b.getAttribute('data-plat')===p));
+  // 3) 工作台主体: 只显示当前平台; 小红书=完整功能, 抖音/视频号=占位骨架
+  ['xhs','douyin','shipinhao'].forEach(k=>{ const w=$('#work-'+k); if(w) w.style.display=(k===p?'':'none'); });
+  // 4) 小红书切回时刷新(其他平台不发/不接数据)
+  if(p==='xhs'){ load(); }
+}
+// ---------------- 就绪 ----------------
+decorateIcons();  // 静态图标: 填充 data-ic 占位 & 模式按钮 .mico (DOM 就绪即执行)
+async function load(){
+  try{
+    const r=await fetch('/api/state');state=await r.json();
+    fillDevSel();renderAccBadge();renderDevCards();renderCards();renderDm();renderCmt();renderCtrlStat();
+    renderCompliance();
+    decorateIcons();  // 追加动态生成的 data-ic (下拉/设备 pill/弹层)
+    $('#nbDm').textContent=state.summary.pending_total||0;
+    $('#lastUpd').textContent='更新于 '+tsNow();
+  }catch(e){$('#lastUpd').textContent='连不上服务,起服务: python server.py';}
+}
+
+// ★ 当前账号定位(赛道)徽章: 来自账号定位, 非用户手选。选哪台账号就显示那台的赛道
+let curTrack='yanxue';
+function renderAccBadge(){
+  const t=state.track||{}; const acc=t.account||{};
+  // 赛道 id 由账号定位推导
+  if(acc.lane){ curTrack=acc.lane; } else if(t.active){ curTrack=t.active; }
+  const laneName=(t.tracks||[]).find(x=>x.id===curTrack)?.name || curTrack;
+  const laneDesc=(t.tracks||[]).find(x=>x.id===curTrack)?.desc || '';
+  $('#abLane').textContent=laneName;
+  const d=$('#abDesc');
+  if(d){ d.textContent=(acc.desc||laneDesc||''); d.title=(acc.desc||laneDesc||''); }
+}
+
+// 合规提示: 降噪——默认收起=一行 pill 摘要, 点击展开完整说明 (数据来自 /api/state compliance)
+function renderCompliance(){
+  const c=state.compliance||{};
+  const bar=$('#complianceBar');
+  if(!bar)return;
+  if(!c.warn){ bar.style.display='none'; return; }
+  const risk=c.auto_risk==='high';
+  const tag=risk? '<span class="cb-tag risk">高风险</span>' : '<span class="cb-tag ok">符合AI辅助</span>';
+  const mode=(c.mode==='full'?'全自动':c.mode==='semi'?'半自动':'全人工');
+  bar.className='compliance-bar'+(risk?' high':'');
+  // 收起态: 仅一行摘要(pill标签 + 一句话); 展开态补完整说明
+  bar.innerHTML=
+    `<div class="cb-head"><span class="cb-caret">▸</span>${tag}<b>${escapeHtml(mode)}</b> · 当前 <b>${c.auto_reply_count||0}</b> 条系统会自动回 <span class="cb-caret" style="margin-left:auto">说明</span></div>
+     <div class="cb-body"><div style="margin-bottom:6px">${escapeHtml(c.warn)}</div>
+        <div style="color:var(--tx3);font-size:12px">AI 只帮你写草稿、归类、判断该谁回；<b>涉及报价、求对接、加微信等关键回复，全都由你真人发</b>。平台严查「AI 托管号」(脚本自动发/自动私信)，本系统属于「AI 辅助 + 真人始终在环」，是平台认可的方式。</div>
+     </div>`;
+  bar.style.display='block';
+  // 点击头部切换展开
+  const head=bar.querySelector('.cb-head');
+  head.addEventListener('click',()=>{
+    const open=bar.classList.toggle('open');
+    head.querySelector('.cb-caret').textContent=open?'▾':'▸';
+  },{once:false});
+}
+function escapeHtml(s){return (s==null?"":String(s)).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));}
+
+// ---------------- 多设备: 填充选择器(账号=昵称+赛道) + 设备汇总卡 ----------------
+function fillDevSel(){
+  // 账号下拉 = state.accounts(带 lane); 无则回退 devices
+  let accs=(state.accounts||[]);
+  if(!accs.length){ accs=(state.devices||[]).map(d=>({id:d.device, nick:d.nick||d.device, lane:''})); }
+  if(!accs.length){ $('#devSel').innerHTML='<option value="all">全部账号</option>'; curDevice='all'; return; }
+  // 显示: 账号昵称 · 所属赛道
+  const opts=['<option value="all">全部账号 ('+accs.length+')</option>']
+    .concat(accs.map(d=>{
+      const l=d.lane_name||d.lane||'';
+      const label=l? `${d.nick} · ${l}` : d.nick;
+      return `<option value="${esc(d.id)}" title="${esc(d.serial||d.id)}"><i class="ic" data-ic="phone"></i>${esc(label)}</option>`;
+    }));
+  $('#devSel').innerHTML=opts.join('');
+  if(curDevice!=='all' && !accs.some(d=>d.id===curDevice)) curDevice='all';
+  $('#devSel').value=curDevice;
+}
+function renderDevCards(){
+  const devs=state.devices||[];
+  const strip=$('#devStrip'); if(!strip)return;
+  strip.classList.add('hide');
+  if(devs.length<=1){ strip.innerHTML=''; return; } // 单设备不必展示分布
+  // 多设备: 单行 pill 提示每台待回数(显示账号昵称, 序列号作副标题)
+  strip.innerHTML='<span class="mini" style="color:var(--tx3)"><i class="ic" data-ic="phone" data-inline></i>设备分布：</span>'+
+    devs.map(d=>`<span class="devpill" title="${esc(d.serial||d.device)}"><span class="di"><i class="ic" data-ic="phone"></i></span><span class="dn">${esc(d.nick||d.device)}</span><span class="dc">待回</span><span class="dp">${d.pending||0}</span></span>`).join('');
+  strip.classList.remove('hide');
+}
+// 当前筛选后的 dm 行(保留原始索引 _orig,供行内交互反查 state.dm)
+function filteredRows(){
+  let rows=(state.dm||[]).map((r,idx)=>({...r, _orig:idx}));
+  if(curDevice!=='all') rows=rows.filter(r=>r.device===curDevice);
+  return rows.sort((a,b)=>tierOrder[a.tier]-tierOrder[b.tier]||String(a.ts).localeCompare(b.ts));
+}
+
+// ---------------- 控制器(策略引擎开关/规则) ----------------
+let curMode='semi';
+async function loadCtrl(){
+  try{
+    const r=await fetch('/api/strategy');const d=await r.json();
+    const g=d.global||{};
+    $('#autoToggle').checked = g.auto_enabled!==false;
+    $('#autoCap').value = g.auto_daily_cap||5;
+    $('#autoIv').value = g.auto_interval_min||120;
+    curMode = (g.auto_mode||'semi').toLowerCase();
+    applyModeUI();
+    // 规则可视化(降噪: 默认只显示摘要, 点"详情"才展开全部规则)
+    const rules=d.rules||[];
+    const chip=(r)=>{const ic={auto:'check',manual:'user',ignore:'skip'};const lbl=({auto:'自动回',manual:'人工回',ignore:'忽略'})[r.route]||r.route||'';const col=({auto:'var(--green)',manual:'var(--amber)',ignore:'var(--tx3)'})[r.route]||'var(--tx3)';return `<span class="chip">${esc(ruleWord(r.intent_contains||''))} → <b style="color:${col}">${_i(ic[r.route]||'')}${lbl}</b></span>`;};
+    const autoCnt=rules.filter(r=>r.route==='auto').length;
+    const manualCnt=rules.filter(r=>r.route==='manual').length;
+    const ignoreCnt=rules.filter(r=>r.route==='ignore').length;
+    $('#ctrlRules').innerHTML = rules.length
+      ? `<div class="rules-wrap">
+          <div class="rules-sum">系统会<b style="color:var(--green)">自动回</b> ${autoCnt} 类 · <b style="color:var(--amber)">留给你</b> ${manualCnt} 类 · <b style="color:var(--tx3)">忽视</b> ${ignoreCnt} 类
+            <button class="expand-btn" id="rulesToggle">看完整规则 ▾</button>
+          </div>
+          <div id="rulesFull" style="display:none">${rules.map(chip).join(' ')}</div>
+        </div>`
+      : '<div class="rules-wrap"><div class="rules-sum">暂无规则(保持默认)</div></div>';
+  }catch(e){$('#ctrlRules').textContent='设置加载失败: '+e.message;}
+}
+// 应用值班模式 UI: 三态高亮 + 提示条
+// hiMode: 临时预览高亮(待确认时显示"即将切换到"); 不传则用 curMode
+function applyModeUI(hiMode){
+  // 只高亮当前 curMode 对应按钮，其余全部取消高亮(修: 之前给每个按钮都加了 on-*)
+  const active = hiMode || curMode;
+  const ids={semi:'#mbSemi', full:'#mbFull', manual:'#mbManual'};
+  ['semi','full','manual'].forEach(m=>{
+    const b=$(ids[m]);
+    if(b){
+      b.classList.remove('on-semi','on-full','on-manual');
+      if(m===active) b.classList.add('on-'+m);
+    }
+  });
+  const note=$('#modeNote'); const map={
+    semi:  {cls:'semi',  txt:'<i class="ic" data-ic="halfmoon" data-inline></i><b>半自动</b>：系统只帮你回「要资料/要模板」这类简单安全的；涉及钱、加微信、约见面、想做研学的，系统<b>不会</b>动，留给你真人。'},
+    full:  {cls:'full',  txt:'<i class="ic" data-ic="rocket" data-inline></i><b>全自动</b>：除了「无关广告」，系统全部自动回（包括问价、咨询、求对接）。有数量上限，刚起步建议先观察。'},
+    manual:{cls:'manual',txt:'<i class="ic" data-ic="user" data-inline></i><b>全人工</b>：所有私信都等你真人回，系统不自动发任何消息。适合刚起号、想完全自己把控节奏的阶段。'},
+  };
+  const m=map[active]||map.semi;
+  note.className='mode-note '+m.cls; note.innerHTML=m.txt;
+  note.style.display='none'; // 降噪: 模式说明只在帮助弹层与确认条里出现, 首屏靠三态高亮表达当前模式
+}
+// 切换值班模式(立即保存)
+async function setMode(mode){
+  curMode=mode; applyModeUI(); hideModeConfirm();
+  try{
+    await fetch('/api/strategy',{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({global:{auto_mode:mode}})});
+    loadCtrl(); load();
+  }catch(e){ alert('切换失败: '+e.message); }
+}
+// ---------- 二次确认: 防误触(尤其全自动会真发) ----------
+let pendingMode=null; // 用户刚点、待确认的模式
+const MODE_TXT={
+  semi:  {cls:'semi',  icon:'halfmoon', name:'半自动', warn:'',         isfull:false},
+  full:  {cls:'full',  icon:'rocket', name:'全自动', warn:'点确认后，系统会对【安全的客户】自动发消息，不用你一条条点。', risk:'按平台 2026-07-17 公告，用脚本/自动化代替真人自动发私信，属于「AI 托管号」违规，风险最高。建议日常用半自动。', isfull:true},
+  manual:{cls:'manual',icon:'user', name:'全人工', warn:'点确认后，所有私信都等你真人回，系统不会自动发。', isfull:false},
+};
+function reqMode(mode){
+  if(mode===curMode){ hideModeConfirm(); return; } // 已生效,无需确认
+  if(pendingMode===mode){ hideModeConfirm(); return; } // 再点同一个=取消
+  pendingMode=mode; showModeConfirm();
+}
+function showModeConfirm(){
+  const mm=MODE_TXT[pendingMode]||MODE_TXT.semi;
+  applyModeUI(pendingMode); // 预览高亮"即将切换到"的按钮
+  $('#modeConfirm').className='mode-confirm show'+(mm.isfull?' isfull':'');
+  $('#modeConfirmTxt').innerHTML=`确定切到 <b>${_i(mm.icon)}${esc(mm.name)}</b> 吗？${mm.warn?`<br><span style="color:var(--tx2);font-size:13px">${esc(mm.warn)}</span>`:''}${mm.risk?`<br><span style="color:var(--red);font-size:13px;display:inline-block;margin-top:4px"><i class="ic" data-ic="cross" data-inline></i>${esc(mm.risk)}</span>`:''}`;
+  $('#modeConfirm').style.display='flex';
+}
+function hideModeConfirm(){
+  pendingMode=null;
+  const el=$('#modeConfirm'); if(el){ el.classList.remove('show'); el.style.display='none'; }
+  applyModeUI(); // 恢复为实际 curMode 高亮
+}
+function confirmModeChange(){
+  if(!pendingMode)return;
+  const m=pendingMode; pendingMode=null; hideModeConfirm();
+  setMode(m); // 真正保存生效
+}
+function cancelModeChange(){ hideModeConfirm(); }
+// 把规则里的关键词组翻译成大白话
+function ruleWord(s){
+  if(!s)return '';
+  const map={
+    '主动互留联系方式/求对接':'要加微信/求对接',
+    '明确咨询课程/价格':'问价格/问课程',
+    '泛研学人群':'想做研学',
+    '问怎么做/还招吗/这是干嘛':'问怎么做',
+    '求模板/扣关键词/要资料':'要资料/要模板',
+    'AI干货/工具':'要AI干货',
+    '无效/广告/无关':'广告/无关',
+    '待归类':'其他',
+  };
+  const k=Object.keys(map).find(x=>s.includes(x));
+  return k?map[k]:s.slice(0,12);
+}
+function renderCtrlStat(){
+  const s=state.summary||{};
+  $('#routeStat').textContent=`系统回 ${s.route_auto||0} · 你来回 ${s.route_manual||0} · 不用管 ${s.route_ignore||0}`;
+  const fs=$('#fcState'); if(fs){
+    const total=s.pending_total||0;
+    fs.textContent = total>0 ? `当前有 ${total} 条待回，其中系统可自动回 ${s.route_auto||0} 条` : '当前没有待回私信';
+  }
+}
+// ---- 一键自动派发: 预览当前"可自动回"的客户(系统判断安全的) ----
+async function previewAuto(){
+  const box=$('#autoBatch'); box.style.display='block';
+  box.innerHTML='<span class="mini">正在读取可自动回的客户…</span>';
+  const btn=$('#previewAuto'); btn.disabled=true; btn.classList.add('abusy');
+  try{
+    const r=await fetch('/api/autoreply/preview'); const j=await r.json();
+    if(!j.ok){ box.innerHTML='<span class="mini" style="color:var(--red)">读取失败: '+(j.error||'')+'</span>'; return; }
+    const ts=j.targets||[];
+    const off = j.auto_enabled===false ? '<span class="abtag" style="background:var(--amberbg);color:var(--amber)"><i class="ic" data-ic="cross" data-inline></i>自动回复开关已关，不会自动发</span>' : '';
+    box.innerHTML = `<div class="autobatch">
+        <span class="mini">可自动回的客户 <b style="color:var(--green)">${j.count||0}</b> 位${off}</span>
+      </div>
+      <div class="autobatch">
+        ${ts.map(t=>`<span class="abitem"><span class="au">@${esc(t.user)}</span><span class="ai">${esc(ruleWord(t.intent||''))}</span></span>`).join('')||'<span class="mini" style="color:var(--tx3)">（暂无，采集最新私信后会自动浮出）</span>'}
+      </div>`;
+  }catch(e){ box.innerHTML='<span class="mini" style="color:var(--red)">连不上服务: '+e.message+'</span>'; }
+  finally{ btn.disabled=false; btn.classList.remove('abusy'); }
+}
+// ---- 一键自动派发: 确认后真发"可自动回"的客户(后台执行) ----
+async function runAuto(){
+  if(!confirm('⚠ 将真发当前【可自动回】的客户。\n\n请确认：手机已解锁、已进 App、停在消息页。\n\n确定一键发?'))return;
+  const btn=$('#runAuto'); btn.disabled=true; btn.classList.add('abusy');
+  const old=btn.textContent; btn.textContent='发送中…(几十秒)';
+  try{
+    const r=await fetch('/api/autoreply/run',{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({device:curDevice==='all'?'':curDevice})});
+    const j=await r.json();
+    if(j.ok){ flash(btn,'✓ 已启动'); alert('已开始自动发送。\n设备: '+ (j.device||'默认') +'。\n几十秒后点「刷新」看结果。'); }
+    else alert('启动失败: '+(j.error||''));
+  }catch(e){ alert('调用出错: '+e.message); }
+  btn.disabled=false; btn.classList.remove('abusy'); btn.textContent=old;
+}
+function saveCtrl(){
+  const payload={global:{
+    auto_mode: curMode,
+    auto_enabled: $('#autoToggle').checked,
+    auto_daily_cap: parseInt($('#autoCap').value)||5,
+    auto_interval_min: parseInt($('#autoIv').value)||120,
+  }};
+  try{
+    fetch('/api/strategy',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)})
+      .then(r=>r.json()).then(j=>{
+        if(j.ok){ flash($('#ctrlSave'),'✓ 已保存'); load(); } else alert('保存失败: '+ (j.error||''));
+      }).catch(e=>alert('保存出错: '+e.message));
+  }catch(e){alert('保存出错: '+e.message);}
+}
+document.addEventListener('DOMContentLoaded',()=>{
+  // 平台切换器: 小红书/抖音/视频号 (聚合工作台)
+  document.querySelectorAll('.platbtn').forEach(b=>{
+    b.addEventListener('click',()=>switchPlatform(b.getAttribute('data-plat')));
+  });
+  load();
+  loadCtrl();
+  $('#ctrlSave').addEventListener('click',saveCtrl);
+  $('#refreshBtn2').addEventListener('click',()=>{load();loadCtrl();});
+  $('#refreshBtn').addEventListener('click',()=>{load();loadCtrl();});
+  $('#previewAuto').addEventListener('click',previewAuto);
+  $('#runAuto').addEventListener('click',runAuto);
+  // 自动回复设置: 整块折叠成一行, 点头部展开详情(首屏清爽)
+  const ctrlHead=$('#ctrlHead');
+  if(ctrlHead){
+    ctrlHead.addEventListener('click',(e)=>{
+      // 点"一键自动发"不触发展开(只执行), 其余区域导航开合
+      if(e.target.closest('#runAuto')) return;
+      const body=$('#ctrlBody'); const open=body.style.display==='block';
+      body.style.display=open?'none':'block';
+      const head=ctrlHead; const cr=document.querySelector('#ctrlPanel .fc-caret');
+      if(cr) cr.textContent=open?'▸':'▾';
+      ctrlHead.classList.toggle('open', !open);
+    });
+  }
+  // 高级设置折叠: 默认收细粒度频控(只在需要时点开)
+  const advToggle=$('#advToggle');
+  if(advToggle){
+    advToggle.addEventListener('click',()=>{
+      const adv=$('#ctrlAdv'); const open=adv.classList.contains('show');
+      adv.classList.toggle('show', !open);
+      advToggle.querySelector('.cn-caret').textContent = open?'▾':'▴';
+    });
+  }
+  // 值班模式三态切换: 先二次确认, 确认才保存生效(防误触)
+  document.querySelectorAll('#modeBox .modebtn').forEach(b=>{
+    b.addEventListener('click',()=>reqMode(b.dataset.mode));
+  });
+  $('#modeConfirmOk').addEventListener('click',confirmModeChange);
+  $('#modeConfirmNo').addEventListener('click',cancelModeChange);
+  // 使用说明弹层: 开关
+  $('#helpBtn').addEventListener('click',()=>$('#helpLayer').classList.add('show'));
+  $('#helpClose').addEventListener('click',()=>$('#helpLayer').classList.remove('show'));
+  $('#helpLayer').addEventListener('click',(e)=>{ if(e.target.id==='helpLayer') $('#helpLayer').classList.remove('show'); });
+  // 评论区更多说明: 指向首页帮助弹层
+  const cmtHelp=$('#cmtHelp'); if(cmtHelp) cmtHelp.addEventListener('click',()=>$('#helpLayer').classList.add('show'));
+  // 评论区"只看要回"筛选: 勾选后只显示值得真人回的评论
+  const cmtOnly=$('#cmtOnlyNeed'); if(cmtOnly) cmtOnly.addEventListener('change',()=>renderCmt());
+  // ★ 账号驱动赛道: 选账号(手机) → 后端按该账号定位推赛道, 自动换承接话术视角 + 主动获客人群
+  //   不再有「先切全局赛道」那个反直觉动作。选账号 = 切赛道策略。
+  $('#devSel').addEventListener('change',async (e)=>{
+    const v=e.target.value; curDevice=v;
+    if(v!=='all'){
+      try{
+        const r=await fetch('/api/account',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({device:v})});
+        const j=await r.json();
+        if(j.ok){ state.track=j.track||state.track; state.accounts=j.accounts||state.accounts; } 
+      }catch(err){ /* 后端不可用时降级前端切换 */ }
+    }
+    renderAccBadge();renderDevCards();renderCards();renderDm();
+    if(window.__proLoaded) loadPro(true);
+  });
+  // 主动获客: 保存策略 / 刷新 / 执行一轮 / 停止 / 目标下拉
+  $('#proSave').addEventListener('click',saveProStrategy);
+  $('#proRefresh').addEventListener('click',()=>loadPro(true));
+  $('#proRun').addEventListener('click',runPro);
+  $('#proStop').addEventListener('click',stopPro);
+  $('#proSendChk').addEventListener('change',(e)=>{
+    // 同步执行按钮视觉: 真发=警示色, 干跑=默认绿
+    const btn=$('#proRun');
+    if(btn){ btn.className = e.target.checked? 'btn warn':'btn green'; }
+  });
+});
+
+// ---------------- 汇总卡 ----------------
+function renderCards(){
+  const s=state.summary||{};
+  const cards=[
+    {n:s.pending_total||0,l:'待回私信',cls:'c-red'},
+    {n:(s.route_auto||0),l:'系统自动回',cls:'c-green'},
+    {n:(s.route_manual||0),l:'你要真人回',cls:'c-amber'},
+    {n:s.replied_total||0,l:'已回完',cls:'c-green'},
+  ];
+  $('#cards').innerHTML=cards.map(c=>`<div class="card ${c.cls}"><div class="n">${c.n}</div><div class="l"><span class="dot"></span>${c.l}</div></div>`).join('');
+}
+
+// ---------------- 私信表 ----------------
+
+// ---------------- 私信分组渲染 ----------------
+// 信息层次重构(2026-09-07): 不再6列平铺+全部摊开, 而是按"优先级"分组:
+//   ① 要你真人回(manual, 最高优先)  ② 系统自动回(auto)  ③ 已回完/不用管(默认折叠)
+// 每组一个可折叠表头, 点表头展开/收起; 首屏只看到"要你真人回"组, 其余折叠 → 少分散、省滚动。
+function dmGroupHeader(cls, title, n, open){
+  return `<div class="dmgroup-head" data-dmgroup="${cls}"><div class="dmgroup-caret">${open?'▾':'▸'}</div><div class="dmgroup-title">${title}</div><div class="dmgroup-count">${n}</div></div>`;
+}
+function renderDm(){
+  const rows=filteredRows();
+  const body=$('#dmBody');
+  if(!rows.length){$('#dmEmpty').style.display='block';body.innerHTML='';return;}
+  $('#dmEmpty').style.display='none';
+  // 分组: manual(你来回) / auto(系统回) / ignore(不用管) / done(已回完)
+  const groups={manual:[], auto:[], ignore:[], done:[]};
+  for(const r of rows){
+    const done=(r['已回']==='已回')||(r['对方反应']&&r['对方反应']!=='')||(r['真商机']&&r['真商机']!=='');
+    if(done) groups['done'].push(r);
+    else if((r.route||'manual')==='auto') groups['auto'].push(r);
+    else if((r.route||'manual')==='ignore') groups['ignore'].push(r);
+    else groups['manual'].push(r);
+  }
+  // 默认展开: manual 开, auto 开, ignore/done 折叠
+  let html='';
+  const segDefs=[
+    ['manual','要你真人回','c-amber',true],
+    ['auto','系统自动回','c-green',true],
+    ['ignore','不用管','c-neutral',true],
+    ['done','已回完','c-neutral',false],
+  ];
+  for(const [cls,title,color,open] of segDefs){
+    const seg=groups[cls]; if(!seg.length) continue;
+    html+=dmGroupHeader(cls,title,seg.length,open);
+    html+=`<div class="dmgroup-body" data-dmgroup="${cls}" style="${open?'':'display:none'}">`
+        + seg.map(r=>dmRow(r)).join('') + `</div>`;
+  }
+  body.innerHTML=html;
+}
+
+function dmRow(r,i){
+  const isReplied = r['已回']==='已回';
+  const simMsg = (r['留言']||'').slice(0,70);
+  const intentBadge = r['意图']?`<span class="chip">${esc(ruleWord(r['意图']))}</span>`:'';
+  const route = r.route||'manual';
+  const routeCls = ({auto:'who-sys',manual:'who-you',ignore:'who-ign'})[route]||'who-you';
+  const routeTxt = ({auto:'系统回',manual:'你来回',ignore:'不用管'})[route]||'你来回';
+  const routeNote = r.route_note?`<div class="route-note">${esc(ruleWord(r.route_note))}</div>`:'';
+  // data-i 用原始索引(_orig), 保证行内交互能反查到 state.dm
+  const oi = (r._orig!=null)?r._orig:i;
+  const srcTypeTxt = ({'研学AI落地':'研学/AI','OPC接单':'OPC课程','工具路人':'路人'})[r['来源类型']]||r['来源类型']||'';
+  // 是否已记录(已回/有结论) → 整行淡出
+  const done = (r['已回']==='已回')||(r['对方反应']&&r['对方反应']!=='')||(r['真商机']&&r['真商机']!=='');
+  // 完整对话历史(有就全部展示, 无则用最新一句) —— 默认只显示最新1条, 多的折叠成"展开全部"
+  const msgs = (r._msgs&&r._msgs.length)? r._msgs : [{ts:r.ts, 留言:r['留言']}];
+  const total_m = msgs.length;
+  let showMsgs = msgs;
+  let expandBtn = '';
+  const COLLAPSE_N = 1; // 默认显示最新 N 条(只留最新1条, 保持行紧凑)
+  if(total_m > COLLAPSE_N){
+    showMsgs = msgs.slice(-COLLAPSE_N); // 取最新 COLLAPSE_N 条
+    expandBtn = `<button class="expand-btn" data-i="${oi}" data-role="expmsgs">展开全部 ${total_m} 条对话 ▾</button>`;
+  }
+  const bubbleOne = (m)=>{
+    const full = (r._msgs&&r._msgs.length)? String(m['留言']||'') : String(r['留言']||'');
+    const show = full.length>40 ? esc(full.slice(0,40))+'…' : esc(full);
+    const t = m['ts']? `<div class="mb-time">${esc((m['ts']||'').slice(5,16))}</div>`:'';
+    return `<div class="mb"><div class="mb-bub">${show}</div>${t}</div>`;
+  };
+  const bubbles = showMsgs.map(bubbleOne).join('') + expandBtn;
+  // "对方说了啥"列: 多轮对话气泡, msg_count>1 可展开看全部
+  // ★ 2026-09-07 布局重构: 从6列平铺改为【双栏卡片】——左=身份+对话+意图, 右=回复+记一笔。
+  //   原6列在卡片上下文里右侧全空、信息被硬撑 → 现改双栏, 内容紧凑无留白。
+  return `
+  <div class="tr ${done?'is-done':''}" data-idx="${oi}" data-user="${esc(r.user)}" style="grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:8px">
+    <!-- 左栏: 身份 + 从哪来 + 对方说了啥 + 意图 -->
+    <div class="cell" style="display:flex;flex-direction:column;gap:8px">
+      <div class="row-top">
+        <span class="who-badge ${routeCls}">${routeTxt}</span>${routeNote}
+        <span class="uname" style="margin-left:8px">${esc(r.user)}</span>
+      </div>
+      <div class="src" title="${esc(r['来源笔记'])}"><i class="ic" data-ic="doc" data-inline></i>${esc(r['来源笔记']||'来源待补充')} · ${esc(srcTypeTxt)}</div>
+      <div class="msgchat">${bubbles}</div>
+      ${intentBadge}
+    </div>
+    <!-- 右栏: 回什么(拟稿) + 回完记一笔 -->
+    <div class="cell" style="display:flex;flex-direction:column;gap:8px">
+      <textarea class="draftbox" data-i="${oi}" data-role="draft" placeholder="系统已拟好，可改，复制去 App 发…">${esc(r['拟稿']||'')}</textarea>
+      <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap">
+        <button class="btn auto" data-i="${oi}" data-role="autodraft"><i class="ic" data-ic="gear"></i>帮我重拟</button>
+        <button class="btn green" data-i="${oi}" data-role="copydraft"><i class="ic" data-ic="copy"></i>复制这段话</button>
+        <span class="copied" id="copied${oi}" style="display:none">已复制</span>
+      </div>
+      <div class="statcol">
+        <div class="rec-fold" data-i="${oi}" data-rec="${oi}">
+          <button class="rec-entry" data-i="${oi}" data-role="rec-toggle">
+            <span class="rec-entry-t"><i class="ic" data-ic="pen"></i>${isReplied?'已记录':'记一笔'}</span>
+            <span class="rec-entry-s">${isReplied?'✓ '+esc(r['对方反应']||'已回'):'回了吗/对方反应'}</span>
+          </button>
+        </div>
+        <div class="recbox" data-recbox="${oi}" style="display:none">
+          <div class="rec-title">回完记一笔（选一两格就行）</div>
+          <div class="rec-row">
+            <label>回了吗</label>
+            <select class="sel" data-i="${oi}" data-role="已回">
+              <option value="">—</option>
+              <option ${isReplied?'selected':''} value="已回"><i class="ic" data-ic="check"></i>已回</option>
+            <option ${r['已回']==='未回'?'selected':''} value="未回"><i class="ic" data-ic="clock"></i>还没回</option>
+          </select>
+        </div>
+        <div class="rec-row">
+          <label>对方反应</label>
+          <select class="sel" data-i="${oi}" data-role="对方反应">
+            <option value="">—</option>
+            ${['没看','看了没回','问了价','约了线下','已报名','已拒绝','广告/无关'].map(x=>`<option ${r['对方反应']===x?'selected':''} value="${x}">${x}</option>`).join('')}
+          </select>
+        </div>
+        <div class="rec-row">
+          <label>算不算客户</label>
+          <select class="sel" data-i="${oi}" data-role="真商机">
+            <option value="">—</option>
+            ${[['✅真客户','check','green'],['⏳观望','hourglass','amber'],['❌路人','cross','tx3'],['—待定','','tx3']].map(([x,ic,c])=>`<option ${r['真商机']===x?'selected':''} value="${x}">${ic?`<i class="ic" data-ic="${ic}" style="color:var(--${c})"></i>`:''}${x.replace(/[✅⏳❌—]/g,'')}</option>`).join('')}
+          </select>
+        </div>
+        <div class="rec-row">
+          <label>备注</label>
+          <input class="draftbox" style="min-height:22px;height:28px;padding:3px 8px;font-size:14px" data-i="${oi}" data-role="备注" placeholder="一句就好（可选）" value="${esc(r['备注']||'')}">
+        </div>
+        <div class="rec-actions">
+          ${isReplied?'<span class="mini" style="color:var(--green)">✓ 已记录</span>':''}
+          <button class="btn" data-i="${oi}" data-role="save">保存这笔</button>
+          <button class="btn" data-i="${oi}" data-role="rec-close">收起</button>
+        </div>
+      </div>
+    </div>
+  </div>`;
+}
+
+// ======= 行内交互(委托) =======
+document.addEventListener('click', async function(ev){
+  // 自动回复规则 展开/收起
+  const rt=ev.target.closest('#rulesToggle');
+  if(rt){ const full=document.getElementById('rulesFull'); if(full){ const open=full.style.display!=='none'; full.style.display=open?'none':'block'; rt.textContent=open?'看完整规则 ▾':'收起规则 ▴'; } return; }
+  // 私信分组折叠: 点表头 展开/收起 该组
+  const gh=ev.target.closest('[data-dmgroup]');
+  if(gh && gh.classList.contains('dmgroup-head')){
+    const key=gh.getAttribute('data-dmgroup');
+    const bsel=`[data-dmgroup="${key}"].dmgroup-body`;
+    const bd=document.querySelector(bsel);
+    const caret=gh.querySelector('.dmgroup-caret');
+    if(bd){ const isOpen=bd.style.display!=='none'; bd.style.display=isOpen?'none':''; caret.textContent=isOpen?'▸':'▾'; }
+    return;
+  }
+  // 通用"收起→点击展开"说明: 点 .cn-head 切换整组
+  const ch=ev.target.closest('.collapse-note .cn-head');
+  if(ch){ const wrap=ch.parentElement; const open=wrap.classList.toggle('open')?'▾':'▸'; const caret=ch.querySelector('.cn-caret'); if(caret) caret.textContent=open; return; }
+  const btn=ev.target.closest('[data-role]');
+  if(!btn)return;
+  const role=btn.getAttribute('data-role');
+  const i=btn.getAttribute('data-i');
+  if(role==='autodraft'){ await autoDraft(i); return; }
+  if(role==='copydraft'){ copyDraft(i,btn); return; }
+  if(role==='save'){ await saveRow(i,btn); return; }
+  if(role==='expmsgs'){ if(btn.getAttribute('data-collapse')){ renderDm(); } else { expandMsgs(i,btn); } return; }
+  if(role==='rec-toggle'){ toggleRec(i,btn); return; }
+  if(role==='rec-close'){ closeRec(i,btn); return; }
+});
+// tab 切换
+document.querySelectorAll('.tab').forEach(t=>t.addEventListener('click',()=>{
+  document.querySelectorAll('.tab').forEach(x=>x.classList.remove('on'));t.classList.add('on');
+  $('#view-dm').style.display = t.dataset.tab==='dm'?'':'none';
+  $('#view-cmt').style.display= t.dataset.tab==='cmt'?'':'none';
+  $('#view-pro').style.display= t.dataset.tab==='pro'?'':'none';
+  $('#view-content').style.display= t.dataset.tab==='content'?'':'none';
+  const n=$('#nbCmt'); n.style.display='inline-block';
+  if(t.dataset.tab==='pro'){ if(!window.__proLoaded){loadPro();} }
+}));
+
+document.addEventListener('change',(ev)=>{
+  const el=ev.target.closest('[data-role]');
+  if(!el)return;
+  const i=el.getAttribute('data-i');
+  const role=el.getAttribute('data-role');
+  if(i!=null && state.dm[i] && ['已回','对方反应','真商机','备注'].includes(role)){
+    state.dm[i][role==='已回'?'已回':role==='对方反应'?'对方反应':role==='真商机'?'真商机':'备注']=el.value;
+  }
+});
+
+// ---- 从某行当前 DOM 收集一行 field, push 一条回流 ----
+function collectRow(i){
+  const r=state.dm[i]; if(!r)return null;
+  const g=(role)=>document.querySelector(`[data-i="${i}"][data-role="${role}"]`)?.value||'';
+  return {
+    hs: r.ts, user: r.user, 来源笔记:r['来源笔记'],来源类型:r['来源类型'],tier:r.tier,意图:r.意图,action:r.action,
+    拟稿: g('draft'), 已回: g('已回'), 对方反应:g('对方反应'), 真商机:g('真商机'),
+  };
+}
+async function saveRow(i,btn){
+  const row=collectRow(i);
+  if(!row){return;}
+  const r=state.dm[i];
+  // 至少选了"回了吗/对方反应"其一才算记了一笔; 否则提示
+  if(!row['已回'] && !row['对方反应'] && !row['真商机']){
+    alert('先选一下"回了吗 / 对方啥反应"至少一格，才算记了一笔'); return;
+  }
+  btn.disabled=true; const old=btn.textContent; btn.textContent='保存中…';
+  try{
+    const resp=await fetch('/api/followup',{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({rows:[row]})});
+    const j=await resp.json();
+    if(j.ok){ flash(btn,'✓ 已记一笔'); r['已回']=row['已回']||r['已回']; r['对方反应']=row['对方反应']||r['对方反应']; r['真商机']=row['真商机']||r['真商机']; r['备注']=row['拟稿']?r['备注']:r['备注']; load(); }
+    else alert('记录失败: '+ (j.error||'')); 
+  }catch(e){alert('保存出错: '+e.message);}
+  btn.disabled=false; btn.textContent=old;
+}
+function flash(btn,msg){const s=btn.textContent;btn.textContent=msg;setTimeout(()=>btn.textContent=s,1500);}
+
+async function autoDraft(i){
+  const r=state.dm[i]; if(!r)return;
+  const draftEl=document.querySelector(`[data-i="${i}"][data-role="draft"]`);
+  const old=draftEl.value; draftEl.value='重拟中…';
+  try{
+    const resp=await fetch('/api/draft',{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({user:r.user,留言:r['留言']})});
+    const j=await resp.json();
+    draftEl.value=j.draft||old;
+    if(j.intent) r['意图']=j.intent, r.tier=j.tier;
+    // 刷新内容
+  }catch(e){draftEl.value=old;alert('重拟失败: '+e.message);}
+}
+function copyDraft(i,btn){
+  const el=document.querySelector(`[data-i="${i}"][data-role="draft"]`);
+  navigator.clipboard.writeText(el.value).then(()=>{
+    const c=document.getElementById('copied'+i);c.style.display='inline';setTimeout(()=>c.style.display='none',1400);
+  });
+}
+// 展开该行全部对话: 取按钮所在行, 把全部气泡+收拢按钮渲染进去
+function expandMsgs(i,btn){
+  const r=state.dm[i]; if(!r)return;
+  const row=btn.closest('.tr'); if(!row)return;
+  const msgs=(r._msgs&&r._msgs.length)? r._msgs : [{ts:r.ts, 留言:r['留言']}];
+  const box=row.querySelector('.msgchat'); if(!box)return;
+  const full=msgs.map(m=>{
+    const txt=String(m['留言']||'');
+    const show=txt.length>40?esc(txt.slice(0,40))+'…':esc(txt);
+    const t=m['ts']?`<div class="mb-time">${esc((m['ts']||'').slice(5,16))}</div>`:'';
+    return `<div class="mb"><div class="mb-bub">${show}</div>${t}</div>`;
+  }).join('');
+  const collapseBtn=`<button class="expand-btn" data-i="${i}" data-role="expmsgs" data-collapse="1">收起对话 ▴</button>`;
+  box.innerHTML=full+collapseBtn;
+}
+// 记一笔表单: 展开/收起(默认收起, 避免每行被表单撑高)
+function toggleRec(i,btn){
+  const recbox=document.querySelector(`[data-recbox="${i}"]`);
+  const entry=document.querySelector(`[data-rec="${i}"]`);
+  if(!recbox)return;
+  const isOpen=recbox.style.display!=='none';
+  if(isOpen){ recbox.style.display='none'; if(entry)entry.style.display=''; }
+  else{ recbox.style.display='block'; if(entry)entry.style.display='none'; }
+}
+function closeRec(i,btn){
+  const recbox=document.querySelector(`[data-recbox="${i}"]`);
+  const entry=document.querySelector(`[data-rec="${i}"]`);
+  if(recbox)recbox.style.display='none';
+  if(entry)entry.style.display='';
+}
+
+// ---------------- 评论区 ----------------
+const HI_INTENT=/(研学|研学|导游|带团|接单|怎么做|咋做|具体|怎么做|能做|想做|焦虑|赔钱|失眠|累|还招|怎么加入|兼职)/;
+function highIntent(r){
+  return !!(r.body&& (HI_INTENT.test(r.body)||HI_INTENT.test(r.body)));
+}
+function renderCmt(){
+  const rows=state.comments||[];
+  const body=$('#cmtBody');
+  if(!rows.length){$('#cmtEmpty').style.display='block';body.innerHTML='';$('#cmtStat').textContent='';return;}
+  $('#cmtEmpty').style.display='none';
+  // "只看要回"筛选: 有建议回复(值得回) 且 未忽略 → 显示; 否则默认全看
+  const onlyNeed = $('#cmtOnlyNeed') ? $('#cmtOnlyNeed').checked : false;
+  let list = rows;
+  if(onlyNeed){ list = rows.filter(r=>r.suggest && !isNoiseCmt(r)); }
+  // 统计
+  const needN = rows.filter(r=>r.suggest && !isNoiseCmt(r)).length;
+  $('#cmtStat').textContent=`共 ${rows.length} 条 · ${needN} 条要回`;
+  body.innerHTML=list.map(cmtCard).join('');
+}
+// 判断评论是否"值得回"(有建议且非噪声): 与 server 端过滤一致
+function isNoiseCmt(r){
+  const b=(r.body||'').trim();
+  if(!b) return true;
+  if(/^\d+$/.test(b)||b.length<=1) return true;
+  if(/^(哈哈|哈哈哈|666|111|000|沙发|打卡|路过|支持|顶)[^.。!？?\n]{0,4}$/.test(b)) return true;
+  // 无关人群/咖啡探店: 只有吃喝/探店/地点词, 无业务意向 → 不用回
+  const irr=/咖啡|探店|味道|好喝|甜|性价比|玫瑰|色色|店面|店名|好甜|喝过|奶茶|甜品|装修|氛围|三圣乡|万象城|太古里|网红店|值得去|打卡过|入口|点单/.test(b);
+  const biz=/AI|研学|导游|带团|地接|接单|变现|提效|技能|工具|课程|认证|培训|aigc|AIGC|学习|副业/.test(b);
+  if(irr && !biz) return true;
+  return false;
+}
+// 评论卡片渲染: 谁/动作 → 评论原文 → 【建议回复】 → 来源/时间
+function cmtCard(r,i){
+  const noiseless = r.suggest && !isNoiseCmt(r);
+  const actTxt = (r.action||'');
+  const isReply = String(actTxt).includes('回复');
+  const avatar = (r.user||'?').trim().charAt(0).toUpperCase();
+  const srcChip = srcBadge(r.src_type);
+  const replyHtml = !noiseless
+    ? `<div class="cmt-reply-text empty">${_i('skip')}这条不用回（感谢/无信息量）</div>`
+    : `<div class="cmt-reply-text">${esc(r.suggest)}</div>`;
+  return `<div class="cmt-card ${isReply?'replied':''}">
+    <div class="cmt-card-head">
+      <div class="cmt-user"><span class="cmt-avatar">${esc(avatar)}</span>
+        <span class="cmt-name">${esc(r.user)}</span>
+        <span class="cmt-act">${esc(actTxt||'评论')}${isReply?'·已有对话':''}</span>
+      </div>
+      <span class="cmt-time">${esc((r.ts||'').slice(5,16))}</span>
+    </div>
+    <div class="cmt-body">${esc(r.body)}</div>
+    <div class="cmt-reply">
+      <div class="cmt-reply-label"><span class="dot"></span>${isReply?'你可以这么接':'建议回复'}</div>
+      ${replyHtml}
+    </div>
+    <div class="cmt-card-foot">${srcChip}${r.note?`<span class="mini">${esc(r.note)}</span>`:''}</div>
+  </div>`;
+}
+// 评论来源标记: 只有采集时带上了来源才会显示具体标签, 否则显示"待补"
+function srcBadge(t){
+  if(t==='研学AI落地')return `<span class="src-chip">${_i('mountain')}研学/AI</span>`;
+  if(t==='OPC接单')   return `<span class="src-chip" style="background:var(--amberbg);color:var(--amber)">${_i('shield')}OPC课程</span>`;
+  if(t==='工具路人')  return `<span class="src-chip" style="background:var(--graybg);color:var(--tx2)">${_i('tool')}路人</span>`;
+  return '<span class="src-chip" style="background:var(--graybg);color:var(--tx3)">? 待提取来源</span>';
+}
+
+// ================= 主动获客 =================
+let pro=null;      // /api/proactive 返回
+let __proLoaded=false;
+let proTrackFilterVal='';   // ''=只看当前赛道人群; 'all'=全部人群(3赛道)
+
+async function loadPro(force){
+  try{
+    // ★ 词跟赛道走: 带当前账号 device 请求, 后端按账号赛道返回默认搜索词
+    const dev=curDevice&&curDevice!=='all'?curDevice:'';
+    const r=await fetch('/api/proactive'+(dev?`?device=${encodeURIComponent(dev)}`:''));pro=await r.json();
+    __proLoaded=true;
+    renderProCards();renderProStrategy();renderProLog();
+    fillProTargetSel();
+    // 词跟赛道走: 切换账号后, 若关键词框是空的或仍是上个赛道的默认词, 则带入新赛道的默认词
+    const kws=pro.default_kws||[];
+    if(kws.length){
+      const kwEl=$('#proKw');
+      const cur=(kwEl.value||'').trim();
+      const noOld = !window.__proOldKws;              // 首次加载: 还没记录旧默认词
+      const sameOld = (window.__proOldKws||[]).includes(cur); // 仍是上个赛道的词
+      const isInitDefault = cur==='研学' || cur===''; // HTML 硬编码的初始值/空
+      // 空 或 首次 或 仍是旧赛道词 → 带出当前赛道默认词(不覆盖用户手填的自定义词)
+      if(!cur || noOld || isInitDefault || sameOld){
+        kwEl.value=kws[0];
+      }
+      window.__proOldKws=kws;
+    }
+    const tot=(pro.stats&&pro.stats.today)||{};
+    $('#nbPro').style.display='inline-block';
+    $('#nbPro').textContent=(tot.send||0)+(tot.hit||0);
+    // 若服务端还有正在跑的一轮(如刷新页面/切换账号回来), 恢复进度轮询
+    const run=pro.run||{};
+    if(run.running&&!run.done){ showProProgress({started:true,mode:run.mode,kw:run.kw,maxn:run.maxn,pid:run.pid}); pollProRun(); }
+    else if(run.done){ updateProProgress(run); }
+  }catch(e){ $('#proEmpty').style.display=''; $('#proEmpty').textContent='连不上服务,先起服务再切到本页'; }
+}
+function fillProTargetSel(){
+  const tg=(pro.strategy&&pro.strategy.targets)||{};
+  const curT=curTrack||'yanxue';
+  const laneName=(id)=>(state.track&&(state.track.tracks||[]).find(x=>x.id===id)?.name)||id;
+  const keys=Object.keys(tg);
+  keys.sort((a,b)=>(tg[a].track===curT?0:1)-(tg[b].track===curT?0:1)); // 当前赛道人群排前
+  const opts=['<option value="">自动匹配</option>'].concat(
+    keys.map(k=>`<option value="${esc(k)}">${esc(laneName(tg[k].track||''))} · ${esc(tg[k].name||k)}</option>`));
+  $('#proTarget').innerHTML=opts.join('');
+}
+function renderProCards(){
+  const s=(pro.stats&&pro.stats.today)||{};
+  const cards=[
+    {n:s.send||0,l:'今天已留言',c:'green'},
+    {n:(s.manual_check||0),l:'需核对',c:'amber'},
+    {n:s.hit||0,l:'今天写的留言',c:'blue'},
+    {n:s.fail||0,l:'失败/跳过',c:'tx'},
+  ];
+  $('#proCards').innerHTML=cards.map(c=>`<div class="card"><div class="cnum">${c.n}</div><div class="clab" style="color:var(--${c.c})"><span class="dot"></span>${c.l}</div></div>`).join('');
+}
+function renderProStrategy(){
+  const sg=(pro.strategy&&pro.strategy.global)||{};
+  const tg=(pro.strategy&&pro.strategy.targets)||{};
+  // ★ 正交拆分: 主动获客 = 独立总开关(不属于赛道) + 全量人群库(每个 target 带 track 标签)
+  //   赛道切换只过滤展示当前赛道人群, 不改变底层人群库。
+  const curT=curTrack||'yanxue';
+  const laneName=(id)=>(state.track&&(state.track.tracks||[]).find(x=>x.id===id)?.name)||id;
+  const laneBadge=(tk)=>`<span class="mini" style="padding:1px 7px;border-radius:8px;background:${tk===curT?'var(--blue)':'var(--line)'};color:${tk===curT?'#fff':'var(--tx2)'};font-weight:600">${esc(laneName(tk))}</span>`;
+  // 频控参数行: 默认折叠进"高级设置", 只露一句摘要, 点开才调
+  const freq=`<span class="mini" style="color:var(--tx3)">节奏：每天最多${sg.daily_comment_cap||8}条 · 两条隔${sg.comment_interval_min||15}分钟 · 同一篇${sg.per_note_max_comment||1}条</span>`;
+  const adv=`<div id="proAdv" style="display:none;padding:8px 14px;border-bottom:1px solid var(--line)">
+    <div style="display:flex;gap:16px;flex-wrap:wrap;align-items:center">
+      <label class="mini">每天最多留 <input id="pgCap" type="number" class="sel" min="0" value="${sg.daily_comment_cap||8}" style="width:70px"></label>
+      <label class="mini">两条隔 <input id="pgIv" type="number" class="sel" min="0" value="${sg.comment_interval_min||15}" style="width:60px"> 分钟</label>
+      <label class="mini">同一篇最多 <input id="pgPer" type="number" class="sel" min="1" value="${sg.per_note_max_comment||1}" style="width:60px"></label>
+      <span class="mini" style="color:var(--tx3)">同一作者 24h 内系统不会重复留言</span>
+    </div></div>`;
+  // ★ 顶部: 主动获客总开关(独立于账号) + 人群过滤(只看当前账号赛道 / 看全部)
+  const master=`<div style="padding:9px 14px;border-bottom:1px solid var(--line);background:var(--dark);display:flex;gap:18px;flex-wrap:wrap;align-items:center">
+      <label class="ctrl-switch" style="font-size:15px;font-weight:700"><input type="checkbox" id="proMaster" data-pmaster="1" ${sg.proactive_enabled!==false?'checked':''}> <i class="ic" data-ic="target"></i>主动去留言（总开关）</label>
+      <span class="mini" style="color:var(--tx3)">开着才会去别人笔记下互动；关了只等别人私信你</span>
+      <div class="grow"></div>
+      <label class="mini" style="color:var(--tx2)">人群
+        <select id="proTrackFilter" class="sel" style="width:auto">
+          <option value="">当前账号</option>
+          <option value="all">全部</option>
+        </select>
+      </label>
+  </div>`;
+  const top=`<div style="border-bottom:1px solid var(--line)">${master}
+    <div style="padding:7px 14px;border-bottom:1px solid var(--line)">
+      <div style="display:flex;gap:16px;flex-wrap:wrap;align-items:center">
+        <span class="mini" style="color:var(--tx3)">节奏：每天最多${sg.daily_comment_cap||8}条 · 两条隔${sg.comment_interval_min||15}分钟</span>
+        <button class="expand-btn" id="proAdvToggle" style="margin:0"><i class="ic" data-ic="gear"></i>节奏详情 <span class="cn-caret">▾</span></button>
+      </div>${adv}</div></div>`;
+  // 人群过滤: 现在赛道优先, 可切"全部"
+  const showAll=(proTrackFilterVal==='all');
+  // 同一赛道人群排前面, 其他在后(用全量渲染, 只排顺序 + 过滤)
+  const keys=Object.keys(tg);
+  const sorted=keys.slice().sort((a,b)=>{
+    const ta=tg[a].track===curT?0:1, tb=tg[b].track===curT?0:1;
+    return ta-tb;
+  });
+  // 每个目标一张紧凑卡: 默认只露"启用 + 名称 + 赛道徽章"(命中规则/多角度策略折叠进详情节)
+  const cards=sorted.map(k=>{
+    const t=tg[k];
+    if(!showAll && t.track!==curT) return '';   // 不显示其他人 (当前账号视角)
+    // ★ 多角度策略(comment_angles): 完整展示, 每个角度一条, 带"适用场景"
+    const angles=(t.comment_angles||[]);
+    const angleHtml=angles.length? angles.map((a,i)=>{
+      const st=a.when?`<span class="mini" style="color:var(--tx3)">@ ${esc(a.when)}</span>`:'';
+      return `<div style="padding:6px 8px;border-left:2px solid var(--blue);margin-bottom:6px;background:var(--bg2);border-radius:4px">
+        <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap">
+          <b class="mini" style="color:var(--acc)">切入点${i+1}</b>
+          <span class="mini" style="color:var(--tx2)">${esc(a.label||'')}</span>${st}
+          <div class="grow"></div>
+          <button class="btn mini" style="padding:1px 8px;font-size:11px" onclick="proPreviewAngle('${esc(k)}',${i})">预览</button>
+        </div>
+        <div class="mini" style="margin-top:3px;color:var(--tx2);white-space:pre-wrap">${esc(a.text||'')}</div>
+      </div>`;
+    }).join('') : `<div class="mini" style="color:var(--tx3)">(该人群未配置多角度策略, 用通用话术)</div>`;
+    const kwList=(t.keywords||[]).slice(0,12).join(' · ');
+    return `<div style="padding:9px 14px;border-bottom:1px solid var(--line)">
+      <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+        <label class="ctrl-switch"><input type="checkbox" data-pkey="${esc(k)}" data-pfield="enabled" ${t.enabled!==false?'checked':''}> 启用</label>
+        <b style="font-size:15px">${esc(t.name||k)}</b>
+        ${laneBadge(t.track||'')}
+        <span class="mini" style="color:var(--tx3)">${angles.length}个切入点 · ${(t.keywords||[]).length}关键词</span>
+        <div class="grow"></div>
+        <button class="expand-btn" data-pk="${esc(k)}" data-role="pcard">完整策略 ▾</button>
+      </div>
+      <div data-pc="${esc(k)}" style="display:none;margin-top:8px">
+        <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center">
+          <span class="mini" style="color:var(--tx3)">命中规则</span>
+          <input class="sel" style="flex:1;min-width:120px" data-pkey="${esc(k)}" data-pfield="note_match" value="${esc(t.note_match||'')}" placeholder="如 研学|带团|地接">
+        </div>
+        <div class="mini" style="margin-top:6px;color:var(--tx3)">关键词：<span style="color:var(--tx2)">${esc(kwList)}</span>${(t.keywords||[]).length>12?' …':''}</div>
+        <div style="margin-top:6px"><input class="draftbox" style="width:100%;min-height:28px" data-pkey="${esc(k)}" data-pfield="comment_style" value="${esc(t.comment_style||'')}" placeholder="风格,如 真诚共情"></div>
+        <div style="margin-top:6px"><input class="draftbox" style="width:100%;min-height:28px" data-pkey="${esc(k)}" data-pfield="dm_direction" value="${esc(t.dm_direction||'')}" placeholder="对方回应后私信往哪引(只在私信做, 绝不公开导流)"></div>
+        <div style="margin-top:8px;border-top:1px solid var(--line);padding-top:8px">
+          <div class="mini" style="color:var(--acc);font-weight:700;margin-bottom:6px"><i class="ic" data-ic="target"></i>多角度留言策略(按笔记特征自动选最贴切)}</div>
+          ${angleHtml}
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+  $('#proCtlBody').innerHTML=top+cards;
+  // ★ 记忆过滤状态: 每次 render 保持上次选择(用全局变量)
+  //   绑定目标卡展开/收起
+  document.querySelectorAll('[data-role="pcard"]').forEach(b=>{
+    b.addEventListener('click',()=>{
+      const pk=b.getAttribute('data-pk');
+      const box=document.querySelector(`[data-pc="${pk}"]`);
+      const o=box.style.display!=='none';
+      box.style.display=o?'none':'block';
+      b.textContent=o?'完整策略 ▾':'完整策略 ▴';
+    });
+  });
+  // 频控详情展开/收起
+  const pat=$('#proAdvToggle');
+  if(pat) pat.addEventListener('click',()=>{
+    const adv=$('#proAdv'); const o=adv.style.display!=='none';
+    adv.style.display=o?'none':'block'; pat.querySelector('.cn-caret').textContent=o?'▾':'▴';
+  });
+  // 人群视图切换
+  const pf=$('#proTrackFilter');
+  if(pf){ pf.value=proTrackFilterVal; pf.addEventListener('change',()=>{ proTrackFilterVal=pf.value; renderProStrategy(); }); }
+}
+// ★ 单条角度预览: 把某个 target 的某个切入点, 用后端同样的规则实时生成一条留言给用户看
+function proPreviewAngle(pk, idx){
+  try{
+    const tg=(pro.strategy&&pro.strategy.targets)||{};
+    const t=tg[pk]; if(!t) return;
+    const a=(t.comment_angles||[])[idx]; if(!a) return;
+    // 用一条示例笔记(标题含该 target 关键词)让规则引擎生成, 展示"这条策略大概会留什么话"
+    const sampleTitle=(t.keywords||[])[0]||t.name||pk;
+    // 前端无法直接跑 python, 简单展示角度原文作为预览(与 _rule_comment 的 text 一致)
+    const text=a.text||'';
+    const ov=document.createElement('div');
+    ov.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px';
+    ov.innerHTML=`<div style="background:var(--bg2);border-radius:12px;box-shadow:0 8px 30px rgba(0,0,0,.4);max-width:420px;width:100%;position:relative;padding:16px 18px">
+      <button style="position:absolute;top:8px;right:10px;background:none;border:none;color:var(--tx2);font-size:18px;cursor:pointer"><i class="ic" data-ic="cross"></i></button>
+      <div style="font-size:14px;font-weight:600;margin-bottom:4px"><i class="ic" data-ic="target"></i>${esc(t.name||pk)}</div>
+      <div class="mini" style="color:var(--acc);margin-bottom:8px">切入点${idx+1} · ${esc(a.label||'')} ${a.when?('@ '+esc(a.when)):''}</div>
+      <div style="background:var(--bg3);border-radius:6px;padding:10px 12px;color:var(--tx);white-space:pre-wrap;line-height:1.7">${esc(text)}</div>
+      <div class="mini" style="margin-top:8px;color:var(--tx3)">↑ 这条策略命中该人群时, 会留类似这样的评论(公开区, 不导流)</div>
+    </div>`;
+    ov.querySelector('button').onclick=()=>ov.remove();
+    ov.onclick=(e)=>{ if(e.target===ov) ov.remove(); };
+    document.body.appendChild(ov);
+  }catch(e){}
+}
+async function saveProStrategy(){
+  const sg={daily_comment_cap:+$('#pgCap').value,comment_interval_min:+$('#pgIv').value,
+            per_note_max_comment:+$('#pgPer').value};
+  // ★ 正交: 把「主动获客总开关」也一并持久化(独立于赛道)
+  const pm=$('#proMaster');
+  if(pm) sg.proactive_enabled=pm.checked;
+  const targets={};
+  document.querySelectorAll('[data-pkey]').forEach(el=>{
+    const k=el.getAttribute('data-pkey');const f=el.getAttribute('data-pfield');
+    if(!k)return; if(!targets[k])targets[k]={};
+    targets[k][f]= el.type==='checkbox'? el.checked : el.value;
+  });
+  const btn=$('#proSave');btn.disabled=true;const old=btn.textContent;btn.textContent='保存中…';
+  try{
+    const r=await fetch('/api/proactive/strategy',{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({targets,global:sg})});
+    const d=await r.json();
+    if(d.ok){ await loadPro(true); btn.textContent='已保存 ✓'; }
+    else btn.textContent='保存失败';
+  }catch(e){btn.textContent='保存失败';}
+  setTimeout(()=>{btn.disabled=false;btn.textContent=old;},1600);
+}
+function renderProLog(){
+  const rows=(pro.log||[]).slice().reverse();
+  const e=$('#proEmpty');
+  if(!rows.length){ $('#proBody').innerHTML=''; e.style.display=''; $('#proLatest').style.display='none'; return; }
+  e.style.display='none';
+  renderProLatest(rows);
+  $('#proBody').innerHTML=rows.map(x=>{
+    const styleMap={send:'var(--green)',hit:'var(--blue)',fail:'var(--red)',rate_block:'var(--red)',no_target:'var(--tx3)',search_fail:'var(--red)',manual_check:'var(--amber)',skip:'var(--tx3)'};
+    const icMap={send:'check',hit:'sparkle',fail:'cross',rate_block:'pause',no_target:'',search_fail:'cross',manual_check:'eye',skip:'cross'};
+    const col=styleMap[x.type]||'var(--tx2)';
+    const actTxt = x.type==='send'?'已发': (x.type==='hit'?'已写': (x.type==='fail'?'失败':(x.type==='rate_block'?'已拦（防刷）':(x.type==='no_target'?'没找到要打的人':(x.type==='search_fail'?'搜索失败':(x.type==='manual_check'?'需核对':(x.type==='skip'?'跳过':x.type)))))));
+    // 文案完整展示(不截断), 过长可横向滚动; 标注动作来源(真发/生成)
+    const content=esc(x.comment||x.note||x.title||'');
+    const hasShot = !!(x.shot);
+    // 真发有截图 → 显示"看截图"; 其余显示"明细"(可看完整作者/标题/留言)
+    const btnTxt = hasShot? '<i class="ic" data-ic="camera"></i>看截图' : '<i class="ic" data-ic="search"></i>明细';
+    // ★ 修复: 之前用双重 JSON.stringify → x 变字符串 → x.shot undefined → 弹窗不出图。
+    //   改为单次 encodeURIComponent(对象) + 点击时 decode+parse, showProDetail 收到的是真对象。
+    const enc = encodeURIComponent(JSON.stringify(x)).replace(/'/g,'%27');
+    return `<div style="display:flex;gap:8px;padding:6px 12px;border-bottom:1px solid var(--line);align-items:flex-start;font-size:13px;flex-wrap:nowrap">
+      <span style="flex:0 0 92px;color:var(--tx3);padding-top:1px">${esc((x.ts||'').slice(5,16))}</span>
+      <span style="flex:0 0 56px;color:${col};font-weight:600;padding-top:1px">${_i(icMap[x.type]||'')} <span class="mini">${actTxt}</span></span>
+      <span style="flex:0 0 104px;color:var(--tx2);padding-top:1px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${esc(x.author||x.kw||'—')}">${esc(x.author||x.kw||'—')}</span>
+      <span style="flex:1;min-width:0;color:var(--tx2);padding-top:1px;white-space:pre-wrap;word-break:break-word">${content}</span>
+      <span style="flex:0 0 52px;color:var(--tx3);padding-top:1px">${esc(x.engine||'')}</span>
+      <span style="flex:0 0 80px;color:var(--tx3);padding-top:1px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${esc(x.target||'')}">${esc(x.target||'')}</span>
+      <button class="btn mini" style="flex:0 0 auto;padding:2px 8px;font-size:11px" onclick="showProDetail(JSON.parse(decodeURIComponent('${enc}')))">${btnTxt}</button>
+    </div>`;
+  }).join('');
+}
+// ---------------- 主动获客: 最近一条"一眼可判"状态 ---------------------------------
+//  把最新一条的记录 type 映射成醒目的大状态色+一句话, 避免用户逐一翻小字明细。
+function proVerbatim(row){
+  const t=row.type;
+  if(t==='send')        return {tone:'green', icon:'check',    label:'已真发',   sub:'评论区真的发出去了（有"发布成功"截图）'};
+  if(t==='manual_check')return {tone:'amber', icon:'eye',      label:'点了没确认', sub:'点了发送但没看到"发布成功"，需看截图确认是否真的发出'};
+  if(t==='fail')        return {tone:'red',   icon:'cross',    label:'没发出去', sub:'没到发送这一步（没找到输入框/发送按钮，或误入企业号）'};
+  if(t==='hit')         return {tone:'blue',  icon:'sparkle',  label:'已写没发', sub:'只生成了留言、没点发送（dry-run 试跑）'};
+  if(t==='skip')        return {tone:'tx',    icon:'cross',    label:'已跳过',   sub:'企业号/会话页不发送，或该人不适合'};
+  if(t==='rate_block')  return {tone:'red',   icon:'pause',    label:'被节奏拦住', sub:'触发了频控（每天/间隔限制），没发出去'};
+  if(t==='no_target')   return {tone:'tx',    icon:'',         label:'没找到人', sub:'这轮没搜到匹配的人群'};
+  if(t==='search_fail') return {tone:'red',   icon:'cross',    label:'搜索失败', sub:'没进到搜索页或搜索没成功'};
+  return {tone:'tx', icon:'', label:t||'记录', sub:row.note||''};
+}
+function renderProLatest(rows){
+  // rows 已倒序(最新在前), 取第一条为"最近一次动作"
+  const row=rows[0]; if(!row){ $('#proLatest').style.display='none'; return; }
+  const v=proVerbatim(row);
+  const toneColor={green:'var(--green)',amber:'var(--amber)',red:'var(--red)',blue:'var(--blue)',tx:'var(--tx2)'}[v.tone];
+  const bg={green:'rgba(21,128,61,.08)',amber:'rgba(180,83,9,.08)',red:'rgba(214,54,43,.08)',blue:'rgba(37,99,235,.08)',tx:'rgba(120,128,140,.08)'}[v.tone];
+  const hasShot=!!row.shot;
+  const btnTxt=hasShot? '<i class="ic" data-ic="camera"></i>看截图' : '<i class="ic" data-ic="search"></i>明细';
+  const enc=encodeURIComponent(JSON.stringify(row)).replace(/'/g,'%27');
+  $('#proLatest').style.display='';
+  $('#proLatestBody').innerHTML=`
+    <div style="padding:12px 14px;display:flex;gap:14px;align-items:center;flex-wrap:wrap;background:${bg}">
+      <div style="display:flex;align-items:center;gap:12px;flex:1;min-width:260px">
+        <span style="width:44px;height:44px;flex:0 0 44px;border-radius:50%;background:var(--bg2);border:1px solid ${toneColor};display:flex;align-items:center;justify-content:center;color:${toneColor};font-size:20px">${_i(v.icon||'target')}</span>
+        <div style="min-width:0">
+          <div style="font-size:20px;font-weight:700;color:${toneColor};line-height:1.2">${v.label} <span class="mini" style="font-size:12px;color:var(--tx3);font-weight:400">${esc((row.ts||'').slice(5,16))}</span></div>
+          <div style="font-size:12px;color:var(--tx2);margin-top:4px">${esc(row.author||row.kw||'—')} · ${v.sub}</div>
+        </div>
+      </div>
+      <button class="btn mini" style="flex:0 0 auto;padding:4px 12px;font-size:12px" onclick="showProDetail(JSON.parse(decodeURIComponent('${enc}')))">${btnTxt}</button>
+    </div>`;
+}
+// ---------------- 主动获客: 查看明细(发给谁/哪篇笔记/留言/截图) ----------------
+function showProDetail(x){
+  // x 是完整记录对象(已被 JSON 解析传回)。若仍拿到字符串(防御), 再解析一次。
+  if(typeof x==='string'){ try{ x=JSON.parse(x); }catch(e){ return; } }
+  if(!x || typeof x!=='object') return;
+  const shot = x.shot? `/files/${x.shot}` : '';
+  const ttl = x.type==='send'?`${_i('check')}已发` : x.type==='manual_check'?`${_i('eye')}需核对` : x.type==='skip'?`${_i('cross')}跳过` : `${_i('sparkle')}已写`;
+  let html=`<div style="padding:12px 16px;font-size:13px;line-height:1.8;min-width:360px">
+    <div style="font-size:15px;font-weight:500;margin-bottom:8px">${ttl} · ${esc(x.author||x.kw||'—')}</div>
+    <div><b>时间：</b>${esc(x.ts||'')}</div>
+    <div><b>搜索词：</b>${esc(x.kw||'—')}</div>
+    <div><b>目标人群：</b>${esc(x.target||'—')}</div>
+    <div><b>笔记标题：</b>${esc(x.title||'—')}</div>
+    <div style="margin-top:6px"><b>发的留言：</b></div>
+    <div style="background:var(--bg3);padding:8px 10px;border-radius:6px;color:var(--tx);white-space:pre-wrap">${esc(x.comment||'—')}</div>
+    <div style="margin-top:6px;color:var(--tx3)" class="mini">${esc(x.note||'')}${x.engine?(' · 方式 '+esc(x.engine)):''}</div>
+  </div>`;
+  if(x.shot){
+    const shotCap = x.type==='manual_check' ? '待核留痕截图（请确认是否真的发出）：' : '真发留痕截图（评论区已发送）：';
+    html+=`<div style="padding:6px 16px 16px"><div class="mini" style="color:var(--tx2);margin-bottom:6px">${_i('camera')}${shotCap}</div><img src="${esc(shot)}" style="max-width:100%;border-radius:8px;border:1px solid var(--line)"></div>`;
+  }
+  // 弹层
+  const ov=document.createElement('div');
+  ov.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px';
+  ov.innerHTML=`<div style="background:var(--bg2);border-radius:12px;box-shadow:0 8px 30px rgba(0,0,0,.4);max-width:480px;max-height:85vh;overflow-y:auto;position:relative">
+    <button style="position:absolute;top:8px;right:10px;background:none;border:none;color:var(--tx2);font-size:18px;cursor:pointer"><i class="ic" data-ic="cross"></i></button>
+    ${html}
+  </div>`;
+  ov.querySelector('button').onclick=()=>ov.remove();
+  ov.onclick=(e)=>{ if(e.target===ov) ov.remove(); };
+  document.body.appendChild(ov);
+}
+async function runPro(){
+  const kw=$('#proKw').value.trim()||'研学';
+  const target=$('#proTarget').value||'';
+  const max=+$('#proMax').value||1;
+  const send=$('#proSendChk').checked;
+  // 校验真发
+  if(send){
+    if(!confirm('确认真发？这会在别人笔记下公开留言（只带互动/价值，绝不含微信/报名/价格）。')) return;
+  }
+  try{
+    const r=await fetch('/api/proactive/run',{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({kw,target,max,send})});
+    const d=await r.json();
+    if(d.ok){
+      showProProgress({started:true, note:d.note, mode:send?'真发':'dry-run', kw, target, maxn:max, pid:d.pid});
+      // 启动进度轮询: 每 1.5s 拉一次 /api/proactive/status 更新进度条/阶段/日志
+      if(__proPollTimer){ clearInterval(__proPollTimer); }
+      __proPollTimer=setInterval(pollProRun,1500);
+      pollProRun();
+    } else {
+      showProProgress({started:false, error:d.error||'启动失败'});
+      setTimeout(hideProProgress, 4000);
+    }
+  }catch(e){ hideProProgress(); }
+}
+// ---------------- 手动停止: 终止当前一轮 ----------------
+async function stopPro(){
+  try{
+    const r=await fetch('/api/proactive/stop',{method:'POST',headers:{'Content-Type':'application/json'},body:'{}'});
+    const d=await r.json();
+    $('#proPhase').innerHTML= d.ok? (_i('stop')+'已停止') : (_i('cross')+(d.error||'停止失败'));
+    $('#proBarFill').style.width='100%';
+    if(__proPollTimer){ clearInterval(__proPollTimer); __proPollTimer=null; }
+  }catch(e){ $('#proPhase').innerHTML=_i('cross')+'停止请求失败'; }
+}
+// ---------------- 执行进度轮询: 每 1.5s 拉 /api/proactive/status, 更新进度条/阶段/日志 ----------------
+let __proPollTimer=null, __proPolling=false;
+function showProProgress(init){
+  const p=$('#proProgress'); if(p) p.style.display='block';
+  const lp=$('#proRunLogPanel'); if(lp) lp.style.display='block';
+  $('#proStop').style.display='inline-block';
+  $('#proPhase').innerHTML=init? (init.started?(_i('hourglass')+'已启动'):(_i('cross')+'启动失败')) : (_i('hourglass')+'执行中');
+  $('#proMode').textContent=init? ((init.mode||'')+' · 词='+(init.kw||'')+' · 上限='+(init.maxn||'-')) : '';
+  $('#proPid').textContent=init&&init.pid? ('PID '+init.pid):'';
+  if(init&&!init.started){ $('#proBarFill').style.width='0%'; }
+}
+function hideProProgress(){
+  const p=$('#proProgress'); if(p) p.style.display='none';
+  const lp=$('#proRunLogPanel'); if(lp) lp.style.display='none';
+  $('#proStop').style.display='none';
+  if(__proPollTimer){ clearInterval(__proPollTimer); __proPollTimer=null; }
+}
+async function pollProRun(){
+  if(__proPolling) return; __proPolling=true;
+  try{
+    const r=await fetch('/api/proactive/status');
+    const st=await r.json();
+    updateProProgress(st);
+    if(st.done){ clearInterval(__proPollTimer); __proPollTimer=null; $('#proPhase').innerHTML= st.ok? (_i('check')+'完成') : (_i('cross')+(st.phase||'结束(异常)')); }
+  }catch(e){}
+  __proPolling=false;
+}
+function updateProProgress(st){
+  if(!st) return;
+  const phase=st.done? (st.ok?'完成':(st.phase||'结束(异常)')) : (st.phase||'执行中');
+  $('#proPhase').innerHTML= st.done? (st.ok?(_i('check')+'完成'):(_i('cross')+phase)) : (_i('hourglass')+phase);
+  // 阶段→进度条宽度(粗略百分比映射)
+  const w=({启动中:5,'搜索页':20,'搜关键词':35,'匹配人群':55,'写留言':75,'完成':100,'结束(异常)':100,'已手动停止':100})[phase]||(st.done?100:30);
+  $('#proBarFill').style.width=w+'%';
+  if(st.run_log&&st.run_log.length){ $('#proStepLog').textContent=st.run_log.slice(-14).join('\n'); }
+  if(st.run_log&&st.run_log.length){ $('#proRunLog').textContent=st.run_log.join('\n'); }
+  if(st.pid){ $('#proPid').textContent='PID '+st.pid; }
+  if(st.mode){ $('#proMode').textContent=st.mode+(st.kw?(' · 搜「'+st.kw+'」'):'')+(st.maxn?(' · 最多'+st.maxn+'条'):''); }
+}
+</script>
+</body>
+</html>

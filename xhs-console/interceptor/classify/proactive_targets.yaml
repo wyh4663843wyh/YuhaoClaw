@@ -1,0 +1,69 @@
+# 主动获客 · 目标人群库（示例模板）
+# ------------------------------------------------------------------
+# ★ 半开源模板：这里只保留 schema 与示例记录，真实人群/关键词/话术不内置。
+#   请按你的实际业务改写 targets 下的每个 target。
+# ------------------------------------------------------------------
+# 结构说明（供参考，勿误删）：
+#   meta            : 版本/说明
+#   targets         : 人群库，每个 target 一个人群视角，带 track 标签（赛道）
+#     id            : target 唯一 id（供 /api 与前端引用）
+#     name          : 人群名
+#     track         : 所属赛道（yanxue/opc/ai_training）
+#     keywords      : 标题/正文关键词（命中加分）
+#     note_match    : 标题/正文正则（更强命中）
+#     not_match     : 排除正则（防误配到无关人群）
+#     comment_angles: 该人群的多条评论切入点（共情/干货/提问/种草/反常识），
+#                      每条含 label/when/text，plan_comment 按笔记特征动态选。
+#     hook          : 到私信时的开场钩子
+#     dm_direction  : 私信承接方向
+#   global          : 全局频控（评论/私信上限、间隔）
+# ------------------------------------------------------------------
+meta:
+  version: '0.4'
+  updated: 'YYYY-MM-DD'
+  note: '正交拆分策略: 主动获客=全局稳定模块(总开关+频控+人群库,每个target带track);
+    赛道=人群视角层,切换只过滤展示当前赛道人群。每个target从"单条hook"升级为
+    "多评论角度comment_angles",按笔记特征动态选最贴切角度。'
+targets:
+  # ==================== 示例: 赛道 yanxue 研学·AI落地 ====================
+  your_target_a:
+    name: 你的目标人群A
+    track: yanxue
+    keywords:
+    - 你的关键词1
+    - 你的关键词2
+    - 你的关键词3
+    note_match: (你的关键词1|你的关键词2|你的关键词3)
+    not_match: (机构|旅行社|无关词)
+    comment_angles:
+      - label: 共情
+        when: 焦虑|累|难|操心
+        text: "你现在的真实痛点句, 共情一下再给AI能补上的环节"
+      - label: 干货
+        when: 怎么做|怎么|如何|方法
+        text: "给一个具体的、能立刻上手的AI解法"
+    hook: "你的开场钩子——点出行业共性痛点 + 一个AI能补上的环节"
+    dm_direction: "你的私信承接方向——对方回应后往哪引导"
+  # ==================== 示例: 赛道 opc 接单变现 ====================
+  your_target_b:
+    name: 你的目标人群B
+    track: opc
+    keywords:
+    - 你的关键词1
+    - 你的关键词2
+    note_match: (你的关键词1|你的关键词2)
+    not_match: (无关词)
+    comment_angles:
+      - label: 提问
+        when: 想|做|接|赚
+        text: "你的提问钩子"
+    hook: "你的开场钩子"
+    dm_direction: "你的私信承接方向"
+global:
+  enabled: true          # 主动获客总开关
+  comment_daily_cap: 10   # 每日评论上限
+  comment_interval_min: 10 # 两条评论间隔(分钟)
+  dm_daily_cap: 8         # 每日主动私信上限
+  dm_interval_min: 45     # 两条私信间隔(分钟)
+  auto_daily_cap: 12      # 白名单自动回复上限
+  auto_interval_min: 30   # 两条自动回复间隔
