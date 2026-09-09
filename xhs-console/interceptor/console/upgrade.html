@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>xhs-console · 升级能力台</title>
+<style>
+  /* ==== 与主控制台同款设计令牌(杂志/水墨风) ==== */
+  :root{
+    --bg:#F7F6F3; --bg2:#FFFFFF; --bg3:#F1EFEA; --line:#E7E4DE;
+    --tx:#1A1A18; --tx2:#6B6862; --tx3:#9A968E;
+    --blue:#1F6C9F; --blue2:#17547D; --bluebg:rgba(31,108,159,.10);
+    --red:#9F2F2D; --redbg:rgba(159,47,45,.09);
+    --amber:#956400; --amberbg:rgba(149,100,0,.11);
+    --green:#346538; --greenbg:rgba(52,101,56,.10);
+    --sans:"PingFang SC","Microsoft YaHei",system-ui,sans-serif;
+    --serif:"Songti SC","SimSun",serif;
+    --mono:"SF Mono",Consolas,monospace;
+    --shadow:0 1px 2px rgba(20,20,18,.04),0 6px 22px rgba(20,20,18,.05);
+  }
+  *{box-sizing:border-box}
+  body{background:var(--bg);color:var(--tx);font:15px/1.7 var(--sans);padding:30px 36px 80px;max-width:1520px;margin:0 auto}
+  h1{font-family:var(--serif);font-weight:800;font-size:24px;letter-spacing:-.01em;display:flex;align-items:center;gap:12px;margin:0 0 4px}
+  h1 .dot{width:11px;height:11px;border-radius:50%;background:var(--green);box-shadow:0 0 0 1px var(--green);flex-shrink:0}
+  .sub{color:var(--tx3);font-size:13.5px;margin:0 0 22px}
+  .sub b{color:var(--blue2)}
+  a{color:var(--blue)}
+  .grid{display:grid;gap:18px}
+  .card{background:var(--bg2);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow);padding:22px 24px}
+  .card h2{font-size:17px;font-weight:700;margin:0 0 4px;display:flex;align-items:center;gap:8px}
+  .card h2 .no{font-family:var(--mono);font-size:12px;color:var(--tx3);border:1px solid var(--line);border-radius:7px;padding:2px 8px;background:var(--bg3)}
+  .card .desc{font-size:13px;color:var(--tx2);margin:0 0 16px}
+  .badge{display:inline-block;font-size:12px;padding:2px 10px;border-radius:9999px;margin-right:6px;vertical-align:1px}
+  .b-blue{color:var(--blue2);background:var(--bluebg);border:1px solid var(--line)}
+  .b-green{color:var(--green);background:var(--greenbg);border:1px solid var(--line)}
+  .b-red{color:var(--red);background:var(--redbg);border:1px solid var(--line)}
+  .b-amber{color:var(--amber);background:var(--amberbg);border:1px solid var(--line)}
+  .btngroup{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+  .btn{border:1px solid var(--line);background:var(--bg2);color:var(--tx2);padding:7px 16px;border-radius:8px;cursor:pointer;font-size:13.5px;transition:.16s}
+  .btn:hover{border-color:var(--blue);color:var(--blue)}
+  .btn.primary{background:var(--blue2);border-color:var(--blue2);color:#fff}
+  .btn.primary:hover{background:var(--blue)}
+  .btn.green{background:var(--green);border-color:var(--green);color:#fff}
+  .btn.ghost{border-color:transparent;background:var(--bg3);color:var(--tx2)}
+  table{width:100%;border-collapse:collapse;font-size:13px}
+  th,td{padding:8px 10px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+  th{color:var(--tx3);font-weight:600;font-size:12px;letter-spacing:.02em;white-space:nowrap}
+  td.mono{font-family:var(--mono);font-size:12px;color:var(--tx2)}
+  .fill{width:100%;padding:9px 12px;border:1px solid var(--line);border-radius:8px;font-size:13.5px;font-family:var(--sans);background:var(--bg);color:var(--tx)}
+  .fill:focus{outline:none;border-color:var(--blue)}
+  textarea.fill{min-height:86px;resize:vertical;line-height:1.6}
+  .row{display:flex;gap:10px;align-items:flex-start;flex-wrap:wrap}
+  .muted{color:var(--tx3);font-size:12.5px}
+  .stat{display:flex;gap:22px;flex-wrap:wrap;margin-top:10px}
+  .stat .s{text-align:left}
+  .stat .s .v{font-family:var(--mono);font-size:22px;font-weight:700;color:var(--blue2)}
+  .stat .s .l{font-size:12px;color:var(--tx3)}
+  .log{font-family:var(--mono);font-size:12px;background:var(--bg3);border:1px solid var(--line);border-radius:9px;padding:12px;white-space:pre-wrap;max-height:220px;overflow:auto;line-height:1.6;color:var(--tx2)}
+  .tagline{font-size:12.5px;color:var(--tx3);background:var(--bg3);border:1px solid var(--line);border-radius:8px;padding:7px 12px;margin-top:10px}
+  .kv{display:grid;grid-template-columns:auto 1fr;gap:4px 14px;font-size:13px;margin-top:8px}
+  .kv .k{color:var(--tx3);white-space:nowrap}
+  #toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%);background:var(--tx);color:#fff;padding:9px 18px;border-radius:9px;font-size:13px;opacity:0;transition:.25s;pointer-events:none;z-index:99;box-shadow:var(--shadow)}
+  #toast.show{opacity:1}
+  .topnav{display:flex;gap:10px;margin-bottom:20px;align-items:center;flex-wrap:wrap}
+  .linkpill{border:1px solid var(--line);background:var(--bg2);color:var(--tx2);padding:6px 14px;border-radius:9999px;font-size:13px;text-decoration:none;transition:.16s}
+  .linkpill:hover{border-color:var(--blue);color:var(--blue)}
+</style>
+</head>
+<body>
+  <h1><span class="dot"></span>升级能力台 · 五项进化</h1>
+  <p class="sub">面向「半自动 + 真人在环」主控制台的演进路线：<b>多用户 SaaS / 自动人设强化 / 数据漏斗 / 风控加固 / 合规审计</b>。全部走控制台本地 API，机器只提示，发布/发送/加微仍由你真人执行。</p>
+  <div class="topnav">
+    <a class="linkpill" href="/">← 回主控制台</a>
+    <a class="linkpill" href="/content_workbench.html">内容工作台</a>
+    <span class="muted" id="sessionInfo">当前环境：-</span>
+  </div>
+
+  <div class="grid">
+
+    <!-- ============ 升级5 · 合规审计 ============ -->
+    <div class="card">
+      <h2><span class="no">5</span>发布前合规审计 <span class="badge b-red" id="auditFlg">未跑</span></h2>
+      <p class="desc">发布前过一遍独立审计（机器审第一道 + 提示你人工复核），宁可错杀不放水。命中红线词即拦，给合规改写建议。</p>
+      <div class="row">
+        <select class="fill" id="auditChannel" style="width:150px;flex:0 0 auto">
+          <option value="public">公开区（最严）</option>
+          <option value="private">私信（可报价1499）</option>
+        </select>
+        <input class="fill" id="auditTitle" placeholder="标题（可选）" style="flex:1;min-width:150px">
+      </div>
+      <textarea class="fill" id="auditText" placeholder="粘贴正文 / 评论 / 私信文案…"></textarea>
+      <div class="btngroup" style="margin-top:12px">
+        <button class="btn primary" id="btnAudit">开始审计</button>
+        <button class="btn" id="btnAuditClear">清空</button>
+      </div>
+      <div id="auditResult"></div>
+      <div class="tagline" id="auditHint" style="display:none"></div>
+    </div>
+
+    <!-- ============ 升级1 · 多用户SaaS ============ -->
+    <div class="card">
+      <h2><span class="no">1</span>多用户 / 多账号 SaaS <span class="badge b-blue">数据隔离</span></h2>
+      <p class="desc">账号 = 分区。每台手机(账号)独立数据目录 <code>out/@&lt;账号&gt;/</code>，切换即隔离；本地私服按用户分数据，一套代码多实例。</p>
+      <div id="profilePanel"></div>
+    </div>
+
+    <!-- ============ 升级3 · 数据漏斗 ============ -->
+    <div class="card">
+      <h2><span class="no">3</span>数据漏斗 · 选题回顾 <span class="badge b-green">定向优化</span></h2>
+      <p class="desc">每篇来源笔记的转化漏斗：引流→回复→真商机得分，指导你下期选题。商机率优先、回复率次之。</p>
+      <div class="btngroup">
+        <button class="btn primary" id="btnFunnel">拉取漏斗</button>
+      </div>
+      <div id="funnelPanel"><p class="muted">点击「拉取漏斗」查看按来源笔记聚合的转化数据。</p></div>
+    </div>
+
+    <!-- ============ 升级2 · 自动人设强化 ============ -->
+    <div class="card">
+      <h2><span class="no">2</span>自动人设强化 <span class="badge b-blue">自学习</span></h2>
+      <p class="desc">把真实样本交回话术库自学习闭环（diagnose→择优→打分→回灌叠加层），越用越像真人。导流/含蓄留联系方式是独立高价值类别，绝不误滤。</p>
+      <div class="btngroup">
+        <button class="btn" id="btnLearnPrev">预览样本（dryrun）</button>
+        <button class="btn primary" id="btnLearnRun">触发回灌（写叠加层）</button>
+      </div>
+      <div id="learnPanel"><p class="muted">先「预览样本」看抽取到哪些可学留言；再「触发回灌」把高分新角度写入叠加层。</p></div>
+    </div>
+
+    <!-- ============ 升级4 · 风控加固 ============ -->
+    <div class="card">
+      <h2><span class="no">4</span>风控加固 · 敏感操作 <span class="badge b-amber">二次确认</span></h2>
+      <p class="desc">敏感动作（公开发评论 / 发私信 / 加微）标记「需二次确认」；平台严禁的加微导流一律 block，仅真人在线下/私信合规承接。</p>
+      <div class="btngroup">
+        <button class="btn" id="btnWindComment">公开发评论</button>
+        <button class="btn" id="btnWindDm">发私信</button>
+        <button class="btn" id="btnWindReply">白名单自动回复</button>
+        <button class="btn" id="btnWindFriend" style="border-color:var(--red);color:var(--red)">添加好友/加微</button>
+      </div>
+      <div id="windPanel"></div>
+    </div>
+
+  </div>
+
+  <div id="toast"></div>
+
+<script>
+const $=s=>document.querySelector(s);
+async function jget(u){const r=await fetch(u);return r.status===200?await r.json():{error:'HTTP '+r.status};}
+async function jpost(u,b){const r=await fetch(u,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(b||{})});return r.status===200?await r.json():{error:'HTTP '+r.status};}
+function toast(t){const e=$('#toast');e.textContent=t;e.classList.add('show');setTimeout(()=>e.classList.remove('show'),1800);}
+function esc(s){return (s||'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
+
+/* 合规审计 */
+$('#btnAudit').onclick=async()=>{
+  const text=$('#auditText').value,title=$('#auditTitle').value,ch=$('#auditChannel').value;
+  if(!text.trim()){toast('请先粘贴文案');return;}
+  const d=await jpost('/api/audit',{text,title,channel:ch});
+  renderAudit(d);
+};
+$('#btnAuditClear').onclick=()=>{$('#auditText').value='';$('#auditTitle').value='';$('#auditResult').innerHTML='';$('#auditFlg').textContent='未跑';};
+function renderAudit(d){
+  const flg=$('#auditFlg'),hint=$('#auditHint'),box=$('#auditResult');
+  if(d.level==='pass'){flg.textContent='通过✅';flg.className='badge b-green';hint.style.display='none';box.innerHTML='<div class="tagline" style="color:var(--green);border-color:var(--green)">通过：未命中红线词，可发布。</div>';return;}
+  flg.textContent='需整改';flg.className='badge b-red';
+  const lv= d.level==='block'?'<span class="badge b-red">绝对化/不建议发</span>':'<span class="badge b-red">红线命中</span>';
+  let h='<div class="kv">';
+  h+='<div class="k">等级</div><div>'+lv+'</div>';
+  h+='<div class="k">命中词</div><div>'+(d.hits?.map(esc).join('、')||'—')+'</div>';
+  h+='<div class="k">依据</div><div>'+esc(d.reason||'')+'</div>';
+  h+='<div class="k">整改建议</div><div style="color:var(--blue2)">'+esc(d.rewrite||'')+'</div>';
+  h+='</div>';
+  box.innerHTML=h;
+  hint.style.display='block';hint.innerHTML='<b>人工复核</b>：机器审只拦明显红线；请再按平台最新《社区规范》人工过一遍。<b style="color:var(--red)">宁可错杀不放水。</b>';
+}
+
+/* 多用户 */
+async function loadProfiles(){
+  const d=await jget('/api/profile');
+  $('#sessionInfo').textContent='当前环境：'+(d.current_nick||'默认')+(d.current_profile?'（'+d.current_profile+'）':'');
+  if(!d.accounts?.length){$('#profilePanel').innerHTML='<p class="muted">示例 lanes.yaml 无账号，去 <code>console/lanes.yaml</code> 加 accounts。</p>';return;}
+  let h='<table><thead><tr><th>设备(账号id)</th><th>昵称</th><th>赛道</th><th>定位说明</th><th>当前</th></tr></thead><tbody>';
+  for(const a of d.accounts){
+    const cur=d.current_profile===a.device;
+    h+='<tr><td class="mono">'+esc(a.device)+'</td><td>'+esc(a.nick)+'</td><td><span class="badge b-blue">'+esc(a.lane||'—')+'</span></td><td>'+esc(a.desc||'')+'</td><td>'+(cur?'<span class="badge b-green">✓ 当前</span>':'<button class="btn ghost" data-dev="'+esc(a.device)+'">切换</button>')+'</td></tr>';
+  }
+  h+='</tbody></table><div class="kv"><div class="k">分区目录</div><div class="mono">'+esc(d.default_out)+'</div><div class="k">已有分区</div><div class="mono">'+(d.profiles?.map(esc).join('、')||'（仅默认）')+'</div></div>';
+  $('#profilePanel').innerHTML=h;
+  document.querySelectorAll('[data-dev]').forEach(b=>b.onclick=async()=>{
+    const r=await jpost('/api/account',{device:b.dataset.dev});
+    if(r.ok){toast('已切到账号 '+b.dataset.dev);await loadProfiles();await loadSession();}
+    else toast('切换失败');
+  });
+}
+window.loadProfiles=loadProfiles;
+
+/* 漏斗 */
+$('#btnFunnel').onclick=async()=>{
+  const d=await jget('/api/funnel');
+  renderFunnel(d);
+};
+function renderFunnel(d){
+  const box=$('#funnelPanel');
+  if(!d.totals?.reach){box.innerHTML='<p class="muted">暂无转化数据：回流表(&#x2705;已回 / &#x2b50;真商机)还没有记录。先去主控制台把「记一笔」勾上来源笔记。</p>';return;}
+  const t=d.totals;
+  let h='<div class="stat"><div class="s"><div class="v">'+t.notes+'</div><div class="l">来源笔记</div></div><div class="s"><div class="v">'+t.reach+'</div><div class="l">引流(触达)</div></div><div class="s"><div class="v">'+t.reply+'</div><div class="l">已回</div></div><div class="s"><div class="v">'+t.biz+'</div><div class="l">真商机</div></div><div class="s"><div class="v" style="color:var(--green)">'+(t.rate_b*100).toFixed(0)+'%</div><div class="l">商机率</div></div></div>';
+  h+='<table style="margin-top:14px"><thead><tr><th>来源笔记</th><th>触达</th><th>已回</th><th>真商机</th><th>回复率</th><th>商机率</th><th>综合分</th></tr></thead><tbody>';
+  for(const n of d.by_note){
+    h+='<tr><td>'+esc(n.note)+'</td><td>'+n.reach+'</td><td>'+n.reply+'</td><td style="color:var(--green)">'+n.biz+'</td><td>'+(n.rate_r*100).toFixed(0)+'%</td><td>'+(n.rate_b*100).toFixed(0)+'%</td><td><b>'+n.score+'</b></td></tr>';
+  }
+  h+='</tbody></table>';
+  if(d.top?.length){h+='<div class="tagline"><b>下期选题建议</b>：优先做「'+esc(d.top.map(n=>n.note).join('」/「'))+'」这类转化最好的方向；商机率偏低但引流高的先优化承接话术。</div>';}
+  box.innerHTML=h;
+}
+
+/* 自学习 */
+$('#btnLearnPrev').onclick=async()=>{const d=await jget('/api/learn');renderLearn(d,true);};
+$('#btnLearnRun').onclick=async()=>{const d=await jpost('/api/learn',{});toast('已回灌叠加层');renderLearn(d,false);};
+function renderLearn(d,prev){
+  const box=$('#learnPanel');
+  if(!d.ok){box.innerHTML='<div class="tagline" style="border-color:var(--red);color:var(--red)">'+esc(d.error||'')+'</div>';return;}
+  const s=d.summary||{};
+  let h='<div class="kv">';
+  h+='<div class="k">抽取样本</div><div>'+esc(s.samples)+' 条</div>';
+  h+='<div class="k">命中场景</div><div>'+esc((s.scenes||[]).map(x=>x.scene+'×'+x.count).join('，')||'无')+'</div>';
+  h+='<div class="k">耗时</div><div>'+esc(d.duration)+'s</div>';
+  h+='</div>';
+  if(prev){h+='<p class="muted" style="margin-top:10px">预览(dryrun)不写叠加层；点「触发回灌」才把 ≥2星的<span style="color:var(--blue2)">新角度</span>写入叠加层。</p>';}
+  else{h+='<div class="tagline" style="color:var(--green);border-color:var(--green)">已回到话术库叠加层，策略命中器下次即用。</div>';}
+  if(d.learned?.length){h+='<div class="log" style="margin-top:10px">'+esc((d.learned||[]).join('\n'))+'</div>';}
+  box.innerHTML=h;
+}
+
+/* 风控 */
+function windHit(){
+  const meta={send_comment:'公开发评论',send_dm:'发私信',auto_reply:'白名单自动回复',add_friend:'添加好友/加微'};
+  const box=$('#windPanel');
+  let h='<table><thead><tr><th>动作</th><th>需二次确认</th><th>是否block</th><th>说明</th></tr></thead><tbody>';
+  for(const [k,l] of Object.entries(meta)){
+    const blocked=(k==='add_friend');
+    h+='<tr><td>'+esc(l)+'</td><td>'+((k!=='auto_reply')?'<span class="badge b-amber">需确认</span>':'<span style="color:var(--tx3)">宽松</span>')+'</td><td>'+(blocked?'<span class="badge b-red">🚫 block</span>':'<span class="badge b-green">可执行</span>')+'</td><td>'+esc(blocked?'平台严禁的加微导流，禁止机器执行，仅真人在线下/私信合规承接':'将拦截命中红线词的内容，触发二次确认；发前务必再过一遍合规审计(升级5)')+'</td></tr>';
+  }
+  h+='</tbody></table>';
+  box.innerHTML=h;
+}
+$('#btnWindComment').onclick=()=>windHit();
+$('#btnWindDm').onclick=()=>windHit();
+$('#btnWindReply').onclick=()=>windHit();
+$('#btnWindFriend').onclick=()=>windHit();
+
+/* 会话 */
+async function loadSession(){
+  try{
+    const d=await jget('/api/profile');
+    $('#sessionInfo').textContent='当前环境：'+(d.current_nick||'默认')+(d.current_profile?'（'+d.current_profile+'）':'');
+  }catch(e){}
+}
+
+window.onload=async()=>{await loadProfiles();await loadSession();};
+</script>
+</body>
+</html>

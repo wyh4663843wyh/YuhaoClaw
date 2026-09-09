@@ -21,27 +21,135 @@ from urllib.parse import urlparse, parse_qs, unquote
 
 HERE   = os.path.join(os.path.dirname(os.path.abspath(__file__)))
 ROOT   = os.path.dirname(HERE)                      # interceptor/
-OUT    = os.path.join(ROOT, "out")
-CLS    = os.path.join(OUT, "leads_classified.csv")   # 分级+拟稿(只读引用,不写)
-FOL    = os.path.join(OUT, "leads_followup.csv")     # 回流表(唯一可写)
-CMT    = os.path.join(OUT, "leads_comments.csv")     # 评论区(只读引用)
+
+# ★ 升级1(多用户SaaS化): 数据目录按「当前账号(profile)」动态解析, 而非固定单 out/。
+#   _env 管理「当前选中账号/会话登录态」; 读/写/执行全部落到该账号独立的 out/<profile>/。
+#   向后兼容: 未设 profile 时回退默认 out/ (与原逻辑一致)。
+try:
+    from profiles import ProfileEnv
+    _env = ProfileEnv(ROOT)
+except Exception:
+    class _FallbackEnv:
+        def __init__(self, root): self.root = root
+        def out(self): return os.path.join(self.root, "out")
+        def cls(self): return os.path.join(self.out(), "leads_classified.csv")
+        def fol(self): return os.path.join(self.out(), "leads_followup.csv")
+        def cmt(self): return os.path.join(self.out(), "leads_comments.csv")
+        def proactive_log(self): return os.path.join(self.out(), "proactive_send_log.json")
+        def run_log(self): return os.path.join(self.out(), "proactive_run.log")
+        def run_state(self): return os.path.join(self.out(), "proactive_run_state.json")
+        def accounts(self): return {}
+        def account_ids(self): return []
+        def nick(self, p=""): return p
+        def lane(self, p=""): return ""
+        def profiles(self): return []
+        def login(self, p=""): return ""
+        def resolve_token(self, t): return ""
+        def _safe(self, p): return p
+    _env = _FallbackEnv(ROOT)
+
+def _OUT():
+    return _env.out()
+def _CLS():
+    return _env.cls()
+def _FOL():
+    return _env.fol()
+def _CMT():
+    return _env.cmt()
+def _PROLOG():
+    return _env.proactive_log()
+def _RUNLOG():
+    return _env.run_log()
+def _RUNSTATE():
+    return _env.run_state()
+
 YAML_FP = os.path.join(ROOT, "classify", "intent_map.yaml")
 STRATEGY_FP = os.path.join(HERE, "strategy.yaml")   # 承接策略引擎(自动/人工分流规则)
 LANES_FP = os.path.join(HERE, "lanes.yaml")          # 赛道调度 + 设备账号映射(中央配置)
-PROACTIVE_LOG = os.path.join(OUT, "proactive_send_log.json")   # 主动获客日志流水
 PROACTIVE_YAML = os.path.join(ROOT, "classify", "proactive_targets.yaml")  # 主动获客策略
 DASH   = os.path.join(HERE, "dashboard.html")
+
+# ★ 升级3/4/5: 数据漏斗 / 风控加固 / 合规审计 纯函数(本项目内, 无额外依赖)
+try:
+    from enhancements import compliance_audit, wind_control, funnel_note, comment_intent
+except Exception:
+    def compliance_audit(text, channel="public"):
+        return {"ok": True, "level": "pass", "hits": [], "reason": "", "rewrite_ok": False}
+    def wind_control(act, hit_count=0, audit=None):
+        return {"act": act, "need_confirm": False, "blocked": False, "reason": ""}
+    def funnel_note(dm_rows):
+        return {"by_note": [], "totals": {}, "top": []}
+    def comment_intent(cmt_rows, biz_words):
+        return 0
 
 _FOL_COLS = ["hs", "user", "来源笔记", "来源类型", "tier", "意图", "action",
              "拟稿(自动生成)", "已回?", "对方反应", "真商机?", "备注", "device"]
 _WRITE_LOCK = threading.Lock()
 
+# ★ 升级2(自动人设强化) · 会话上下文桥
+#   collect_learn_samples.py 读这个文件拿"当前 profile", 从而让自学习闭环
+#   采集到【当前账号分区】而非全局 out/。server 在切换账号/登录时写它。
+SESSION_CTX_FP = os.path.join(HERE, "session_ctx.json")
+
+def _write_session_ctx():
+    """把当前 profile 持久化到 session_ctx.json, 供自学习闭环等读当前账号分区。"""
+    import time as _t
+    try:
+        with open(SESSION_CTX_FP, "w", encoding="utf-8") as f:
+            json.dump({"profile": _env.profile or "", "nick": _env.nick(),
+                       "updated": _t.strftime("%Y-%m-%d %H:%M:%S")}, f, ensure_ascii=False)
+    except Exception:
+        pass
+
+def _run_self_learn(profile="", dryrun=False, timeout=120):
+    """升级2: 触发/预览话术库自学习闭环。
+    调 collect_learn_samples.py 抽取当前账号分区样本 → reply_self_learn 三路择优 → 回灌叠加层。
+    profile: 指定账号分区; 空=读 session_ctx(当前 profile)。
+    返回 {ok, learned:[{sample,key,stars,text}], summary:{...}, started, duration, raw_tail}。"""
+    import time as _t
+    learn_py = os.path.join(ROOT, "classify", "collect_learn_samples.py")
+    if not os.path.exists(learn_py):
+        return {"ok": False, "error": "collect_learn_samples.py 不存在"}
+    # 打开当前会话上下文, 让闭环读到正确分区(无 profile 传参时)
+    _write_session_ctx()
+    cmd = [sys.executable, learn_py]
+    if profile:
+        cmd += ["--profile", profile]
+    if dryrun:
+        cmd += ["--dryrun", "--no-llm"]
+    else:
+        cmd += ["--no-llm"]
+    st = _t.time()
+    try:
+        out = subprocess.run(cmd, capture_output=True, text=True, timeout=timeout,
+                             encoding="utf-8", errors="replace")
+    except subprocess.TimeoutExpired:
+        return {"ok": False, "error": f"自学习闭环超时(>{timeout}s), 已放弃", "started": True}
+    except Exception as e:
+        return {"ok": False, "error": f"自学习异常: {e}", "started": True}
+    dur = round(_t.time() - st, 1)
+    text = (out.stdout or "") + (out.stderr or "")
+    # 解析闭环输出关键词条(宽匹配, 失败不致命)
+    samples, keys = [], []
+    for ln in text.splitlines():
+        s = ln.strip()
+        if s.startswith("   - "):
+            samples.append(s[5:])
+        m = re.search(r"^\s*([a-z_]+__[a-z_]+__[a-z_]+)\s*:\s*(\d+)$", s)
+        if m:
+            keys.append({"scene": m.group(1), "count": int(m.group(2))})
+    summary = {"samples": len(samples), "scenes": keys,
+               "exited": out.returncode if hasattr(out, "returncode") else None}
+    return {"ok": out.returncode == 0 if hasattr(out, "returncode") else True,
+            "learned": samples[:30], "summary": summary,
+            "started": True, "duration": dur, "raw_tail": text[-1200:]}
+
+
 # ---------------------------------------------------------------- 主动获客运行状态
 #   _proactive_run 用 Popen 后台拉起 proactive_engage.py, 把其 stdout 追加到
-#   PROACTIVE_RUN_LOG, 并维护 _RUN_STATE 供 /api/proactive/status 轮询。
+#   _RUNLOG()(当前 profile 的 out/ 下), 并维护 _RUN_STATE 供 /api/proactive/status 轮询。
 #   这样"点执行一轮"后, 前端能看到实时阶段进度(不再"点了没反应")。
-PROACTIVE_RUN_LOG = os.path.join(OUT, "proactive_run.log")          # 本轮实时进度(追加写)
-PROACTIVE_RUN_STATE = os.path.join(OUT, "proactive_run_state.json")  # 运行状态快照(供前端)
+#   ★ 升级1: 运行日志/状态也按当前账号分区(_RUNLOG/_RUNSTATE), 多账号互不串。
 _RUN_LOCK = threading.Lock()
 # 内存镜像: {pid, started, phase, progress, lines, done, ok, note, error, mode, kw, maxn, send}
 _RUN_STATE = {}
@@ -290,10 +398,10 @@ def _auto_draft_intents(user, recent, it=None):
 # ---------------------------------------------------------------- 看板数据组装
 def _load_proactive_log():
     """读主动获客日志流水(proactive_send_log.json)。文件缺失/异常 → []。"""
-    if not os.path.exists(PROACTIVE_LOG):
+    if not os.path.exists(_PROLOG()):
         return []
     try:
-        with open(PROACTIVE_LOG, encoding="utf-8") as f:
+        with open(_PROLOG(), encoding="utf-8") as f:
             d = json.load(f)
         return d if isinstance(d, list) else []
     except Exception:
@@ -418,9 +526,9 @@ def _proactive_stats(log):
 
 # ---------------------------------------------------------------- 主动获客运行状态追踪
 #   让"点执行一轮"后前端能看到实时进度(不再只回 one-shot started)。
-#   _proactive_run 启动 Popen → 把 stdout 追加 PROACTIVE_RUN_LOG;
+#   _proactive_run 启动 Popen → 把 stdout 追加 _RUNLOG();
 #   派生线程读该文件尾部, 解析出"阶段"(搜索/进笔记/生成/发送/完成)写回 _RUN_STATE。
-#   /api/proactive/status 直接读 _RUN_STATE + PROACTIVE_RUN_LOG 尾部返回。
+#   /api/proactive/status 直接读 _RUN_STATE + _RUNLOG() 尾部返回。
 
 import socket as _socket  # noqa: E402  (局部用, 避免顶部污染)
 
@@ -446,8 +554,8 @@ def _proactive_status():
     # 读进度日志尾部(最近 40 行), 叠加到状态供前端展示
     lines = []
     try:
-        if os.path.exists(PROACTIVE_RUN_LOG):
-            with open(PROACTIVE_RUN_LOG, encoding="utf-8", errors="replace") as f:
+        if os.path.exists(_RUNLOG()):
+            with open(_RUNLOG(), encoding="utf-8", errors="replace") as f:
                 all_lines = [ln.rstrip("\n") for ln in f if ln.strip()]
             lines = all_lines[-40:]
     except Exception:
@@ -506,7 +614,7 @@ def _watch_run(proc, log_fp):
         _RUN_STATE["finished_ts"] = _dt.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         snap = dict(_RUN_STATE)
     try:
-        with open(PROACTIVE_RUN_STATE, "w", encoding="utf-8") as f:
+        with open(_RUNSTATE(), "w", encoding="utf-8") as f:
             json.dump(snap, f, ensure_ascii=False, indent=2)
     except Exception:
         pass
@@ -560,9 +668,9 @@ def _accounts_state():
 
 
 def build_state():
-    cls  = _read(CLS)
-    fol  = _read(FOL)
-    cmt  = _read(CMT)
+    cls  = _read(_CLS())
+    fol  = _read(_FOL())
+    cmt  = _read(_CMT())
     fmap = _followup_map(fol)
     strategy = _load_strategy()
     g = (strategy or {}).get("global", {}) or {}
@@ -697,6 +805,7 @@ def build_state():
             "auto_mode": g.get("auto_mode") or "semi",
         },
         "compliance": compliance,    # 合规提示: 当前模式 + 自动回范围 + 平台画像风险
+        "funnel": funnel_note(dm_rows),   # ★ 升级3: 按来源笔记的 引流→回复→真商机 漏斗(选题回顾)
         "track": _track_state(),     # 账号×赛道: 当前账号 + 赛道清单(账号驱动)
         "accounts": _accounts_state(),  # 账号清单: [{id,nick,lane,lane_name,desc,pending}...] 供账号下拉
         "devices": devices,          # 多设备: [{device,pending,route_auto,route_manual,nick,serial}...]
@@ -761,6 +870,8 @@ class Handler(BaseHTTPRequestHandler):
             self._html(DASH)
         elif p.path == "/content_workbench.html":
             self._html(os.path.join(HERE, "content_workbench.html"))
+        elif p.path == "/upgrade.html":
+            self._html(os.path.join(HERE, "upgrade.html"))
         elif p.path == "/api/state":
             self._json(200, build_state())
         elif p.path == "/api/strategy":
@@ -786,6 +897,24 @@ class Handler(BaseHTTPRequestHandler):
             self._json(200, _proactive_status())
         elif p.path == "/api/tracks":
             self._json(200, _track_state())
+        elif p.path == "/api/profile":               # ★ 升级1: 多用户/多账号 会话与分区
+            self._json(200, self._profile_state())
+        elif p.path == "/api/learn":                 # ★ 升级2: 话术库自学习(dryrun 预览)
+            qs = parse_qs(p.query)
+            prof = (qs.get("profile") or [""])[0]
+            self._json(200, _run_self_learn(profile=prof, dryrun=True))
+        elif p.path == "/api/funnel":                # ★ 升级3: 数据漏斗(选题回顾)
+            qs = parse_qs(p.query)
+            text = (qs.get("text") or [""])[0]
+            if text:                                  # 支持审计单条文本
+                self._json(200, compliance_audit(text, "public"))
+            else:
+                self._json(200, funnel_note(build_state().get("dm", [])))
+        elif p.path == "/api/audit":                # ★ 升级5: 合规审计门禁
+            qs = parse_qs(p.query)
+            text = (qs.get("text") or [""])[0]
+            channel = (qs.get("channel") or ["public"])[0]
+            self._json(200, compliance_audit(text, channel))
         elif p.path == "/api/autoreply/preview":
             self._json(200, self._autoreply_preview())
         elif p.path.startswith("/files/"):
@@ -818,6 +947,17 @@ class Handler(BaseHTTPRequestHandler):
         if p.path == "/api/followup":
             res = self._save_followup(data)
             self._json(200, res)
+        elif p.path == "/api/audit":                 # ★ 升级5: 发布前合规审计(POST, 带正文/标题/频道)
+            text = data.get("text", "") or data.get("正文", "") or ""
+            title = data.get("title", "") or ""
+            channel = data.get("channel", "public")
+            full = (title + " " + text).strip()
+            self._json(200, compliance_audit(full, channel))
+        elif p.path == "/api/login":                 # ★ 升级1: 登录/切换环境
+            self._json(200, self._login(data))
+        elif p.path == "/api/learn":                 # ★ 升级2: 触发话术库自学习(回灌叠加层)
+            prof = (data or {}).get("profile", "") or ""
+            self._json(200, _run_self_learn(profile=prof, dryrun=False))
         elif p.path == "/api/account":
             self._json(200, self._select_account(data))
         elif p.path == "/api/strategy":
@@ -975,7 +1115,7 @@ class Handler(BaseHTTPRequestHandler):
     def _proactive_run(self, payload):
         """subprocess 拉起 collector/proactive_engage.py 跑一轮主动获客。
         默认 dry-run; 真发需 payload.send + confirm。
-        ★ 进度: 把子进程 stdout 追加写 PROACTIVE_RUN_LOG(而非 DEVNULL),
+        ★ 进度: 把子进程 stdout 追加写 _RUNLOG()(而非 DEVNULL),
           并起 _watch_run 线程滚动更新 _RUN_STATE → 前端 /api/proactive/status 轮询可见实时阶段。
         返回 {ok, started, kw, send, note}。"""
         py = _runner_python()
@@ -1005,9 +1145,9 @@ class Handler(BaseHTTPRequestHandler):
 
         # 清空上次进度日志, 写入本次运行头
         try:
-            if os.path.exists(PROACTIVE_RUN_LOG):
-                os.remove(PROACTIVE_RUN_LOG)
-            with open(PROACTIVE_RUN_LOG, "w", encoding="utf-8") as f:
+            if os.path.exists(_RUNLOG()):
+                os.remove(_RUNLOG())
+            with open(_RUNLOG(), "w", encoding="utf-8") as f:
                 f.write(f"=== 本轮主动获客已启动 @ {_dt.datetime.now().strftime('%H:%M:%S')} "
                         f"| 词={kw} | 目标={target or '自动'} | 上限={maxn} | "
                         f"{'真发+确认' if (send and confirm) else 'dry-run 只生成'} ===\n")
@@ -1017,7 +1157,7 @@ class Handler(BaseHTTPRequestHandler):
         # 以写 stdout 方式拉起(父进程不随会话清理; 子进程 CWD 用 console/, 脚本用绝对路径)
         try:
             import io
-            log_fh = open(PROACTIVE_RUN_LOG, "a", encoding="utf-8", buffering=1)
+            log_fh = open(_RUNLOG(), "a", encoding="utf-8", buffering=1)
         except Exception:
             log_fh = None
         try:
@@ -1040,7 +1180,7 @@ class Handler(BaseHTTPRequestHandler):
                 "note": "", "error": "",
             })
         # 子进程结束后的收尾线程(set phase/done + 落盘)
-        threading.Thread(target=_watch_run, args=(proc, PROACTIVE_RUN_LOG), daemon=True).start()
+        threading.Thread(target=_watch_run, args=(proc, _RUNLOG()), daemon=True).start()
         # 读日志尾部做一次初始阶段推断
         _set_run_phase([kw])
 
@@ -1074,6 +1214,46 @@ class Handler(BaseHTTPRequestHandler):
         except Exception as e:
             return {"ok": False, "error": f"终止异常: {e}"}
 
+    # -------- 多用户/多账号 会话与分区(升级1) --------
+    def _profile_state(self):
+        """返回当前环境状态: 账号列表 + 当前选中 profile + 已有分区目录。"""
+        try:
+            accounts = _env.accounts()
+        except Exception:
+            accounts = {}
+        acc_lite = []
+        for did, meta in (accounts or {}).items():
+            if isinstance(meta, dict):
+                acc_lite.append({"device": did, "nick": meta.get("nick") or did,
+                                 "lane": meta.get("lane", ""), "desc": meta.get("desc", "")})
+            else:
+                acc_lite.append({"device": did, "nick": meta, "lane": "", "desc": ""})
+        return {"ok": True,
+                "accounts": acc_lite,
+                "current_profile": _env.profile,
+                "current_nick": _env.nick() or "默认设备",
+                "profiles": _env.profiles(),
+                "session_token": _env.login(_env.profile) if _env.profile else "",
+                "default_out": _OUT()}
+
+    def _login(self, payload):
+        """登录/切换: payload {token?} 或 {profile} → 设置当前 profile 并建 token。
+        ★ profile 传空串 = 切回默认环境(默认 out/)，不留上次残留。"""
+        profile = (payload or {}).get("profile", "")
+        token = (payload or {}).get("token", "")
+        if token:
+            profile = _env.resolve_token(token)
+        accounts = _env.accounts() or {}
+        if profile == "":
+            _env.profile = ""                 # 显式切回默认环境
+        elif profile in accounts:
+            _env.profile = profile            # 切到某账号分区
+        # 非法 profile 保持原状(不覆盖)
+        _write_session_ctx()
+        return {"ok": True, "profile": _env.profile, "nick": _env.nick(),
+                "lane": _env.lane(), "token": _env.login(_env.profile) if _env.profile else ""}
+
+
     # -------- 选择账号(账号驱动赛道) --------
     def _select_account(self, payload):
         """payload: {device:"YOUR_DEVICE_SERIAL"} → 选中某账号; 返回该账号的赛道状态。
@@ -1082,6 +1262,9 @@ class Handler(BaseHTTPRequestHandler):
         若账号带显式 lane, 保持; 也可 payload.lane 覆盖该账号的 lane(改定位)。"""
         import yaml
         device = (payload or {}).get("device") or ""
+    # ★ 升级1: 切换账号 = 同步切换到该账号的数据分区(多用户/多账号数据隔离)
+        _env.profile = device
+        _write_session_ctx()
         with _WRITE_LOCK:
             try:
                 with open(LANES_FP, encoding="utf-8") as f:
@@ -1126,9 +1309,9 @@ class Handler(BaseHTTPRequestHandler):
         rows = payload.get("rows") or []
         if not rows:
             return {"ok": False, "error": "no rows"}
-        global FOL
+        fol_fp = _FOL()            # ★ 升级1: 落当前账号分区, 不再写全局单表
         with _WRITE_LOCK:
-            fol = _read(FOL)
+            fol = _read(fol_fp)
             folmap = {_norm(r.get("user")): r for r in fol}
             import datetime
             now = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
@@ -1165,7 +1348,8 @@ class Handler(BaseHTTPRequestHandler):
             sorted_fol = list(folmap.values())
             # 写回
             cols = _FOL_COLS + [c for c in sorted_fol[0].keys() if c not in _FOL_COLS] if sorted_fol else _FOL_COLS
-            with open(FOL, "w", encoding="utf-8-sig", newline="") as f:
+            os.makedirs(os.path.dirname(fol_fp), exist_ok=True)
+            with open(fol_fp, "w", encoding="utf-8-sig", newline="") as f:
                 w = csv.DictWriter(f, fieldnames=cols)
                 w.writeheader()
                 w.writerows(sorted_fol)
@@ -1179,10 +1363,19 @@ def main():
     a = ap.parse_args()
 
     # 首启时若回流表不存在, 建表头(并确保 out/ 目录存在)
-    if not os.path.exists(FOL):
-        os.makedirs(OUT, exist_ok=True)
-        with open(FOL, "w", encoding="utf-8-sig", newline="") as f:
-            csv.writer(f).writerow(_FOL_COLS)
+    # ★ 升级1: 为 lanes.yaml 里的每个账号都建独立分区(数据隔离), 也保留默认 out/
+    try:
+        for pid in _env.account_ids() or [""]:
+            _env.profile = pid
+            _o, _f = _OUT(), _FOL()
+            if not os.path.exists(_f):
+                os.makedirs(_o, exist_ok=True)
+                with open(_f, "w", encoding="utf-8-sig", newline="") as f:
+                    csv.writer(f).writerow(_FOL_COLS)
+    except Exception:
+        pass
+    _env.profile = ""
+    _write_session_ctx()
 
     srv = ThreadingHTTPServer(("127.0.0.1", a.port), Handler)
     url = f"http://127.0.0.1:{a.port}"

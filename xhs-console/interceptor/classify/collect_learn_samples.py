@@ -28,12 +28,43 @@ INTER = os.path.dirname(HERE)          # interceptor/
 OUT = os.path.join(INTER, "out")
 sys.path.insert(0, HERE)
 
-# 采集器产物
-CSV_FILES = {
-    "raw": os.path.join(OUT, "leads_raw.csv"),            # 私信原始(collect_inbox)
-    "classified": os.path.join(OUT, "leads_classified.csv"),  # 私信分级(含拟稿)
-    "comments": os.path.join(OUT, "leads_comments.csv"),  # 评论(collect_comments)
-}
+# ★ 升级2(自动人设强化) · 分区感知: 自学习闭环应读【当前 profile】的采集产物,
+#   而非写死全局 out/。默认空 profile → 回退全局 out/(向后兼容)。
+#   collect_inbox/collect_comments 落盘到 out/@<profile>/, 这里需同步读对分区。
+import json as _json
+_SESSION_FP = os.path.join(INTER, "console", "session_ctx.json")   # console 写当前 profile → 闭环读
+
+def _current_profile():
+    """读取 console 会话上下文里的当前 profile(增强1已设置); 空则回退全局。"""
+    try:
+        with open(_SESSION_FP, encoding="utf-8") as f:
+            ctx = _json.load(f) or {}
+        return (ctx.get("profile") or "").strip()
+    except Exception:
+        return ""
+
+
+def _resolve_profile(cli_profile=""):
+    """--profile 优先; 否则读 console 会话上下文; 兜底空(全局 out/)。"""
+    if cli_profile:
+        return cli_profile
+    return _current_profile()
+
+def _profile_out(profile=""):
+    profile = profile if profile is not None else ""
+    if not profile:
+        return OUT
+    safe = profile.strip().replace("..", "_").replace("/", "_").replace("\\", "_") or "default"
+    return os.path.join(OUT, "@" + safe)
+
+# 采集器产物(按当前 profile 解析)
+def _csv_files(profile=""):
+    out_dir = _profile_out(_resolve_profile(profile))
+    return {
+        "raw": os.path.join(out_dir, "leads_raw.csv"),
+        "classified": os.path.join(out_dir, "leads_classified.csv"),
+        "comments": os.path.join(out_dir, "leads_comments.csv"),
+    }
 
 # ---- 样本类型判定 ----
 # ① 导流技巧样本(最值钱): 含蓄/谐音/间接留联系方式。平台对导流监控严(发多了被屏蔽),
@@ -131,12 +162,13 @@ def _read_csv(fp):
         return []
 
 
-def extract_samples(limit=0):
+def extract_samples(limit=0, profile=""):
     """从采集器产物抽取样本, 返回 [{msg, note, src_type, source_hint}, ...]。"""
     samples, seen = [], set()
+    _csv = _csv_files(_resolve_profile(profile))
 
     # ① 私信原始(leads_raw): recent_text = 对方最新留言
-    for r in _read_csv(CSV_FILES["raw"]):
+    for r in _read_csv(_csv["raw"]):
         msg = (r.get("recent_text") or "").strip()
         note = (r.get("note_thread") or r.get("note") or "").strip()
         st = (r.get("src_type") or "").strip()
@@ -152,7 +184,7 @@ def extract_samples(limit=0):
                         "source_hint": _source_hint(msg, st, note)})
 
     # ② 私信分级(leads_classified): 留言
-    for r in _read_csv(CSV_FILES["classified"]):
+    for r in _read_csv(_csv["classified"]):
         msg = (r.get("留言") or "").strip()
         note = (r.get("来源笔记") or "").strip()
         st = (r.get("来源类型") or "").strip()
@@ -168,7 +200,7 @@ def extract_samples(limit=0):
                         "source_hint": _source_hint(msg, st, note)})
 
     # ③ 评论(leads_comments): body 为评论文本
-    for r in _read_csv(CSV_FILES["comments"]):
+    for r in _read_csv(_csv["comments"]):
         msg = (r.get("body") or "").strip()
         note = (r.get("note") or "").strip()
         st = (r.get("src_type") or "").strip()
@@ -194,9 +226,10 @@ def main():
     ap.add_argument("--dryrun", action="store_true", help="只抽取+演示择优, 不写叠加层")
     ap.add_argument("--no-llm", action="store_true", help="不调LLM, 只走stdlib+scene(秒到, 适合先浏览样本)")
     ap.add_argument("--limit", type=int, default=0, help="只取前N条")
+    ap.add_argument("--profile", default="", help="指定账号分区(如 YOUR_DEVICE_SERIAL_1); 空=读console会话或默认out/")
     args = ap.parse_args()
 
-    samples = extract_samples(args.limit)
+    samples = extract_samples(args.limit, args.profile)
     # 若 --no-llm, 直接关掉全局 LLM 开关(不写叠加层, 只影响本次进程)
     if args.no_llm:
         import reply_self_learn as RL_meta
